@@ -1,0 +1,811 @@
+// app.js - Main Application Logic for TCGP Analyzer
+
+window.TCGP_CARDS = []; // Global declaration
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('data/all_cards.json');
+        if (!response.ok) throw new Error("Failed to load card database");
+        window.TCGP_CARDS = await response.json();
+        console.log(`Loaded ${window.TCGP_CARDS.length} cards from database.`);
+        initApp();
+    } catch (e) {
+        console.error(e);
+        alert("Critical Error: Core database could not be loaded. Please ensure you have run the scraper.");
+    }
+});
+
+function initApp() {
+    setupNavigation();
+    initFirebase();
+    checkApiKey();
+    
+    // Bind global buttons
+    document.getElementById('api-key-btn').addEventListener('click', showApiModal);
+    document.getElementById('btn-save-key').addEventListener('click', saveApiKey);
+    
+    const authBtn = document.getElementById('auth-btn');
+    if (authBtn) authBtn.addEventListener('click', showAuthModal);
+    
+    const toggleAuthBtn = document.getElementById('btn-toggle-auth');
+    if (toggleAuthBtn) toggleAuthBtn.addEventListener('click', toggleAuthMode);
+    
+    const authActionBtn = document.getElementById('btn-auth-action');
+    if (authActionBtn) authActionBtn.addEventListener('click', handleAuthAction);
+    
+    const manualAddBtn = document.getElementById('btn-manual-add-entry');
+    if (manualAddBtn) manualAddBtn.addEventListener('click', processManualAdd);
+
+    const manualNumbersInput = document.getElementById('manual-numbers-entry');
+    if (manualNumbersInput) {
+        manualNumbersInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') processManualAdd();
+        });
+    }
+    
+    // Card Entry Tabs
+    const entryTabs = document.querySelectorAll('.entry-tab-btn');
+    const entryContents = document.querySelectorAll('.entry-tab-content');
+    entryTabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+            entryTabs.forEach(b => b.classList.remove('active'));
+            entryContents.forEach(c => c.classList.remove('active', 'hidden'));
+            entryContents.forEach(c => c.style.display = 'none'); // Ensure hidden ones are non-blocking
+            
+            btn.classList.add('active');
+            const target = document.getElementById(btn.dataset.target);
+            if (target) {
+                target.classList.add('active');
+                target.style.display = 'block';
+                if(btn.dataset.target === 'tab-visual') {
+                    renderVisualSelectionGrid();
+                }
+            }
+        });
+    });
+
+    // Visual Selection Search
+    const visualSearch = document.getElementById('visual-search');
+    if(visualSearch) {
+        visualSearch.addEventListener('input', (e) => {
+            renderVisualSelectionGrid(e.target.value);
+        });
+    }
+
+    const visualSetSelect = document.getElementById('visual-set-select');
+    if(visualSetSelect) {
+         visualSetSelect.addEventListener('change', () => {
+             renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
+         });
+    }
+
+    // Mega Proceed Button
+    const proceedBtn = document.getElementById('btn-proceed-decks');
+    if (proceedBtn) {
+        proceedBtn.addEventListener('click', () => {
+            document.querySelector('.nav-btn[data-target="view-decks"]')?.click();
+            // Fallback if ID is different
+            document.querySelector('.nav-btn[data-target="view-deck-builder"]')?.click();
+        });
+    }
+
+    const saveFirebaseBtn = document.getElementById('btn-save-firebase');
+    if (saveFirebaseBtn) saveFirebaseBtn.addEventListener('click', saveFirebaseConfig);
+
+    // Initial renders
+    renderCollectionGrid();
+    renderDeckBuilderSidebar();
+    renderDeckSlots();
+}
+
+// --- Firebase Integration (Hardcoded Default) ---
+let db;
+let auth;
+let currentUser = null;
+
+// --- Event Listeners Integration ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Deck Builder Search
+    const dbSearchInput = document.getElementById('db-search');
+    if (dbSearchInput) {
+        dbSearchInput.addEventListener('input', (e) => {
+            deckBuilderSearchQuery = e.target.value;
+            renderDeckBuilderSidebar();
+        });
+    }
+
+    // Save Deck
+    const saveDeckBtn = document.getElementById('btn-save-deck');
+    if (saveDeckBtn) {
+        saveDeckBtn.addEventListener('click', () => {
+            if (currentDeck.length !== 20) return;
+            
+            const deckName = document.getElementById('deck-name').value || 'My Deck';
+            const deckToSave = {
+                id: Date.now().toString(),
+                name: deckName,
+                cards: currentDeck.map(c => c.id) // Only save IDs to save space
+            };
+            
+            let savedDecks = JSON.parse(localStorage.getItem('tcgp_saved_decks') || '[]');
+            savedDecks.push(deckToSave);
+            localStorage.setItem('tcgp_saved_decks', JSON.stringify(savedDecks));
+            
+            showToast('Deck Saved Successfully!', 'success');
+            
+            // Refresh logic in probability and live match
+            if(window.populateProbabilityDropdowns) window.populateProbabilityDropdowns();
+            const liveDrops = document.getElementById('live-deck-select');
+            if(liveDrops && window.populateProbabilityDropdowns) window.populateProbabilityDropdowns(); // Shared logic
+        });
+    }
+
+    // Playstyle Recommender
+    const btnRecommend = document.getElementById('btn-recommend-decks');
+    if (btnRecommend) {
+        btnRecommend.addEventListener('click', async () => {
+            const playstyle = document.getElementById('db-playstyle-select').value;
+            const outputArea = document.getElementById('recommender-output');
+            
+            outputArea.classList.remove('hidden');
+            outputArea.innerHTML = '<span class="empty-state">Analyzing collection...</span>';
+            
+            if (typeof recommendDecks === 'function') {
+                const recs = await recommendDecks(playstyle);
+                if (recs.length === 0) {
+                    outputArea.innerHTML = '<span class="empty-state">No matching decks found for this playstyle.</span>';
+                    return;
+                }
+                
+                outputArea.innerHTML = recs.map(r => `
+                    <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <strong>${r.archetype}</strong>
+                            <span style="color:${r.completionPct >= 80 ? 'var(--accent-gold)' : 'var(--text-muted)'}">${r.completionPct}% Owned</span>
+                        </div>
+                        ${r.missingCards.length > 0 
+                            ? `<div style="font-size:0.8rem; color:#ff8888;">Missing: ${r.missingCards.join(', ')}</div>` 
+                            : `<div style="font-size:0.8rem; color:#78c850;">Ready to build!</div>`
+                        }
+                    </div>
+                `).join('');
+            } else {
+                outputArea.innerHTML = '<span class="empty-state" style="color:var(--accent-red)">Strategy engine offline.</span>';
+            }
+        });
+    }
+});
+
+// --- Firebase Cloud Sync (Mock) ---
+function initFirebase() {
+    let configStr = localStorage.getItem('firebase_config');
+    let firebaseConfig;
+
+    if (!configStr) {
+        // HARDCODED DEFAULT as requested by user
+        firebaseConfig = {
+            apiKey: "AIzaSyCnXljjyIYCWhsLhjLO62gDnIhNA29bHbM",
+            authDomain: "pokemon-tcgp-24c09.firebaseapp.com",
+            projectId: "pokemon-tcgp-24c09",
+            storageBucket: "pokemon-tcgp-24c09.firebasestorage.app",
+            messagingSenderId: "174569516136",
+            appId: "1:174569516136:web:c30c356093b7be0de39fdd",
+            measurementId: "G-H4SJJ2KELV"
+        };
+    } else {
+        try {
+            firebaseConfig = JSON.parse(configStr);
+        } catch (e) {
+            console.error("Firebase Config Parse Error:", e);
+        }
+    }
+
+    if (!firebaseConfig) return;
+
+    try {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        auth = firebase.auth();
+
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            updateAuthUI(user);
+            if (user) {
+                loadCollectionFromCloud();
+            }
+        });
+    } catch (e) {
+        console.error("Firebase Init Error:", e);
+    }
+}
+
+function updateAuthUI(user) {
+    const authBtn = document.getElementById('auth-btn');
+    const userEmail = document.getElementById('user-email');
+    if (!authBtn || !userEmail) return;
+
+    if (user) {
+        authBtn.innerText = "Sign Out";
+        userEmail.innerText = user.email;
+        userEmail.classList.remove('hidden');
+    } else {
+        authBtn.innerText = "Sign In";
+        userEmail.classList.add('hidden');
+    }
+}
+
+function showAuthModal() {
+    if (currentUser) {
+        auth.signOut();
+        return;
+    }
+    const modal = document.getElementById('modal-auth');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function toggleAuthMode() {
+    const title = document.getElementById('auth-title');
+    const btn = document.getElementById('btn-auth-action');
+    const toggle = document.getElementById('btn-toggle-auth');
+    if (btn.innerText === "Login") {
+        title.innerText = "Create Account";
+        btn.innerText = "Sign Up";
+        toggle.innerText = "Already have an account? Login";
+    } else {
+        title.innerText = "Account Login";
+        btn.innerText = "Login";
+        toggle.innerText = "Need an account? Sign Up";
+    }
+}
+
+async function handleAuthAction() {
+    const emailInput = document.getElementById('input-email');
+    const passInput = document.getElementById('input-password');
+    if (!emailInput || !passInput) return;
+
+    const email = emailInput.value;
+    const pass = passInput.value;
+    const btnText = document.getElementById('btn-auth-action').innerText;
+
+    if (!auth) {
+        alert("Firebase not initialized.");
+        return;
+    }
+
+    try {
+        if (btnText === "Login") {
+            await auth.signInWithEmailAndPassword(email, pass);
+        } else {
+            await auth.createUserWithEmailAndPassword(email, pass);
+        }
+        document.getElementById('modal-auth').classList.add('hidden');
+    } catch (e) {
+        alert(e.message);
+    }
+}
+
+function showFirebaseConfigModal() {
+    const modal = document.getElementById('modal-firebase');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const existing = localStorage.getItem('firebase_config');
+    if (existing) document.getElementById('input-firebase-config').value = existing;
+}
+
+function saveFirebaseConfig() {
+    let config = document.getElementById('input-firebase-config').value.trim();
+    config = config.replace(/^(const|let|var)\s+\w+\s*=\s*/, '');
+    config = config.replace(/;$/, '');
+    
+    try {
+        let jsonCompliant = config
+            .replace(/([a-zA-Z0-9_]+):/g, '"$1":') 
+            .replace(/'/g, '"'); 
+            
+        JSON.parse(jsonCompliant);
+        localStorage.setItem('firebase_config', jsonCompliant);
+        document.getElementById('modal-firebase').classList.add('hidden');
+        location.reload(); 
+    } catch (e) {
+        alert("Config Error: " + e.message);
+    }
+}
+
+// --- Cloud Sync ---
+async function syncCollectionToCloud() {
+    if (!currentUser || !db) return;
+    const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    const myDecks = JSON.parse(localStorage.getItem('tcgp_decks') || '[]');
+    
+    await db.collection('users').doc(currentUser.uid).set({
+        collection: myCollection,
+        decks: myDecks,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+}
+
+async function loadCollectionFromCloud() {
+    if (!currentUser || !db) return;
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().collection) {
+        localStorage.setItem('tcgp_collection', JSON.stringify(doc.data().collection));
+        if (doc.data().decks) {
+            localStorage.setItem('tcgp_decks', JSON.stringify(doc.data().decks));
+        }
+        renderCollectionGrid();
+        renderDeckBuilderSidebar();
+    }
+}
+
+// --- Manual Entry ---
+function expandNumberTokens(str) {
+    const tokens = str.split(/[,\s]+/).filter(t => t.trim() !== "");
+    const expanded = [];
+    tokens.forEach(token => {
+        const rangeMatch = token.match(/^(\d+)-(\d+)$/);
+        if (rangeMatch) {
+            const start = parseInt(rangeMatch[1], 10);
+            const end = parseInt(rangeMatch[2], 10);
+            for (let n = Math.min(start, end); n <= Math.max(start, end); n++) {
+                expanded.push(String(n));
+            }
+        } else {
+            expanded.push(token.trim());
+        }
+    });
+    return expanded;
+}
+
+function processManualAdd() {
+    const setSelect = document.getElementById('manual-set-select-entry');
+    const numbersInput = document.getElementById('manual-numbers-entry');
+    if (!setSelect || !numbersInput) return;
+
+    const setCode = setSelect.value;
+    const numbersStr = numbersInput.value;
+    if (!numbersStr) return;
+
+    const numbers = expandNumberTokens(numbersStr);
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    let addedCount = 0;
+
+    numbers.forEach(num => {
+        const paddedNum = num.padStart(3, '0');
+        const cardId = `${setCode}-${paddedNum}`;
+        const card = TCGP_CARDS.find(c => c.id === cardId);
+        if (card) {
+            myCollection[cardId] = (myCollection[cardId] || 0) + 1;
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        localStorage.setItem('tcgp_collection', JSON.stringify(myCollection));
+        renderCollectionGrid();
+        renderDeckBuilderSidebar();
+        syncCollectionToCloud();
+        showToast(`Added ${addedCount} cards!`);
+        numbersInput.value = "";
+    } else {
+        showToast("No valid card numbers found for this set.", "error");
+    }
+}
+
+// --- Navigation ---
+function setupNavigation() {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.view-section');
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navButtons.forEach(b => b.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            btn.classList.add('active');
+            const targetId = btn.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+            
+            if(targetId === 'view-collection') renderCollectionGrid();
+            if(targetId === 'view-deck-builder') renderDeckBuilderSidebar();
+        });
+    });
+
+    const searchInput = document.getElementById('search-cards');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => renderCollectionGrid(e.target.value));
+    }
+}
+
+// --- API Key Management ---
+function checkApiKey() {
+    const key = sessionStorage.getItem('gemini_api_key');
+    const btn = document.getElementById('api-key-btn');
+    if (!btn) return;
+
+    if (!key) {
+        btn.style.color = '#ff4444';
+        btn.innerText = 'API Key Required';
+    } else {
+        btn.style.color = 'var(--text-muted)';
+        btn.innerText = 'API Key Set ✓';
+    }
+}
+
+function showApiModal() {
+    document.getElementById('modal-api').classList.remove('hidden');
+    const existing = sessionStorage.getItem('gemini_api_key');
+    if(existing) document.getElementById('input-api-key').value = existing;
+}
+
+function saveApiKey() {
+    const input = document.getElementById('input-api-key').value.trim();
+    if (input && input.startsWith('AIza')) {
+        sessionStorage.setItem('gemini_api_key', input);
+        document.getElementById('modal-api').classList.add('hidden');
+        checkApiKey();
+    } else {
+        alert("Invalid API key.");
+    }
+}
+
+// --- Image Error Failsafe ---
+window.handleImageError = function(imgElement, setCode, cardId) {
+    if (imgElement.dataset.failedOnce === 'true') {
+        // Fallback to wireframe
+        const parent = imgElement.parentElement;
+        if(parent) {
+            parent.innerHTML = `<div style="width:100%; height:130px; background:var(--bg-dark); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.8rem; border-bottom:1px solid var(--border-subtle)">Img Offline</div>`;
+        }
+        return;
+    }
+    
+    // First fallback attempt: Try Limitless CDN mapping
+    imgElement.dataset.failedOnce = 'true';
+    const numPart = cardId.split('-')[1]; // usually e.g. "045"
+    // Limitless usually uses 3 digit padding
+    const paddedNum = numPart.padStart(3, '0');
+    // For Promo-A it's P-A
+    const cleanSetCode = setCode === 'P-A' ? 'P-A' : setCode; 
+    
+    imgElement.src = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
+};
+
+// --- Collection Manager ---
+window.renderVisualSelectionGrid = function(searchQuery = '') {
+    const grid = document.getElementById('visual-card-grid');
+    const setSelect = document.getElementById('visual-set-select');
+    if (!grid || !setSelect) return;
+    
+    grid.innerHTML = '';
+    const setCode = setSelect.value;
+    const allCards = TCGP_CARDS.filter(c => c.setCode === setCode);
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    
+    let displayCards = allCards;
+    if(searchQuery) {
+        const q = searchQuery.toLowerCase();
+        displayCards = allCards.filter(c => 
+            c.name.toLowerCase().includes(q) || 
+            c.type?.toLowerCase().includes(q) ||
+            c.id.toLowerCase().includes(q) ||
+            c.rarity?.toLowerCase().includes(q)
+        );
+    }
+
+    displayCards.forEach(card => {
+        const qty = myCollection[card.id] || 0;
+        const isOwned = qty > 0;
+        
+        const cardEl = document.createElement('div');
+        cardEl.className = `visual-card ${isOwned ? 'owned' : ''}`;
+        
+        cardEl.innerHTML = `
+            <img src="${card.img}" loading="lazy" alt="${card.name}" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+            ${isOwned ? `<div class="qty-badge">${qty}</div>` : ''}
+            <div class="visual-qty-controls">
+                <button class="qty-btn" onclick="updateCardQuantity('${card.id}', -1)">-</button>
+                <button class="qty-btn" onclick="updateCardQuantity('${card.id}', 1)">+</button>
+            </div>
+            <div class="visual-card-details">
+                <span>${card.id.split('-')[1]}</span>
+                <span>${card.rarity || ''}</span>
+            </div>
+        `;
+        grid.appendChild(cardEl);
+    });
+};
+
+window.updateCardQuantity = function(cardId, change) {
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    let currentQty = myCollection[cardId] || 0;
+    
+    let newQty = currentQty + change;
+    if (newQty <= 0) {
+        delete myCollection[cardId];
+    } else {
+        myCollection[cardId] = newQty;
+    }
+    
+    localStorage.setItem('tcgp_collection', JSON.stringify(myCollection));
+    
+    // Update the visual grid without losing search context
+    const visualSearch = document.getElementById('visual-search');
+    renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
+    
+    // Sync other background views
+    renderCollectionGrid();
+    renderDeckBuilderSidebar();
+    syncCollectionToCloud();
+};
+
+window.renderCollectionGrid = function(searchQuery = '') {
+    const grid = document.getElementById('collection-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const allCards = TCGP_CARDS;
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    
+    let uniqueCount = 0;
+    let totalCopies = 0;
+
+    let displayCards = allCards;
+    if(searchQuery) {
+        const q = searchQuery.toLowerCase();
+        displayCards = allCards.filter(c => c.name.toLowerCase().includes(q) || c.type?.toLowerCase().includes(q));
+    }
+
+    displayCards.forEach(card => {
+        const qty = myCollection[card.id] || 0;
+        if (qty > 0) { uniqueCount++; totalCopies += qty; }
+
+        const isOwned = qty > 0;
+        const cardEl = document.createElement('div');
+        cardEl.className = `tcgp-card ${isOwned ? 'owned' : ''}`;
+        
+        let colorVar = `var(--type-${card.type?.toLowerCase() || 'colorless'})`;
+        if(card.type === 'Supporter' || card.type === 'Item') colorVar = '#8b949e';
+        cardEl.style.borderTop = `4px solid ${colorVar}`;
+
+        cardEl.innerHTML = `
+            <div class="card-img-placeholder">
+                <img src="${card.img}" class="card-real-img" alt="${card.name}" loading="lazy" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+                ${isOwned ? `<div class="card-qty-badge">${qty}</div>` : ''}
+            </div>
+            <div class="card-info">
+                <div class="card-name">${card.name}</div>
+                <div class="card-meta">${card.id} • ${card.rarity}</div>
+            </div>
+        `;
+        grid.appendChild(cardEl);
+    });
+
+    document.getElementById('stat-unique-cards').innerText = `${uniqueCount} Unique Cards`;
+    document.getElementById('stat-total-copies').innerText = `${totalCopies} Total Copies`;
+    const completion = ((uniqueCount / allCards.length) * 100).toFixed(1);
+    document.getElementById('stat-completion').innerText = `${completion}% Complete`;
+};
+
+// --- Deck Builder ---
+let currentDeck = [];
+let deckBuilderSearchQuery = '';
+
+window.renderDeckBuilderSidebar = function() {
+    const list = document.getElementById('db-available-cards');
+    if (!list) return;
+    list.innerHTML = '';
+
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    let availableIds = Object.keys(myCollection).filter(id => myCollection[id] > 0);
+
+    if (availableIds.length === 0) {
+        list.innerHTML = '<p class="empty-state">No cards in collection.</p>';
+        return;
+    }
+
+    // Map IDs to card objects to apply filtering
+    let availableCards = availableIds.map(id => TCGP_CARDS.find(c => c.id === id)).filter(Boolean);
+
+    // Apply Search Filter
+    if (deckBuilderSearchQuery.trim() !== '') {
+        const q = deckBuilderSearchQuery.trim().toLowerCase();
+        availableCards = availableCards.filter(c => 
+            c.name.toLowerCase().includes(q) || 
+            (c.type && c.type.toLowerCase().includes(q))
+        );
+    }
+
+    if (availableCards.length === 0) {
+        list.innerHTML = '<p class="empty-state">No matching cards found.</p>';
+        return;
+    }
+
+    availableCards.forEach(card => {
+        const countInDeck = currentDeck.filter(c => c.id === card.id).length;
+        const availableCount = myCollection[card.id] - countInDeck;
+
+        if (availableCount > 0) {
+            const el = document.createElement('div');
+            el.className = 'db-sidebar-card';
+            el.innerHTML = `
+                <img src="${card.img}" class="db-sidebar-img" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+                <div class="db-sidebar-info">
+                    <div class="db-sidebar-name">${card.name}</div>
+                    <div class="db-sidebar-qty">${availableCount} left</div>
+                </div>
+                <button class="btn-add-to-deck" onclick="addToDeck('${card.id}')">+</button>
+            `;
+            list.appendChild(el);
+        }
+    });
+};
+
+function renderDeckSlots() {
+    const grid = document.getElementById('deck-slots');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    for (let i = 0; i < 20; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'deck-slot';
+        const card = currentDeck[i];
+
+        if (card) {
+            slot.classList.add('filled');
+            slot.style.backgroundImage = `url(${card.img})`;
+            slot.innerHTML = `<button class="remove-card" onclick="removeFromDeck(${i})">×</button>`;
+        } else {
+            slot.innerHTML = `<div class="slot-number">${i + 1}</div>`;
+        }
+        grid.appendChild(slot);
+    }
+
+    document.getElementById('deck-current-count').innerText = currentDeck.length;
+    document.getElementById('btn-save-deck').disabled = currentDeck.length !== 20;
+}
+
+window.addToDeck = function(id) {
+    if (currentDeck.length >= 20) return;
+    const card = TCGP_CARDS.find(c => c.id === id);
+    if (card) {
+        currentDeck.push(card);
+        renderDeckSlots();
+        renderDeckBuilderSidebar();
+    }
+};
+
+window.removeFromDeck = function(index) {
+    currentDeck.splice(index, 1);
+    renderDeckSlots();
+    renderDeckBuilderSidebar();
+};
+
+window.showFirebaseConfigModal = showFirebaseConfigModal;
+
+// --- Toast Notification ---
+window.showToast = function(message, type = 'success') {
+    let toast = document.getElementById('scan-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'scan-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            color: white; padding: 12px 24px; border-radius: 12px;
+            font-size: 0.9rem; font-weight: 500; z-index: 2000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: opacity 0.3s;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.style.background = type === 'error' ? '#cf222e' : '#1a7f37';
+    toast.style.opacity = '1';
+    toast.style.display = 'block';
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+    }, 3000);
+};
+
+// --- Live Match Tracker Logic ---
+let liveRevealedCards = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    const oppInput = document.getElementById('opponent-card-input');
+    const suggBox = document.getElementById('opponent-card-suggestions');
+    if (!oppInput || !suggBox) return;
+
+    // Autocomplete logic
+    oppInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        suggBox.innerHTML = '';
+        if (val.length < 2) {
+            suggBox.classList.add('hidden');
+            return;
+        }
+
+        const matches = TCGP_CARDS.filter(c => c.name.toLowerCase().includes(val)).slice(0, 5);
+        if (matches.length > 0) {
+            suggBox.classList.remove('hidden');
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerText = m.name;
+                div.onclick = () => {
+                    addRevealedCard(m.name);
+                    oppInput.value = '';
+                    suggBox.classList.add('hidden');
+                };
+                suggBox.appendChild(div);
+            });
+        } else {
+            suggBox.classList.add('hidden');
+        }
+    });
+
+    // Hide suggestions on click outside
+    document.addEventListener('click', (e) => {
+        if(e.target !== oppInput && e.target !== suggBox) suggBox.classList.add('hidden');
+    });
+});
+
+async function addRevealedCard(cardName) {
+    liveRevealedCards.push(cardName);
+    renderRevealedCards();
+    await updateOpponentPrediction();
+}
+
+window.removeRevealedCard = function(idx) {
+    liveRevealedCards.splice(idx, 1);
+    renderRevealedCards();
+    updateOpponentPrediction();
+};
+
+function renderRevealedCards() {
+    const list = document.getElementById('revealed-cards-list');
+    if(liveRevealedCards.length === 0) {
+        list.innerHTML = '<span class="empty-text">No cards logged yet...</span>';
+        return;
+    }
+    
+    list.innerHTML = liveRevealedCards.map((c, i) => `
+        <div class="revealed-tag">
+            ${c} <span class="tag-remove" onclick="removeRevealedCard(${i})">×</span>
+        </div>
+    `).join('');
+}
+
+async function updateOpponentPrediction() {
+    const resultsContainer = document.getElementById('prediction-matches');
+    
+    if (liveRevealedCards.length === 0) {
+        resultsContainer.innerHTML = '<p class="empty-text">Awaiting data...</p>';
+        return;
+    }
+    
+    resultsContainer.innerHTML = '<p class="empty-text">Analyzing...</p>';
+    
+    // Call the prediction engine bound to window loaded from strategy.js
+    if (typeof predictOpponentDeck === 'function') {
+        const predictions = await predictOpponentDeck(liveRevealedCards);
+        
+        if (!predictions || predictions.length === 0) {
+            resultsContainer.innerHTML = '<p class="empty-text">No matching archetypes found.</p>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = predictions.map((p, idx) => `
+            <div class="prediction-match-card ${idx === 0 ? 'top-match' : ''}">
+                <div class="match-header">
+                    <span class="match-title">${p.archetype}</span>
+                    <span class="match-confidence">${p.confidenceScore}% Match</span>
+                </div>
+                ${p.threatWarning ? `<div class="match-warning">⚠️ ${p.threatWarning}</div>` : ''}
+            </div>
+        `).join('');
+    } else {
+        resultsContainer.innerHTML = '<p class="empty-text" style="color:var(--accent-red)">Prediction engine offline (strategy.js missing).</p>';
+    }
+}

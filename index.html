@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCGP Deck Builder & Analyzer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="pokeball-icon"></span>
+                <h1>TCGP Analyzer</h1>
+            </div>
+            <div class="header-actions">
+                <div id="user-status" class="user-status">
+                    <button id="auth-btn" class="btn-primary btn-sm">Sign In</button>
+                    <span id="user-email" class="hidden"></span>
+                </div>
+                <button id="api-key-btn" class="btn-ghost">API Key</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <!-- View: 1. Card Entry -->
+            <section id="view-entry" class="view-section active">
+                <div class="scan-container">
+                    <h2>Add Cards to Collection</h2>
+                    <p class="subtitle">Choose your preferred method to bulk add cards to your inventory.</p>
+
+                    <!-- Entry Tabs -->
+                    <div class="entry-tabs">
+                        <button class="entry-tab-btn active" data-target="tab-manual">✍️ Manual Text</button>
+                        <button class="entry-tab-btn" data-target="tab-reverse">📸 Reverse AI Scan</button>
+                        <button class="entry-tab-btn" data-target="tab-visual">👁️ Visual Selection</button>
+                    </div>
+
+                    <!-- Tab 1: Manual Text Entry -->
+                    <div id="tab-manual" class="entry-tab-content active">
+                        <div class="quick-entry-panel">
+                            <h3>Text Entry</h3>
+                            <p class="entry-hint" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Supports ranges (1-20) and individual numbers (22, 45)</p>
+                            <div class="manual-controls">
+                                <select id="manual-set-select-entry" class="dropdown">
+                                    <option value="A1">Genetic Apex (A1)</option>
+                                    <option value="A1a">Mythical Island (A1a)</option>
+                                    <option value="A2">Space-Time Smackdown (A2)</option>
+                                    <option value="A2a">Triumphant Light (A2a)</option>
+                                    <option value="A2b">Shining Revelry (A2b)</option>
+                                    <option value="A3">Celestial Guardians (A3)</option>
+                                    <option value="A3a">Extradimensional Crisis (A3a)</option>
+                                    <option value="A3b">Eevee Grove (A3b)</option>
+                                    <option value="A4">Wisdom of Sea and Sky (A4)</option>
+                                    <option value="A4a">Secluded Springs (A4a)</option>
+                                    <option value="B1">Mega Rising (B1)</option>
+                                    <option value="B1a">Crimson Blaze (B1a)</option>
+                                    <option value="B2">Fantastical Parade (B2)</option>
+                                    <option value="B2a">Paldean Wonders (B2a)</option>
+                                    <option value="P-A">Promo-A (P-A)</option>
+                                </select>
+                                <input type="text" id="manual-numbers-entry" placeholder="e.g. 1-20, 22, 25">
+                                <button id="btn-manual-add-entry" class="btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Reverse AI Scan -->
+                    <div id="tab-reverse" class="entry-tab-content hidden">
+                        <div class="upload-zone-wrapper">
+                            <h3>Reverse AI Scan</h3>
+                            <p class="scan-mode-hint" style="margin-bottom:16px;">
+                                Set the series below. Upload screenshots showing the <strong style="color:var(--text-color);">greyed-out (missing) numbers</strong> for that series.
+                            </p>
+                            
+                            <select id="reverse-scan-set-select" class="dropdown" style="margin-bottom: 16px; width: 100%; max-width: 300px;">
+                                <option value="A1">Genetic Apex (A1)</option>
+                                <option value="A1a">Mythical Island (A1a)</option>
+                                <option value="A2">Space-Time Smackdown (A2)</option>
+                                <option value="A2a">Triumphant Light (A2a)</option>
+                                <option value="A2b">Shining Revelry (A2b)</option>
+                                <option value="A3">Celestial Guardians (A3)</option>
+                                <option value="A3a">Extradimensional Crisis (A3a)</option>
+                                <option value="A3b">Eevee Grove (A3b)</option>
+                                <option value="A4">Wisdom of Sea and Sky (A4)</option>
+                                <option value="A4a">Secluded Springs (A4a)</option>
+                                <option value="B1">Mega Rising (B1)</option>
+                                <option value="B1a">Crimson Blaze (B1a)</option>
+                                <option value="B2">Fantastical Parade (B2)</option>
+                                <option value="B2a">Paldean Wonders (B2a)</option>
+                                <option value="P-A">Promo-A (P-A)</option>
+                            </select>
+
+                            <div class="upload-zone" id="upload-zone">
+                                <div class="upload-icon">📸</div>
+                                <h3>Upload Screenshots</h3>
+                                <p>Tap to select images (multi-select supported)</p>
+                                <input type="file" id="video-upload" accept="image/png,image/jpeg,image/webp" multiple hidden>
+                            </div>
+
+                            <div id="upload-preview-container" class="upload-preview-container hidden">
+                                <h3>Selected Screenshots (<span id="preview-count">0</span>)</h3>
+                                <div id="upload-preview-grid" class="upload-preview-grid"></div>
+                                <div class="preview-actions">
+                                    <button id="btn-cancel-upload" class="btn-ghost" onclick="cancelUpload()">Cancel</button>
+                                    <button id="btn-confirm-upload" class="btn-primary" onclick="confirmUpload()">Scan Missing Cards</button>
+                                </div>
+                            </div>
+                            
+                            <div id="scan-status" class="status-panel hidden">
+                                <div class="loader"></div>
+                                <p id="scan-status-text">Analyzing missing cards...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Visual Selection -->
+                    <div id="tab-visual" class="entry-tab-content hidden">
+                        <div class="visual-selection-panel">
+                            <div class="visual-header-flex">
+                                <select id="visual-set-select" class="dropdown">
+                                    <option value="A1">Genetic Apex (A1)</option>
+                                    <option value="A1a">Mythical Island (A1a)</option>
+                                    <option value="A2">Space-Time Smackdown (A2)</option>
+                                    <option value="A2a">Triumphant Light (A2a)</option>
+                                    <option value="A2b">Shining Revelry (A2b)</option>
+                                    <option value="A3">Celestial Guardians (A3)</option>
+                                    <option value="A3a">Extradimensional Crisis (A3a)</option>
+                                    <option value="A3b">Eevee Grove (A3b)</option>
+                                    <option value="A4">Wisdom of Sea and Sky (A4)</option>
+                                    <option value="A4a">Secluded Springs (A4a)</option>
+                                    <option value="B1">Mega Rising (B1)</option>
+                                    <option value="B1a">Crimson Blaze (B1a)</option>
+                                    <option value="B2">Fantastical Parade (B2)</option>
+                                    <option value="B2a">Paldean Wonders (B2a)</option>
+                                    <option value="P-A">Promo-A (P-A)</option>
+                                </select>
+                                <input type="text" id="visual-search" class="search-input" placeholder="Search No., Type, Rarity...">
+                            </div>
+                            <!-- Grid for the cards to click -->
+                            <div id="visual-card-grid" class="visual-card-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Mega Proceed Button -->
+                    <div class="proceed-container" style="margin-top: 32px; text-align: center;">
+                        <button id="btn-proceed-decks" class="btn-primary" style="padding: 16px 32px; font-size: 1.1rem; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(26,127,55,0.4);">Proceed to Decks ➡️</button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- View: 2. My Collection -->
+            <section id="view-collection" class="view-section">
+                <div class="collection-header">
+                    <h2>My Collection</h2>
+                    <div class="stats-bar">
+                        <span id="stat-unique-cards">0 Unique Cards</span>
+                        <span class="divider">•</span>
+                        <span id="stat-total-copies">0 Total Copies</span>
+                        <span class="divider">•</span>
+                        <span id="stat-completion">0% Complete</span>
+                    </div>
+                    <div class="filters-bar">
+                        <input type="text" id="search-cards" placeholder="Search Pokémon..." class="search-input">
+                        <button class="btn-filter" data-filter="type">Type</button>
+                        <button class="btn-filter" data-filter="set">Set</button>
+                        <button class="btn-filter" data-filter="rarity">Rarity</button>
+                    </div>
+                </div>
+                <!-- Card Grid populated dynamically -->
+                <div class="card-grid" id="collection-grid"></div>
+            </section>
+
+            <!-- View: 3. Deck Builder -->
+            <section id="view-deck-builder" class="view-section">
+                <div class="deck-builder-layout">
+                    <!-- Left/Top Sidebar: Available Cards -->
+                    <aside class="db-sidebar">
+                        <div class="sidebar-search">
+                            <input type="text" id="db-search" placeholder="Search collection...">
+                        </div>
+                        <div class="db-card-list" id="db-available-cards">
+                            <!-- Populated dynamically based on owned quantity -->
+                            <p class="empty-state">Scan your collection or add cards manually to start building.</p>
+                        </div>
+                    </aside>
+                    <!-- Main: Deck Area -->
+                    <div class="db-main">
+                        <div class="db-header">
+                            <input type="text" id="deck-name" class="deck-name-input" placeholder="New Deck" value="Strategy Deck 1">
+                            <div class="deck-count"><span id="deck-current-count">0</span> / 20</div>
+                        </div>
+                        
+                        <!-- Playstyle Recommender Strip -->
+                        <div class="recommender-strip" style="background:var(--bg-surface); padding:12px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-subtle); display:flex; gap:16px; align-items:center;">
+                            <div>
+                                <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Auto-Build from Collection</label>
+                                <select id="db-playstyle-select" class="dropdown" style="width:150px;">
+                                    <option value="Any">Any Playstyle</option>
+                                    <option value="Aggro">Aggro</option>
+                                    <option value="Control">Control</option>
+                                    <option value="Balanced">Balanced</option>
+                                </select>
+                            </div>
+                            <button id="btn-recommend-decks" class="btn-secondary" style="height:fit-content; margin-top:16px;">Suggest Decks 🪄</button>
+                        </div>
+                        
+                        <!-- Recommender Output -->
+                        <div id="recommender-output" class="hidden" style="margin-bottom:16px; display:flex; flex-direction:column; gap:8px;"></div>
+
+                        <div class="deck-grid" id="deck-slots">
+                            <!-- 20 slots generated here -->
+                        </div>
+                        <div class="deck-actions">
+                            <button id="btn-save-deck" class="btn-primary" disabled>Save Deck</button>
+                            <button id="btn-analyze-deck" class="btn-secondary">Check Strategy</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: 4. Probability Lab -->
+            <section id="view-probability" class="view-section">
+                <div class="prob-header">
+                    <h2>Probability & Strategy</h2>
+                    <select id="prob-deck-select" class="dropdown">
+                        <option value="">Select a saved deck...</option>
+                    </select>
+                </div>
+
+                <div class="prob-grid">
+                    <!-- Calculator Panel -->
+                    <div class="prob-panel calculator">
+                        <h3>Match Tracker</h3>
+                        <div class="calc-controls">
+                            <label>Target Card:</label>
+                            <select id="prob-target-card" class="dropdown"><option>Select Card</option></select>
+                            
+                            <div class="slider-group">
+                                <label>Cards Remaining in Deck (N): <span id="val-deck-size">20</span></label>
+                                <input type="range" id="slider-deck-size" min="1" max="20" value="20">
+                            </div>
+                            
+                            <div class="slider-group">
+                                <label>Target Copies Remaining (K): <span id="val-target-copies">2</span></label>
+                                <input type="range" id="slider-target-copies" min="0" max="2" value="2">
+                            </div>
+
+                            <button id="btn-calc-odds" class="btn-primary full-width">Calculate True Odds</button>
+                        </div>
+                        <div class="calc-result">
+                            <div class="big-percent" id="result-percent">--%</div>
+                            <p id="result-text">Chance to draw on next turn</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart Panel -->
+                    <div class="prob-panel chart">
+                        <h3>Draw Probability by Turn</h3>
+                        <canvas id="prob-chart"></canvas>
+                    </div>
+
+                    <!-- Mulligan Risk Panel -->
+                    <div class="prob-panel">
+                        <h3>Mulligan Risk Analysis</h3>
+                        <div class="mulligan-stats" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
+                                <span style="color:var(--text-muted)">Base Mulligan Rate:</span>
+                                <strong id="mulligan-base-rate" style="color:var(--text-main)">--%</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
+                                <span style="color:var(--text-muted)">Opponent Draws +1:</span>
+                                <strong id="mulligan-draw-1" style="color:var(--accent-gold)">--%</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
+                                <span style="color:var(--text-muted)">Opponent Draws +2:</span>
+                                <strong id="mulligan-draw-2" style="color:var(--accent-gold)">--%</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:var(--text-muted)">Opponent Draws +3 or more:</span>
+                                <strong id="mulligan-draw-3" style="color:var(--accent-red)">--%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: 5. Live Match Dashboard -->
+            <section id="view-live-match" class="view-section premium-dashboard">
+                <div class="live-match-header">
+                    <h2>Live Match Tracker</h2>
+                    <p class="subtitle">Log opponent moves and predict their deck archetype in real-time.</p>
+                </div>
+                
+                <div class="live-match-grid">
+                    <!-- Opponent Radar -->
+                    <div class="glass-panel opponent-radar">
+                        <div class="panel-header glowing-border">
+                            <h3>🔴 Opponent Radar</h3>
+                            <div class="radar-pulse"></div>
+                        </div>
+                        
+                        <div class="radar-input-group">
+                            <input type="text" id="opponent-card-input" placeholder="Enter card played by opponent..." autocomplete="off">
+                            <div id="opponent-card-suggestions" class="suggestions-dropdown hidden"></div>
+                        </div>
+
+                        <div class="revealed-cards-container">
+                            <h4>Revealed Cards</h4>
+                            <div id="revealed-cards-list" class="revealed-tags">
+                                <span class="empty-text">No cards logged yet...</span>
+                            </div>
+                        </div>
+
+                        <div class="prediction-results">
+                            <h4>Archetype Prediction</h4>
+                            <div id="prediction-matches">
+                                <p class="empty-text">Awaiting data...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Tracker -->
+                    <div class="glass-panel my-tracker">
+                        <div class="panel-header friendly-border">
+                            <h3>🔵 My Tracker</h3>
+                        </div>
+                        <div class="tracker-controls">
+                            <label>Tracking Deck:</label>
+                            <select id="live-deck-select" class="dropdown">
+                                <option value="">Select a saved deck...</option>
+                            </select>
+                        </div>
+                        <div class="tracker-stats" id="live-tracker-stats">
+                            <p class="empty-text">Select a deck to begin tracking your live draws.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation (Mobile First) -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-target="view-entry">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Entry</span>
+            </button>
+            <button class="nav-btn" data-target="view-collection">
+                <span class="nav-icon">🃏</span>
+                <span class="nav-label">Collection</span>
+            </button>
+            <button class="nav-btn" data-target="view-deck-builder">
+                <span class="nav-icon">🧩</span>
+                <span class="nav-label">Builder</span>
+            </button>
+            <button class="nav-btn" data-target="view-probability">
+                <span class="nav-icon">🎲</span>
+                <span class="nav-label">Lab</span>
+            </button>
+            <button class="nav-btn" data-target="view-live-match">
+                <span class="nav-icon">⚔️</span>
+                <span class="nav-label">Live Match</span>
+            </button>
+        </nav>
+
+        <!-- API Key Modal -->
+        <div id="modal-api" class="modal hidden">
+            <div class="modal-content">
+                <h2>Setup Gemini Vision</h2>
+                <p>To automatically scan your collection from a video, you need a free Google Gemini API key.</p>
+                <div class="input-group">
+                    <input type="password" id="input-api-key" placeholder="AIZA..." autocomplete="off">
+                </div>
+                <div class="modal-actions">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="link">Get API Key &rarr;</a>
+                    <button onclick="showFirebaseConfigModal()" class="btn-ghost" style="font-size:0.8rem;">Firebase Config</button>
+                    <button id="btn-save-key" class="btn-primary">Save Key</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div id="modal-auth" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="auth-title">Account Login</h2>
+                <p>Sync your collection to the cloud to access it anywhere.</p>
+                <div class="input-group">
+                    <input type="email" id="input-email" placeholder="Email Address">
+                    <input type="password" id="input-password" placeholder="Password" style="margin-top:10px;">
+                </div>
+                <div class="modal-actions">
+                    <button id="btn-auth-action" class="btn-primary">Login</button>
+                    <button id="btn-toggle-auth" class="btn-ghost">Need an account? Sign Up</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Firebase Config Modal -->
+        <div id="modal-firebase" class="modal hidden">
+            <div class="modal-content">
+                <h2>Firebase Cloud Config</h2>
+                <p>Paste your Firebase configuration object here to enable cloud accounts.</p>
+                <textarea id="input-firebase-config" placeholder='{ "apiKey": "...", "authDomain": "...", ... }' style="width:100%; height:150px; background:var(--bg-dark); color:white; border:1px solid var(--border-subtle); padding:10px; border-radius:8px; font-family:monospace;"></textarea>
+                <div class="modal-actions">
+                    <button id="btn-save-firebase" class="btn-primary">Save Config</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Scan Modal -->
+        <div id="modal-review" class="modal hidden">
+            <div class="modal-content review-modal-content">
+                <h2>Review Scan Results</h2>
+                <p>Verify the cards Gemini identified. Adjust quantities as needed.</p>
+                <div class="review-list" id="review-card-list"></div>
+                <div class="modal-actions" style="margin-top: 16px;">
+                    <button id="btn-cancel-review" class="btn-ghost">Cancel</button>
+                    <button id="btn-confirm-review" class="btn-primary">Add to Collection ✓</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Modal (Scan Results) -->
+        <div id="modal-review" class="modal hidden">
+            <div class="modal-content review-modal-content">
+                <h2>Review Scanned Cards</h2>
+                <p>Adjust quantities before adding to your collection.</p>
+                <div id="review-card-list" class="review-list"></div>
+                <div class="modal-actions">
+                    <button id="btn-cancel-review" class="btn-ghost">Cancel</button>
+                    <button id="btn-confirm-review" class="btn-primary">Add to Collection</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="gemini.js"></script>
+    <script src="probability.js"></script>
+    <script src="strategy.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

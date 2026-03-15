@@ -1,0 +1,99 @@
+[
+  {
+    "deckName": "Mewtwo EX / Gardevoir",
+    "archetype": "👁️ Mewtwo EX Control",
+    "playstyle": "Control",
+    "keyCards": ["Mewtwo EX", "Gardevoir", "Kirlia", "Ralts"],
+    "threatWarning": "Watch out for Psydrive (150 damage).",
+    "fullList": [
+      "Mewtwo EX", "Mewtwo EX",
+      "Ralts", "Ralts",
+      "Kirlia", "Kirlia",
+      "Gardevoir", "Gardevoir",
+      "Professor's Research", "Professor's Research",
+      "Poké Ball", "Poké Ball",
+      "X Speed", "X Speed",
+      "Potion", "Potion",
+      "Sabrina", "Sabrina",
+      "Giovanni", "Giovanni"
+    ]
+  },
+  {
+    "deckName": "Charizard EX / Moltres",
+    "archetype": "🔥 Charizard EX Aggro",
+    "playstyle": "Aggro",
+    "keyCards": ["Charizard EX", "Moltres", "Charmander"],
+    "threatWarning": "Watch out for Crimson Storm (200 damage) after Inferno Dance acceleration.",
+    "fullList": [
+      "Charizard EX", "Charizard EX",
+      "Charmander", "Charmander",
+      "Charmeleon", "Charmeleon",
+      "Moltres", "Moltres",
+      "Professor's Research", "Professor's Research",
+      "Poké Ball", "Poké Ball",
+      "X Speed", "X Speed",
+      "Potion", "Potion",
+      "Sabrina", "Sabrina",
+      "Blaine", "Blaine"
+    ]
+  },
+  {
+    "deckName": "Pikachu EX / Zapdos",
+    "archetype": "⚡ Pikachu EX Fast Aggro",
+    "playstyle": "Aggro",
+    "keyCards": ["Pikachu EX", "Zapdos", "Electabuzz"],
+    "threatWarning": "Watch out for Circle Circuit (90 damage) on turn 2.",
+    "fullList": [
+      "Pikachu EX", "Pikachu EX",
+      "Zapdos", "Zapdos",
+      "Electabuzz", "Electabuzz",
+      "Voltorb", "Voltorb",
+      "Electrode", "Electrode",
+      "Professor's Research", "Professor's Research",
+      "Poké Ball", "Poké Ball",
+      "X Speed", "X Speed",
+      "Potion", "Potion",
+      "Sabrina", "Sabrina",
+      "Giovanni", "Giovanni"
+    ]
+  },
+  {
+    "deckName": "Articuno EX / Starmie EX",
+    "archetype": "💧 Articuno EX Freeze",
+    "playstyle": "Control",
+    "keyCards": ["Articuno EX", "Starmie EX", "Misty"],
+    "threatWarning": "Watch out for early Blizzard (80 damage) powered by Misty.",
+    "fullList": [
+      "Articuno EX", "Articuno EX",
+      "Starmie EX", "Starmie EX",
+      "Staryu", "Staryu",
+      "Lapras", "Lapras",
+      "Professor's Research", "Professor's Research",
+      "Poké Ball", "Poké Ball",
+      "X Speed", "X Speed",
+      "Potion", "Potion",
+      "Sabrina", "Sabrina",
+      "Misty", "Misty"
+    ]
+  },
+  {
+    "deckName": "Marowak EX / Sandslash",
+    "archetype": "✊ Marowak EX Beatdown",
+    "playstyle": "Balanced",
+    "keyCards": ["Marowak EX", "Cubone", "Sandslash", "Sandshrew"],
+    "threatWarning": "Watch out for Bonemerang (160 damage) potential.",
+    "fullList": [
+      "Marowak EX", "Marowak EX",
+      "Cubone", "Cubone",
+      "Sandslash", "Sandslash",
+      "Sandshrew", "Sandshrew",
+      "Diglett", "Diglett",
+      "Dugtrio", "Dugtrio",
+      "Professor's Research", "Professor's Research",
+      "Poké Ball", "Poké Ball",
+      "X Speed", "X Speed",
+      "Sabrina", "Sabrina",
+      "Brock", "Brock"
+    ]
+  }
+]
