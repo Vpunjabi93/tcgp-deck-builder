@@ -433,7 +433,7 @@ function setupNavigation() {
 
 // --- API Key Management ---
 function checkApiKey() {
-    const key = sessionStorage.getItem('gemini_api_key');
+    const key = localStorage.getItem('tcgp_gemini_api_key');
     const btn = document.getElementById('api-key-btn');
     if (!btn) return;
 
@@ -448,14 +448,14 @@ function checkApiKey() {
 
 function showApiModal() {
     document.getElementById('modal-api').classList.remove('hidden');
-    const existing = sessionStorage.getItem('gemini_api_key');
+    const existing = localStorage.getItem('tcgp_gemini_api_key');
     if(existing) document.getElementById('input-api-key').value = existing;
 }
 
 function saveApiKey() {
     const input = document.getElementById('input-api-key').value.trim();
     if (input && input.startsWith('AIza')) {
-        sessionStorage.setItem('gemini_api_key', input);
+        localStorage.setItem('tcgp_gemini_api_key', input);
         document.getElementById('modal-api').classList.add('hidden');
         checkApiKey();
     } else {
@@ -801,7 +801,8 @@ async function updateOpponentPrediction() {
         const predictions = await predictOpponentDeck(liveRevealedCards);
         
         if (!predictions || predictions.length === 0) {
-            resultsContainer.innerHTML = '<p class="empty-text">No matching archetypes found.</p>';
+            let emptyMsg = (predictions && predictions.statusMessage) ? predictions.statusMessage : 'No matching archetypes found.';
+            resultsContainer.innerHTML = `<p class="empty-text">${emptyMsg}</p>`;
             return;
         }
         
@@ -836,7 +837,8 @@ window.fetchAISuggestion = async function(playstyle) {
     const collectionJson = JSON.stringify(formattedCollection);
     const prompt = `Acting as a TCG Pocket Pro, build the best 20-card ${playstyle} deck using ONLY these cards: ${collectionJson}. Return ONLY a JSON array of 20 card names.`;
 
-    const apiKey = localStorage.getItem('gemini_api_key');
+    const apiKey = localStorage.getItem('tcgp_gemini_api_key');
+    console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
     if (!apiKey) {
         if (typeof window.showToast === 'function') {
             window.showToast('Please enter your API Key in Settings.', 'error');
@@ -853,7 +855,7 @@ window.fetchAISuggestion = async function(playstyle) {
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

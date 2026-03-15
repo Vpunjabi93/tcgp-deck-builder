@@ -203,7 +203,9 @@ let cachedMetaDecks = null;
  */
 async function predictOpponentDeck(revealedCards) {
     if (revealedCards && revealedCards.length < 4) {
-        return [{ archetype: "Analyzing patterns (2 rounds required)...", confidenceScore: 0 }];
+        let arr = [];
+        arr.statusMessage = 'Analyzing patterns (2 rounds required)...';
+        return arr;
     }
 
     if (!cachedMetaDecks) {
