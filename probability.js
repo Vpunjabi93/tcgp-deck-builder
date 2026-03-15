@@ -100,7 +100,8 @@ function geometricEq(k, p = 0.5) {
 
 // Calculates the true odds of drawing X copies of a Specific Card in the opening hand.
 // Accounts for the forced "Must have at least 1 Basic" rule.
-function calcTrueOpeningHandOdds(deck, targetId) {
+function calcTrueOpeningHandOdds(deck, targetIds) {
+    if(!Array.isArray(targetIds)) targetIds = [targetIds];
     let N = 20;
     let n = 5; // Opening hand size
     
@@ -109,17 +110,17 @@ function calcTrueOpeningHandOdds(deck, targetId) {
     deck.forEach(c => { if(c.stage === 'Basic') totalBasics++; });
     
     // Count copies of our target card
-    const targetCards = deck.filter(c => c.id === targetId);
+    const targetCards = deck.filter(c => targetIds.includes(c.id));
     let K = targetCards.length;
     
     if(K === 0) return 0;
-    const isTargetBasic = targetCards[0].stage === 'Basic';
+    const hasBasicTarget = targetCards.some(c => c.stage === 'Basic');
 
     // P(Brick) = Chance hand has 0 Basics.
     let pBrick = hypergeom(N, totalBasics, n, 0);
     
     // True valid opening hand math
-    if(isTargetBasic) {
+    if(hasBasicTarget) {
         // If the target IS a Basic, we just use standard Hypergeometric.
         // Because if we draw the target, the hand is automatically valid (has a basic).
         // (This is a slight simplification of conditional probability but highly accurate for this edge case).
@@ -172,10 +173,49 @@ document.addEventListener('DOMContentLoaded', () => {
         const allCards = getAllCards();
         currentLoadedDeck = deckData.cards.map(id => allCards.find(c => c.id === id)).filter(Boolean);
         
-        // Populate Target Card dropdown with unique cards in the deck
+        // Populate Target Card visual list with unique cards in the deck
         const uniqueCards = [...new Map(currentLoadedDeck.map(item => [item.id, item])).values()];
-        const selTarget = document.getElementById('prob-target-card');
-        selTarget.innerHTML = uniqueCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        const listContainer = document.getElementById('prob-card-list');
+        if (listContainer) {
+            listContainer.innerHTML = uniqueCards.map(c => `
+                <div class="prob-list-card" data-id="${c.id}">
+                    ${window.generateCardHTML ? window.generateCardHTML(c, 'prob-img') : `<img src="${c.img}" class="prob-img">`}
+                </div>
+            `).join('');
+            
+            // Add click listeners
+            document.querySelectorAll('.prob-list-card').forEach(el => {
+                el.addEventListener('click', () => {
+                    const cid = el.dataset.id;
+                    el.classList.toggle('card-selected');
+                    
+                    if (!window.selectedCardsForLab) window.selectedCardsForLab = [];
+                    if (window.selectedCardsForLab.includes(cid)) {
+                        window.selectedCardsForLab = window.selectedCardsForLab.filter(id => id !== cid);
+                    } else {
+                        window.selectedCardsForLab.push(cid);
+                    }
+                    
+                    // Update slider based on selection
+                    let totalK = 0;
+                    window.selectedCardsForLab.forEach(id => {
+                        totalK += currentLoadedDeck.filter(card => card.id === id).length;
+                    });
+                    document.getElementById('slider-target-copies').value = totalK;
+                    document.getElementById('val-target-copies').innerText = totalK;
+                    
+                    updateCalculations();
+                });
+            });
+
+            if (uniqueCards.length > 0) {
+                window.selectedCardsForLab = [uniqueCards[0].id];
+                const firstCardEl = document.querySelector('.prob-list-card');
+                if (firstCardEl) firstCardEl.classList.add('card-selected');
+            } else {
+                window.selectedCardsForLab = [];
+            }
+        }
         
         // Reset Sliders for turn 1 Match state
         document.getElementById('slider-deck-size').value = 20;
@@ -188,13 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalculations();
     });
 
-    document.getElementById('prob-target-card').addEventListener('change', (e) => {
-        const id = e.target.value;
-        const count = currentLoadedDeck.filter(c => c.id === id).length;
-        document.getElementById('slider-target-copies').value = count;
-        document.getElementById('val-target-copies').innerText = count;
-        updateCalculations();
-    });
+    // Removed prob-target-card change listener
 
     ['slider-deck-size', 'slider-target-copies'].forEach(id => {
         document.getElementById(id).addEventListener('input', (e) => {
@@ -208,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCalculations() {
         if(!currentLoadedDeck) return;
 
-        const targetId = document.getElementById('prob-target-card').value;
         const N = parseInt(document.getElementById('slider-deck-size').value);
         const K = parseInt(document.getElementById('slider-target-copies').value);
         
@@ -231,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let cardsSeen = 4 + turn; // Turn 1 (5 cards), Turn 2 (6), etc.
             
             if(N === 20 && turn === 1) {
-                chartData.push(calcTrueOpeningHandOdds(currentLoadedDeck, targetId) * 100);
+                chartData.push(calcTrueOpeningHandOdds(currentLoadedDeck, window.selectedCardsForLab || []) * 100);
             } else {
                 // By turn N odds
                 chartData.push(calcLiveOdds(20, K, cardsSeen) * 100);

@@ -258,6 +258,26 @@ async function predictOpponentDeck(revealedCards) {
 
 // --- Playstyle Recommender ---
 
+function getRarityScore(rarity) {
+    if (!rarity) return 0;
+    if (rarity.includes('☆☆☆') || rarity.includes('👑')) return 6;
+    if (rarity.includes('☆☆')) return 5;
+    if (rarity.includes('☆')) return 4;
+    if (rarity.includes('💎💎💎')) return 3;
+    if (rarity.includes('💎💎')) return 2;
+    if (rarity.includes('💎')) return 1;
+    return 0;
+}
+
+function inferCardRole(card) {
+    if (!card) return 'Tech';
+    if (card.type === 'Supporter' || card.type === 'Item') return card.type;
+    if ((card.name && card.name.toLowerCase().includes('ex')) || card.stage === 'Stage 2') return 'Main Attacker';
+    const hp = parseInt(card.hp) || 0;
+    if (hp <= 70) return 'Setup';
+    return 'Secondary';
+}
+
 /**
  * Recommends Top 2 meta decks based on chosen playstyle and current user collection.
  * @param {string} playstyle - "Aggro", "Control", "Balanced", or "Any"
@@ -315,7 +335,42 @@ async function recommendDecks(playstyle) {
             const deficit = reqQty - totalOwnedOfThisCard;
             
             if (deficit > 0) {
-                missingCards.push(`${deficit}x ${cardName}`);
+                // Determine Next Best Substitution
+                const metaRoleData = deck.cardRoles && deck.cardRoles[cardName];
+                const targetRole = metaRoleData ? metaRoleData.role : 'Tech'; // Default
+                const targetType = cardVariations.length > 0 ? cardVariations[0].type : null;
+                
+                // Find substitute in collection
+                let bestSub = null;
+                const availableSubs = [];
+                for (const availableId of Object.keys(myCollection)) {
+                    if (myCollection[availableId] > 0) {
+                        const availCard = allCards.find(c => c.id === availableId);
+                        if (availCard && availCard.name !== cardName && 
+                           (targetType === 'Supporter' || targetType === 'Item' || availCard.type === targetType)) {
+                               const role = inferCardRole(availCard);
+                               if (role === targetRole || (role === 'Secondary' && targetRole.includes('Secondary'))) {
+                                   availableSubs.push(availCard);
+                               }
+                        }
+                    }
+                }
+                
+                if (availableSubs.length > 0) {
+                     // Sort by rarity and HP descending
+                     availableSubs.sort((a,b) => {
+                         const rarityDiff = getRarityScore(b.rarity) - getRarityScore(a.rarity);
+                         if (rarityDiff !== 0) return rarityDiff;
+                         return (parseInt(b.hp) || 0) - (parseInt(a.hp) || 0);
+                     });
+                     bestSub = availableSubs[0];
+                }
+
+                if (bestSub) {
+                    missingCards.push(`${deficit}x ${cardName} <br><span style="color:var(--text-muted); font-size:0.8rem;">↳ Sub: <span style="color:var(--accent-gold)">${bestSub.name}</span></span>`);
+                } else {
+                    missingCards.push(`${deficit}x ${cardName}`);
+                }
             }
         }
 

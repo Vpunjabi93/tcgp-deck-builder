@@ -245,8 +245,10 @@
                     <div class="prob-panel calculator">
                         <h3>Match Tracker</h3>
                         <div class="calc-controls">
-                            <label>Target Card:</label>
-                            <select id="prob-target-card" class="dropdown"><option>Select Card</option></select>
+                            <label>Targeted Cards (Click to Select):</label>
+                            <div id="prob-card-list" class="prob-card-list">
+                                <p class="empty-text" style="font-size:0.9rem; padding: 10px;">Select a deck first.</p>
+                            </div>
                             
                             <div class="slider-group">
                                 <label>Cards Remaining in Deck (N): <span id="val-deck-size">20</span></label>

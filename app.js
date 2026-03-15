@@ -1,6 +1,7 @@
 // app.js - Main Application Logic for TCGP Analyzer
 
 window.TCGP_CARDS = []; // Global declaration
+window.selectedCardsForLab = []; // Global array for Probability Lab
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -164,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span style="color:${r.completionPct >= 80 ? 'var(--accent-gold)' : 'var(--text-muted)'}">${r.completionPct}% Owned</span>
                         </div>
                         ${r.missingCards.length > 0 
-                            ? `<div style="font-size:0.8rem; color:#ff8888;">Missing: ${r.missingCards.join(', ')}</div>` 
+                            ? `<div style="font-size:0.85rem; color:#ff8888; margin-top:6px; line-height:1.4;">Missing:<br> ${r.missingCards.join('<br>')}</div>` 
                             : `<div style="font-size:0.8rem; color:#78c850;">Ready to build!</div>`
                         }
                     </div>
@@ -451,25 +452,13 @@ function saveApiKey() {
 }
 
 // --- Image Error Failsafe ---
-window.handleImageError = function(imgElement, setCode, cardId) {
-    if (imgElement.dataset.failedOnce === 'true') {
-        // Fallback to wireframe
-        const parent = imgElement.parentElement;
-        if(parent) {
-            parent.innerHTML = `<div style="width:100%; height:130px; background:var(--bg-dark); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.8rem; border-bottom:1px solid var(--border-subtle)">Img Offline</div>`;
-        }
-        return;
-    }
-    
-    // First fallback attempt: Try Limitless CDN mapping
-    imgElement.dataset.failedOnce = 'true';
-    const numPart = cardId.split('-')[1]; // usually e.g. "045"
-    // Limitless usually uses 3 digit padding
+window.generateCardHTML = function(card, imgClass = '') {
+    const numPart = (card.id && card.id.includes('-')) ? card.id.split('-')[1] : '001';
     const paddedNum = numPart.padStart(3, '0');
-    // For Promo-A it's P-A
-    const cleanSetCode = setCode === 'P-A' ? 'P-A' : setCode; 
+    const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode; 
+    const fallbackB_URL = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
     
-    imgElement.src = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
+    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){this.src='data/images/card_offline.webp'};">`;
 };
 
 // --- Collection Manager ---
@@ -502,7 +491,7 @@ window.renderVisualSelectionGrid = function(searchQuery = '') {
         cardEl.className = `visual-card ${isOwned ? 'owned' : ''}`;
         
         cardEl.innerHTML = `
-            <img src="${card.img}" loading="lazy" alt="${card.name}" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+            ${generateCardHTML(card, '')}
             ${isOwned ? `<div class="qty-badge">${qty}</div>` : ''}
             <div class="visual-qty-controls">
                 <button class="qty-btn" onclick="updateCardQuantity('${card.id}', -1)">-</button>
@@ -571,7 +560,7 @@ window.renderCollectionGrid = function(searchQuery = '') {
 
         cardEl.innerHTML = `
             <div class="card-img-placeholder">
-                <img src="${card.img}" class="card-real-img" alt="${card.name}" loading="lazy" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+                ${generateCardHTML(card, 'card-real-img')}
                 ${isOwned ? `<div class="card-qty-badge">${qty}</div>` : ''}
             </div>
             <div class="card-info">
@@ -630,7 +619,7 @@ window.renderDeckBuilderSidebar = function() {
             const el = document.createElement('div');
             el.className = 'db-sidebar-card';
             el.innerHTML = `
-                <img src="${card.img}" class="db-sidebar-img" onerror="handleImageError(this, '${card.setCode}', '${card.id}')">
+                ${generateCardHTML(card, 'db-sidebar-img')}
                 <div class="db-sidebar-info">
                     <div class="db-sidebar-name">${card.name}</div>
                     <div class="db-sidebar-qty">${availableCount} left</div>
@@ -711,6 +700,7 @@ window.showToast = function(message, type = 'success') {
 
 // --- Live Match Tracker Logic ---
 let liveRevealedCards = [];
+let actionsLoggedThisMatch = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     const oppInput = document.getElementById('opponent-card-input');
@@ -753,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function addRevealedCard(cardName) {
     liveRevealedCards.push(cardName);
+    actionsLoggedThisMatch++;
     renderRevealedCards();
     await updateOpponentPrediction();
 }
@@ -782,6 +773,11 @@ async function updateOpponentPrediction() {
     
     if (liveRevealedCards.length === 0) {
         resultsContainer.innerHTML = '<p class="empty-text">Awaiting data...</p>';
+        return;
+    }
+
+    if (actionsLoggedThisMatch < 4) {
+        resultsContainer.innerHTML = '<p class="empty-text" style="color:var(--accent-gold);">Analyzing Opponent Actions (Round 2 Required)...</p>';
         return;
     }
     

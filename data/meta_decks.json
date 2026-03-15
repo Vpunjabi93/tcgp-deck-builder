@@ -16,7 +16,19 @@
       "Potion", "Potion",
       "Sabrina", "Sabrina",
       "Giovanni", "Giovanni"
-    ]
+    ],
+    "cardRoles": {
+      "Mewtwo EX": {"role": "Main Attacker", "priority": 5},
+      "Ralts": {"role": "Setup", "priority": 2},
+      "Kirlia": {"role": "Setup", "priority": 3},
+      "Gardevoir": {"role": "Secondary", "priority": 4},
+      "Professor's Research": {"role": "Supporter", "priority": 5},
+      "Poké Ball": {"role": "Item", "priority": 4},
+      "X Speed": {"role": "Item", "priority": 3},
+      "Potion": {"role": "Item", "priority": 2},
+      "Sabrina": {"role": "Supporter", "priority": 4},
+      "Giovanni": {"role": "Supporter", "priority": 3}
+    }
   },
   {
     "deckName": "Charizard EX / Moltres",
@@ -35,7 +47,19 @@
       "Potion", "Potion",
       "Sabrina", "Sabrina",
       "Blaine", "Blaine"
-    ]
+    ],
+    "cardRoles": {
+      "Charizard EX": {"role": "Main Attacker", "priority": 5},
+      "Charmander": {"role": "Setup", "priority": 2},
+      "Charmeleon": {"role": "Setup", "priority": 3},
+      "Moltres": {"role": "Secondary", "priority": 4},
+      "Professor's Research": {"role": "Supporter", "priority": 5},
+      "Poké Ball": {"role": "Item", "priority": 4},
+      "X Speed": {"role": "Item", "priority": 3},
+      "Potion": {"role": "Item", "priority": 2},
+      "Sabrina": {"role": "Supporter", "priority": 4},
+      "Blaine": {"role": "Supporter", "priority": 4}
+    }
   },
   {
     "deckName": "Pikachu EX / Zapdos",
@@ -55,7 +79,20 @@
       "Potion", "Potion",
       "Sabrina", "Sabrina",
       "Giovanni", "Giovanni"
-    ]
+    ],
+    "cardRoles": {
+      "Pikachu EX": {"role": "Main Attacker", "priority": 5},
+      "Zapdos": {"role": "Secondary", "priority": 4},
+      "Electabuzz": {"role": "Setup", "priority": 3},
+      "Voltorb": {"role": "Setup", "priority": 2},
+      "Electrode": {"role": "Secondary", "priority": 3},
+      "Professor's Research": {"role": "Supporter", "priority": 5},
+      "Poké Ball": {"role": "Item", "priority": 4},
+      "X Speed": {"role": "Item", "priority": 3},
+      "Potion": {"role": "Item", "priority": 2},
+      "Sabrina": {"role": "Supporter", "priority": 4},
+      "Giovanni": {"role": "Supporter", "priority": 3}
+    }
   },
   {
     "deckName": "Articuno EX / Starmie EX",
@@ -74,7 +111,19 @@
       "Potion", "Potion",
       "Sabrina", "Sabrina",
       "Misty", "Misty"
-    ]
+    ],
+    "cardRoles": {
+      "Articuno EX": {"role": "Main Attacker", "priority": 5},
+      "Starmie EX": {"role": "Secondary", "priority": 4},
+      "Staryu": {"role": "Setup", "priority": 2},
+      "Lapras": {"role": "Setup", "priority": 3},
+      "Professor's Research": {"role": "Supporter", "priority": 5},
+      "Poké Ball": {"role": "Item", "priority": 4},
+      "X Speed": {"role": "Item", "priority": 3},
+      "Potion": {"role": "Item", "priority": 2},
+      "Sabrina": {"role": "Supporter", "priority": 4},
+      "Misty": {"role": "Supporter", "priority": 5}
+    }
   },
   {
     "deckName": "Marowak EX / Sandslash",
@@ -94,6 +143,19 @@
       "X Speed", "X Speed",
       "Sabrina", "Sabrina",
       "Brock", "Brock"
-    ]
+    ],
+    "cardRoles": {
+      "Marowak EX": {"role": "Main Attacker", "priority": 5},
+      "Cubone": {"role": "Setup", "priority": 2},
+      "Sandslash": {"role": "Secondary", "priority": 4},
+      "Sandshrew": {"role": "Setup", "priority": 2},
+      "Diglett": {"role": "Setup", "priority": 2},
+      "Dugtrio": {"role": "Secondary", "priority": 3},
+      "Professor's Research": {"role": "Supporter", "priority": 5},
+      "Poké Ball": {"role": "Item", "priority": 4},
+      "X Speed": {"role": "Item", "priority": 3},
+      "Sabrina": {"role": "Supporter", "priority": 4},
+      "Brock": {"role": "Supporter", "priority": 4}
+    }
   }
 ]
