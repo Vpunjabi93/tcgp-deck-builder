@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.prob-list-card').forEach(el => {
                 el.addEventListener('click', () => {
                     const cid = el.dataset.id;
-                    el.classList.toggle('card-selected');
+                    el.classList.toggle('selected-card');
                     
                     if (!window.selectedCardsForLab) window.selectedCardsForLab = [];
                     if (window.selectedCardsForLab.includes(cid)) {
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (uniqueCards.length > 0) {
                 window.selectedCardsForLab = [uniqueCards[0].id];
                 const firstCardEl = document.querySelector('.prob-list-card');
-                if (firstCardEl) firstCardEl.classList.add('card-selected');
+                if (firstCardEl) firstCardEl.classList.add('selected-card');
             } else {
                 window.selectedCardsForLab = [];
             }

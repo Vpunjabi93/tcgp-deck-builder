@@ -175,6 +175,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // AI Deck Builder Bridge
+    const btnAiBuild = document.getElementById('btn-ai-build');
+    if (btnAiBuild) {
+        btnAiBuild.addEventListener('click', () => {
+            const playstyle = document.getElementById('db-playstyle-select').value;
+            const outputArea = document.getElementById('recommender-output');
+            outputArea.classList.remove('hidden');
+            outputArea.innerHTML = '<span class="empty-state">Gemini AI is building your deck...</span>';
+            fetchAISuggestion(playstyle);
+        });
+    }
 });
 
 // --- Firebase Cloud Sync (Mock) ---
@@ -457,8 +469,9 @@ window.generateCardHTML = function(card, imgClass = '') {
     const paddedNum = numPart.padStart(3, '0');
     const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode; 
     const fallbackB_URL = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
+    const fallbackC_URL = `https://placehold.co/400x560/161b22/8b949e?text=Card+Art+Offline`;
     
-    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){this.src='data/images/card_offline.webp'};">`;
+    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){this.src='${fallbackC_URL}'};">`;
 };
 
 // --- Collection Manager ---
@@ -805,3 +818,63 @@ async function updateOpponentPrediction() {
         resultsContainer.innerHTML = '<p class="empty-text" style="color:var(--accent-red)">Prediction engine offline (strategy.js missing).</p>';
     }
 }
+
+// --- AI Strategy Bridge ---
+window.fetchAISuggestion = async function(playstyle) {
+    const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    const allCards = window.TCGP_CARDS || [];
+    
+    const formattedCollection = {};
+    for (const [id, count] of Object.entries(myCollection)) {
+        if (count > 0) {
+            const card = allCards.find(c => c.id === id);
+            if (card) {
+                formattedCollection[card.name] = (formattedCollection[card.name] || 0) + count;
+            }
+        }
+    }
+    const collectionJson = JSON.stringify(formattedCollection);
+    const prompt = `Acting as a TCG Pocket Pro, build the best 20-card ${playstyle} deck using ONLY these cards: ${collectionJson}. Return ONLY a JSON array of 20 card names.`;
+
+    const apiKey = sessionStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+        alert("Please set your Gemini API key first!");
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+
+        if (!response.ok) throw new Error("API Auth Error");
+
+        const data = await response.json();
+        const responseText = data.candidates[0].content.parts[0].text;
+        
+        const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) throw new Error("AI returned invalid format.");
+        const suggestedCards = JSON.parse(jsonMatch[0]);
+
+        validateAndApplyAIDeck(suggestedCards);
+    } catch (e) {
+        console.error("Gemini Build Error:", e);
+        const out = document.getElementById('recommender-output');
+        if(out) out.innerHTML = `<span class="empty-state" style="color:var(--accent-red)">AI error: ${e.message}</span>`;
+    }
+};
+
+window.validateAndApplyAIDeck = function(cardNamesArray) {
+    console.log("AI Suggested Deck:", cardNamesArray);
+    const out = document.getElementById('recommender-output');
+    if(out) {
+        out.innerHTML = `<div style="background:var(--bg-dark); padding:12px; border-radius:8px;">
+            <p style="color:var(--accent-gold); margin-bottom:8px;">AI Deck Built!</p>
+            <div style="font-size:0.9rem;">${cardNamesArray.join(', ')}</div>
+        </div>`;
+    }
+};

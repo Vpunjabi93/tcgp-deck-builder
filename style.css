@@ -724,8 +724,9 @@ input[type="range"] {
 .prob-list-card:hover {
   opacity: 0.8;
 }
-.prob-list-card.card-selected {
+.prob-list-card.selected-card {
   border-color: var(--accent-gold);
+  border-width: 2px;
   opacity: 1;
   box-shadow: 0 0 10px rgba(245, 197, 24, 0.4);
 }
