@@ -469,9 +469,9 @@ window.generateCardHTML = function(card, imgClass = '') {
     const paddedNum = numPart.padStart(3, '0');
     const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode; 
     const fallbackB_URL = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
-    const fallbackC_URL = `https://placehold.co/400x560/161b22/8b949e?text=Card+Art+Offline`;
+    const fallbackC_URL = `https://placehold.co/400x560?text=Offline`;
     
-    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){this.src='${fallbackC_URL}'};">`;
+    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=()=>this.src='${fallbackC_URL}'">`;
 };
 
 // --- Collection Manager ---
@@ -836,9 +836,13 @@ window.fetchAISuggestion = async function(playstyle) {
     const collectionJson = JSON.stringify(formattedCollection);
     const prompt = `Acting as a TCG Pocket Pro, build the best 20-card ${playstyle} deck using ONLY these cards: ${collectionJson}. Return ONLY a JSON array of 20 card names.`;
 
-    const apiKey = sessionStorage.getItem('gemini_api_key');
+    const apiKey = localStorage.getItem('gemini_api_key');
     if (!apiKey) {
-        alert("Please set your Gemini API key first!");
+        if (typeof window.showToast === 'function') {
+            window.showToast('Please enter your API Key in Settings.', 'error');
+        } else {
+            alert('Please enter your API Key in Settings.');
+        }
         return;
     }
 

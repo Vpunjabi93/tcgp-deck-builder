@@ -202,6 +202,10 @@ let cachedMetaDecks = null;
  * @returns {Promise<Array>} Top 2 most likely deck matches with confidence and warnings
  */
 async function predictOpponentDeck(revealedCards) {
+    if (revealedCards && revealedCards.length < 4) {
+        return [{ archetype: "Analyzing patterns (2 rounds required)...", confidenceScore: 0 }];
+    }
+
     if (!cachedMetaDecks) {
         try {
             const res = await fetch('data/meta_decks.json');

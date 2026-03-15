@@ -185,27 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Add click listeners
             document.querySelectorAll('.prob-list-card').forEach(el => {
-                el.addEventListener('click', () => {
-                    const cid = el.dataset.id;
-                    el.classList.toggle('selected-card');
-                    
-                    if (!window.selectedCardsForLab) window.selectedCardsForLab = [];
-                    if (window.selectedCardsForLab.includes(cid)) {
-                        window.selectedCardsForLab = window.selectedCardsForLab.filter(id => id !== cid);
-                    } else {
-                        window.selectedCardsForLab.push(cid);
-                    }
-                    
-                    // Update slider based on selection
-                    let totalK = 0;
-                    window.selectedCardsForLab.forEach(id => {
-                        totalK += currentLoadedDeck.filter(card => card.id === id).length;
-                    });
-                    document.getElementById('slider-target-copies').value = totalK;
-                    document.getElementById('val-target-copies').innerText = totalK;
-                    
-                    updateCalculations();
-                });
+                el.onclick = () => window.toggleLabCardSelection(el);
             });
 
             if (uniqueCards.length > 0) {
@@ -280,6 +260,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderChart(chartLabels, chartData);
     }
+
+    window.toggleLabCardSelection = function(el) {
+        const cid = el.dataset.id || el.getAttribute('data-id');
+        el.classList.toggle('selected-card');
+        
+        if (!window.selectedCardsForLab) window.selectedCardsForLab = [];
+        if (window.selectedCardsForLab.includes(cid)) {
+            window.selectedCardsForLab = window.selectedCardsForLab.filter(id => id !== cid);
+        } else {
+            window.selectedCardsForLab.push(cid);
+        }
+        
+        // Update slider based on selection
+        let totalK = 0;
+        window.selectedCardsForLab.forEach(id => {
+            if (currentLoadedDeck) {
+                totalK += currentLoadedDeck.filter(card => card.id === id).length;
+            }
+        });
+        const sliderTarget = document.getElementById('slider-target-copies');
+        const valTarget = document.getElementById('val-target-copies');
+        if (sliderTarget) sliderTarget.value = totalK;
+        if (valTarget) valTarget.innerText = totalK;
+        
+        if (typeof updateCalculations === 'function') {
+            updateCalculations();
+        }
+    };
 
     function renderChart(labels, data) {
         const ctx = document.getElementById('prob-chart').getContext('2d');
