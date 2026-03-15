@@ -868,13 +868,3 @@ window.fetchAISuggestion = async function(playstyle) {
     }
 };
 
-window.validateAndApplyAIDeck = function(cardNamesArray) {
-    console.log("AI Suggested Deck:", cardNamesArray);
-    const out = document.getElementById('recommender-output');
-    if(out) {
-        out.innerHTML = `<div style="background:var(--bg-dark); padding:12px; border-radius:8px;">
-            <p style="color:var(--accent-gold); margin-bottom:8px;">AI Deck Built!</p>
-            <div style="font-size:0.9rem;">${cardNamesArray.join(', ')}</div>
-        </div>`;
-    }
-};

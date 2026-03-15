@@ -391,6 +391,139 @@ async function recommendDecks(playstyle) {
     return recommendations.slice(0, 2);
 }
 
+const BASICS_MAP = {
+    "Ivysaur": "Bulbasaur", "Venusaur": "Bulbasaur",
+    "Charmeleon": "Charmander", "Charizard": "Charmander",
+    "Wartortle": "Squirtle", "Blastoise": "Squirtle",
+    "Metapod": "Caterpie", "Butterfree": "Caterpie",
+    "Kakuna": "Weedle", "Beedrill": "Weedle",
+    "Pidgeotto": "Pidgey", "Pidgeot": "Pidgey",
+    "Raticate": "Rattata", "Fearow": "Spearow",
+    "Arbok": "Ekans", "Raichu": "Pikachu",
+    "Sandslash": "Sandshrew", "Nidorina": "Nidoran♀", "Nidoqueen": "Nidoran♀",
+    "Nidorino": "Nidoran♂", "Nidoking": "Nidoran♂",
+    "Clefable": "Clefairy", "Ninetales": "Vulpix",
+    "Wigglytuff": "Jigglypuff", "Golbat": "Zubat",
+    "Gloom": "Oddish", "Vileplume": "Oddish", "Bellossom": "Oddish",
+    "Parasect": "Paras", "Venomoth": "Venonat", "Dugtrio": "Diglett",
+    "Persian": "Meowth", "Golduck": "Psyduck", "Primeape": "Mankey",
+    "Arcanine": "Growlithe", "Poliwhirl": "Poliwag", "Poliwrath": "Poliwag",
+    "Kadabra": "Abra", "Alakazam": "Abra", "Machoke": "Machop", "Machamp": "Machop",
+    "Weepinbell": "Bellsprout", "Victreebel": "Bellsprout",
+    "Tentacruel": "Tentacool", "Graveler": "Geodude", "Golem": "Geodude",
+    "Rapidash": "Ponyta", "Slowbro": "Slowpoke", "Magneton": "Magnemite",
+    "Dodrio": "Doduo", "Dewgong": "Seel", "Muk": "Grimer",
+    "Cloyster": "Shellder", "Haunter": "Gastly", "Gengar": "Gastly",
+    "Hypno": "Drowzee", "Kingler": "Krabby", "Electrode": "Voltorb",
+    "Exeggutor": "Exeggcute", "Marowak": "Cubone", "Weezing": "Koffing",
+    "Rhydon": "Rhyhorn", "Rhyperior": "Rhyhorn", "Seadra": "Horsea",
+    "Seaking": "Goldeen", "Starmie": "Staryu", "Gyarados": "Magikarp",
+    "Vaporeon": "Eevee", "Jolteon": "Eevee", "Flareon": "Eevee",
+    "Omastar": "Omanyte", "Kabutops": "Kabuto", "Dragonair": "Dratini", "Dragonite": "Dratini",
+    "Melmetal": "Meltan", "Bisharp": "Pawniard",
+    "Swoobat": "Woobat", "Golurk": "Golett", 
+    "Mienshao": "Mienfoo", "Grapploct": "Clobbopus", "Salazzle": "Salandit",
+    "Centiskorch": "Sizzlipede", "Frosmoth": "Snom", "Whimsicott": "Cottonee",
+    "Lilligant": "Petilil", "Gogoat": "Skiddo", "Kirlia": "Ralts", "Gardevoir": "Ralts",
+    "Piloswine": "Swinub", "Mamoswine": "Swinub", "Prinplup": "Piplup", "Empoleon": "Piplup",
+    "Luxio": "Shinx", "Luxray": "Shinx", "Gabite": "Gible", "Garchomp": "Gible"
+};
+
+function getBasicForm(cardName) {
+    if(!cardName) return null;
+    let clean = cardName.replace(/ ex$/i, '');
+    return BASICS_MAP[clean] || null;
+}
+
+window.validateAndApplyAIDeck = function(aiNamesArray) {
+    if(!aiNamesArray || !Array.isArray(aiNamesArray)) return;
+    console.log("Original AI Suggestion:", aiNamesArray);
+    
+    // Step 1: The Resolver
+    let resolvedCards = [];
+    aiNamesArray.forEach(name => {
+        let match = window.TCGP_CARDS.find(c => c.name.toLowerCase() === name.toLowerCase());
+        if (match) {
+            resolvedCards.push(match);
+        }
+    });
+
+    // Step 2: The Inventory Filter
+    let validatedDeck = [];
+    let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    let tempInventory = { ...myCollection };
+
+    resolvedCards.forEach(card => {
+        let countInDeck = validatedDeck.filter(c => c.name === card.name).length;
+        if (tempInventory[card.id] > 0 && countInDeck < 2) {
+            validatedDeck.push(card);
+            tempInventory[card.id]--;
+        }
+    });
+
+    // Step 3: The Evolution Safeguard
+    validatedDeck = validatedDeck.filter(card => {
+        if (card.stage === 'Stage 1' || card.stage === 'Stage 2' || card.stage === 'Stage1' || card.stage === 'Stage2') {
+            const basicName = getBasicForm(card.name);
+            if (basicName) {
+                const hasBasic = validatedDeck.some(c => c.name.startsWith(basicName));
+                if (!hasBasic) {
+                    console.warn(`Removing ${card.name} due to missing Basic (${basicName})`);
+                    return false;
+                }
+            }
+        }
+        return true;
+    });
+
+    // Step 4: The Safety Net (Fill to 20)
+    if (validatedDeck.length < 20) {
+        console.log(`Auto-filling ${20 - validatedDeck.length} slots...`);
+        
+        let remainingCards = Object.keys(tempInventory).map(id => ({
+            id: id,
+            qty: tempInventory[id]
+        })).filter(item => item.qty > 0);
+
+        remainingCards.sort((a, b) => b.qty - a.qty);
+
+        for (let item of remainingCards) {
+            if (validatedDeck.length >= 20) break;
+            let cardObj = window.TCGP_CARDS.find(c => c.id === item.id);
+            if (cardObj && (cardObj.type === 'Item' || cardObj.type === 'Supporter')) {
+                let countInDeck = validatedDeck.filter(c => c.name === cardObj.name).length;
+                let canAdd = Math.min(item.qty, 2 - countInDeck);
+                for (let i = 0; i < canAdd; i++) {
+                    if (validatedDeck.length < 20) {
+                        validatedDeck.push(cardObj);
+                    }
+                }
+            }
+        }
+    }
+
+    // Step 5: Deployment
+    window.currentDeck = validatedDeck;
+    
+    if (typeof window.renderDeckSlots === 'function') window.renderDeckSlots();
+    if (typeof window.renderDeckBuilderSidebar === 'function') window.renderDeckBuilderSidebar();
+    
+    if (typeof window.showToast === 'function') {
+        window.showToast('AI Strategy Validated & Applied \u2713', 'success');
+    }
+    
+    // Update the recommender output
+    const out = document.getElementById('recommender-output');
+    if(out) {
+        out.innerHTML = `<div style="background:var(--bg-dark); border: 1px solid var(--accent-gold); padding:12px; border-radius:8px;">
+            <p style="color:var(--accent-gold); margin-bottom:8px;">Deck Applied Successfully</p>
+            <div style="font-size:0.9rem; color:var(--text-muted);">
+                We validated your inventory, enforced the 2-copy rule, and checked for evolution orphans. ${validatedDeck.length < 20 ? 'We could only find ' + validatedDeck.length + ' cards.' : 'You have a full 20-card deck!'} Choose "Save Deck" when ready.
+            </div>
+        </div>`;
+    }
+};
+
 // Export for module usage or browser env
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
