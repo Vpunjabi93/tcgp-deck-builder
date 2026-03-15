@@ -436,10 +436,15 @@ function getBasicForm(cardName) {
 }
 
 window.validateAndApplyAIDeck = function(aiNamesArray) {
-    if(!aiNamesArray || !Array.isArray(aiNamesArray)) return;
+    if(!aiNamesArray || !Array.isArray(aiNamesArray) || aiNamesArray.length === 0) {
+        if (typeof window.showToast === 'function') {
+            window.showToast('AI could not generate a deck. Try a different playstyle.', 'error');
+        }
+        return;
+    }
     console.log("Original AI Suggestion:", aiNamesArray);
     
-    // Step 1: The Resolver
+    // 1. The Resolver (Names to IDs)
     let resolvedCards = [];
     aiNamesArray.forEach(name => {
         let match = window.TCGP_CARDS.find(c => c.name.toLowerCase() === name.toLowerCase());
@@ -448,7 +453,7 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         }
     });
 
-    // Step 2: The Inventory Filter
+    // 2. The Inventory Check
     let validatedDeck = [];
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     let tempInventory = { ...myCollection };
@@ -461,7 +466,7 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         }
     });
 
-    // Step 3: The Evolution Safeguard
+    // 3. Evolution Integrity
     validatedDeck = validatedDeck.filter(card => {
         if (card.stage === 'Stage 1' || card.stage === 'Stage 2' || card.stage === 'Stage1' || card.stage === 'Stage2') {
             const basicName = getBasicForm(card.name);
@@ -476,7 +481,7 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         return true;
     });
 
-    // Step 4: The Safety Net (Fill to 20)
+    // 4. The Safety Net (Fill to 20)
     if (validatedDeck.length < 20) {
         console.log(`Auto-filling ${20 - validatedDeck.length} slots...`);
         
@@ -502,7 +507,7 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         }
     }
 
-    // Step 5: Deployment
+    // 5. UI Deployment
     window.currentDeck = validatedDeck;
     
     if (typeof window.renderDeckSlots === 'function') window.renderDeckSlots();

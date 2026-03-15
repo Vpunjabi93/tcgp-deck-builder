@@ -842,6 +842,12 @@ window.fetchAISuggestion = async function(playstyle) {
         return;
     }
 
+    const btn = document.getElementById('btn-ai-build');
+    if (btn) {
+        btn.innerHTML = `<span class='spinner'></span> Analyzing...`;
+        btn.classList.add('btn-loading');
+    }
+
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
@@ -858,13 +864,26 @@ window.fetchAISuggestion = async function(playstyle) {
         
         const jsonMatch = responseText.match(/\[[\s\S]*\]/);
         if (!jsonMatch) throw new Error("AI returned invalid format.");
-        const suggestedCards = JSON.parse(jsonMatch[0]);
+        
+        let suggestedCards = [];
+        try {
+            suggestedCards = JSON.parse(jsonMatch[0]);
+        } catch(e) {
+            throw new Error("Could not parse AI array.");
+        }
 
-        validateAndApplyAIDeck(suggestedCards);
+        if(typeof window.validateAndApplyAIDeck === 'function') {
+            window.validateAndApplyAIDeck(suggestedCards);
+        }
     } catch (e) {
         console.error("Gemini Build Error:", e);
         const out = document.getElementById('recommender-output');
         if(out) out.innerHTML = `<span class="empty-state" style="color:var(--accent-red)">AI error: ${e.message}</span>`;
+    } finally {
+        if (btn) {
+            btn.innerHTML = 'AI Build \u2728';
+            btn.classList.remove('btn-loading');
+        }
     }
 };
 
