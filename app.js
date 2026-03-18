@@ -859,17 +859,85 @@ window.fetchAISuggestion = async function(playstyle) {
     const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     const allCards = window.TCGP_CARDS || [];
     
-    const formattedCollection = {};
-    for (const [id, count] of Object.entries(myCollection)) {
-        if (count > 0) {
-            const card = allCards.find(c => c.id === id);
-            if (card) {
-                formattedCollection[card.name] = (formattedCollection[card.name] || 0) + count;
-            }
-        }
-    }
-    const collectionJson = JSON.stringify(formattedCollection);
-    const prompt = `Acting as a TCG Pocket Pro, build the best 20-card ${playstyle} deck using ONLY these cards: ${collectionJson}. Return ONLY a JSON array of 20 card names.`;
+// Step 1: Build a richer collection summary using available data
+    const collectionSummary = Object.entries(myCollection)
+        .filter(([id, qty]) => qty > 0)
+        .map(([id, qty]) => {
+            const card = window.TCGP_CARDS.find(c => c.id === id);
+            if (!card) return null;
+            return `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty})`;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+    // Step 2: Replace the prompt with this deep strategy version
+    const prompt = `You are a world-class Pokémon TCG Pocket competitive 
+player and deck architect.
+
+I will give you my card collection with structural data. 
+You already know every card's attacks, abilities, and effects 
+from your training. Use that knowledge combined with the 
+structural data I provide to build the optimal deck.
+
+THINK THROUGH THESE STEPS IN ORDER:
+
+STEP 1 — WIN CONDITION
+From my collection, identify the single strongest win condition.
+This is typically the highest-HP EX or Stage 2 with the best 
+attack-to-energy ratio. Name it and commit to building around it.
+
+STEP 2 — ENERGY ACCELERATION
+Using your knowledge of card abilities:
+- Does any card in my collection have a passive that generates 
+  or attaches energy? (e.g. Gardevoir's Psy Shadow, Electrode's 
+  Magnetic Circuit, Misty's energy flip)
+- If yes, that card is MANDATORY. It cuts turns to power up 
+  the win condition by 1-2 turns.
+- If no acceleration exists, choose a win condition with lower 
+  energy cost (preferably 2 energy or less).
+
+STEP 3 — STATUS & TEMPO TOOLS  
+Using your knowledge of card effects:
+- Is there a card that inflicts Sleep, Paralysis, or Poison?
+- Avoid flip-dependent attacks as PRIMARY win conditions.
+  They are high variance. Use them only as secondary options.
+- A status setter + heavy hitter combo is stronger than 
+  two heavy hitters.
+
+STEP 4 — PASSIVE ABILITY CHAINS
+Using your knowledge of card abilities:
+- Any card that draws extra cards (Bibarel, Clefable)?
+- Any card that reduces opponent's retreat cost or punishes retreat?
+- Any card that buffs the active's damage output?
+Include if it saves 1+ turns or gives a consistent advantage.
+
+STEP 5 — RETREAT SAFETY
+Using the retreat cost data I provided:
+- Include at least 1 Pokémon with retreat cost 0 or 1 as a pivot.
+- Avoid building a deck where ALL Pokémon have retreat cost 3+.
+
+STEP 6 — EVOLUTION INTEGRITY
+Every Stage 1 needs its Basic. Every Stage 2 needs its Stage 1 AND Basic.
+Never include an evolution without the complete line.
+Check the stage data I provided carefully.
+
+STEP 7 — CONSISTENCY FLOOR
+- Minimum 3 Basic Pokémon (use stage + HP data to identify)
+- Minimum 2 Supporter cards
+- Maximum 2 copies of any single card name
+- Exactly 20 cards total
+
+PLAYSTYLE TARGET: ${playstyle}
+- Aggro: maximise early damage, low retreat costs, fast energy
+- Control: status conditions, retreat punishment, defensive bulk  
+- Balanced: resilient engine with setup speed
+
+MY COLLECTION (name, type, stage, HP, retreat cost, quantity):
+${collectionSummary}
+
+Now output ONLY a valid JSON array of exactly 20 card name strings.
+Duplicates allowed up to 2 copies per name.
+No markdown. No explanation. No code blocks. Just the raw JSON array.`;
 
     const apiKey = localStorage.getItem('tcgp_gemini_api_key');
     console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
