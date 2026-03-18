@@ -705,8 +705,11 @@ function renderDeckSlots() {
 
         if (card) {
             slot.classList.add('filled');
-            slot.style.backgroundImage = `url(${card.img})`;
-            slot.innerHTML = `<button class="remove-card" onclick="removeFromDeck(${i})">×</button>`;
+            // Use generateCardHTML so fallback text triggers on broken images
+            slot.innerHTML = `
+                ${window.generateCardHTML(card, 'deck-slot-img')}
+                <button class="remove-card" onclick="removeFromDeck(${i})">×</button>
+            `;
         } else {
             slot.innerHTML = `<div class="slot-number">${i + 1}</div>`;
         }

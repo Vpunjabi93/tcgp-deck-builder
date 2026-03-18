@@ -1252,3 +1252,26 @@ input[type="range"] {
     color: var(--text-muted);
     font-style: italic;
 }
+
+/* ── Deck Slot Image (replaces backgroundImage approach) ── */
+.deck-slot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+}
+
+/* Fallback div inside a deck slot inherits slot sizing */
+.deck-slot .card-name-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    justify-content: center;
+    padding: 4px;
+}
+
+.deck-slot .fallback-name {
+    font-size: 0.7rem;
+}
