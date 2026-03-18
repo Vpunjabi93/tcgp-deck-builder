@@ -1,5 +1,7 @@
 // app.js - Main Application Logic for TCGP Analyzer
 
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+
 window.TCGP_CARDS = []; // Global declaration
 window.getAllCards = function() { return window.TCGP_CARDS || []; };
 window.selectedCardsForLab = []; // Global array for Probability Lab
@@ -467,7 +469,7 @@ async function saveApiKey() {
 
     try {
         const testResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${input}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${input}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -887,7 +889,7 @@ window.fetchAISuggestion = async function(playstyle) {
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
