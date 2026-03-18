@@ -1,6 +1,8 @@
+let SYNERGY_TAGS = {};
 // strategy.js - Deck Analyzer and Synergy Suggester
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadSynergyTags();
     // We bind the "Check Strategy" button from app.js Deck Builder
     document.getElementById('btn-analyze-deck').addEventListener('click', analyzeCurrentDeck);
 });
@@ -275,13 +277,75 @@ function getRarityScore(rarity) {
     return 0;
 }
 
-function inferCardRole(card) {
-    if (!card) return 'Tech';
-    if (card.type === 'Supporter' || card.type === 'Item') return card.type;
-    if ((card.name && card.name.toLowerCase().includes('ex')) || card.stage === 'Stage 2') return 'Main Attacker';
+async function loadSynergyTags() {
+    try {
+        const res = await fetch('data/synergy_tags.json');
+        SYNERGY_TAGS = await res.json();
+    } catch(e) {
+        console.warn('synergy_tags.json failed to load. Synergy scoring disabled.');
+        SYNERGY_TAGS = {};
+    }
+}
+
+function getSynergyScore(card, collectionContext) {
+    const synergyData = SYNERGY_TAGS[card.name];
+    if (!synergyData) return 0;
+
+    const context = collectionContext || [];
+    const tags = synergyData.tags || [];
+    let score = synergyData.bonus || 0;
+
+    if (tags.includes('energy_accel_passive') || tags.includes('energy_accel_attack')) {
+        const hasHeavyAttacker = context.some(c =>
+            c.name?.toLowerCase().includes(' ex') || c.stage === 'Stage 2'
+        );
+        if (!hasHeavyAttacker) score = Math.floor(score * 0.3);
+    }
+
+    if (tags.includes('draw_passive')) {
+        const supporterCount = context.filter(c => c.type === 'Supporter').length;
+        if (supporterCount >= 4) score = Math.floor(score * 0.5);
+    }
+
+    if (tags.includes('damage_boost_trainer') ||
+        tags.includes('energy_accel_trainer') ||
+        tags.includes('heal_trainer') ||
+        tags.includes('disruption_trainer')) {
+        const targets = synergyData.targets || [];
+        const hasTarget = targets.some(t =>
+            context.some(c => c.name === t || c.type === t)
+        );
+        if (!hasTarget) return 0;
+    }
+
+    return score;
+}
+
+function scorePokemon(card, collectionContext) {
+    if (!card) return 0;
+    if (card.type === 'Supporter' || card.type === 'Item') {
+        return getSynergyScore(card, collectionContext || []);
+    }
+
     const hp = parseInt(card.hp) || 0;
-    if (hp <= 70) return 'Setup';
-    return 'Secondary';
+    const retreat = parseInt(card.retreatCost) || 0;
+    const isEX = card.name?.toLowerCase().includes(' ex');
+
+    const bulkScore = hp / 10;
+
+    const stageMultipliers = {
+        'Basic':   isEX ? 2.2 : 1.0,
+        'Stage 1': isEX ? 2.5 : 1.6,
+        'Stage 2': isEX ? 3.0 : 2.2
+    };
+    const stageMultiplier = stageMultipliers[card.stage] || 1.0;
+
+    const retreatPenalty = retreat * 2;
+    const rarityBonus = (typeof getRarityScore === 'function')
+        ? getRarityScore(card.rarity) * 3 : 0;
+    const synergyBonus = getSynergyScore(card, collectionContext || []);
+
+    return (bulkScore * stageMultiplier) + rarityBonus - retreatPenalty + synergyBonus;
 }
 
 /**
@@ -498,6 +562,14 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
             .map(id => ({ id, qty: tempInventory[id] }))
             .filter(item => item.qty > 0);
 
+        remainingCards.sort((a, b) => {
+            const cardA = (window.TCGP_CARDS || []).find(c => c.id === a.id);
+            const cardB = (window.TCGP_CARDS || []).find(c => c.id === b.id);
+            const scoreA = cardA ? scorePokemon(cardA, validatedDeck) : 0;
+            const scoreB = cardB ? scorePokemon(cardB, validatedDeck) : 0;
+            return scoreB - scoreA;
+        });
+
         // Pass A — fill with Basic Pokémon first
         for (let item of remaining) {
             if (validatedDeck.length >= 20) break;
@@ -559,4 +631,6 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
     window.predictOpponentDeck = predictOpponentDeck;
     window.recommendDecks = recommendDecks;
+    window.scorePokemon = scorePokemon;
+    window.BASICS_MAP = BASICS_MAP;
 }

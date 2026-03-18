@@ -860,14 +860,28 @@ window.fetchAISuggestion = async function(playstyle) {
     const allCards = window.TCGP_CARDS || [];
     
 // Step 1: Build a richer collection summary using available data
-    const collectionSummary = Object.entries(myCollection)
+    const allOwnedCards = Object.entries(myCollection)
         .filter(([id, qty]) => qty > 0)
         .map(([id, qty]) => {
             const card = window.TCGP_CARDS.find(c => c.id === id);
             if (!card) return null;
-            return `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty})`;
+            return { card, qty };
         })
-        .filter(Boolean)
+        .filter(Boolean);
+
+    const ownedCardObjects = allOwnedCards.map(o => o.card);
+
+    const collectionSummary = allOwnedCards
+        .map(({ card, qty }) => {
+            const score = typeof window.scorePokemon === 'function'
+                ? window.scorePokemon(card, ownedCardObjects)
+                : 0;
+            return { card, qty, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .map(({ card, qty, score }) =>
+            `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty}, PowerScore:${score.toFixed(1)})`
+        )
         .join('\n');
 
     // Step 2: Replace the prompt with this deep strategy version
