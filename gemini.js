@@ -107,7 +107,7 @@ window.confirmUpload = function() {
 
 // --- Core Gemini Scan ---
 async function processMediaWithGemini(files) {
-    const apiKey = localStorage.getItem('tcgp_gemini_api_key');
+    const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
     if (!apiKey) {
         alert("Please set your Gemini API key first!");
         document.getElementById('api-key-btn').click();

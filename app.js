@@ -1,6 +1,7 @@
 // app.js - Main Application Logic for TCGP Analyzer
 
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+let _sessionApiKey = null;
 
 window.TCGP_CARDS = []; // Global declaration
 window.getAllCards = function() { return window.TCGP_CARDS || []; };
@@ -436,7 +437,7 @@ function setupNavigation() {
 
 // --- API Key Management ---
 function checkApiKey() {
-    const key = localStorage.getItem('tcgp_gemini_api_key');
+    const key = _sessionApiKey;
     const btn = document.getElementById('api-key-btn');
     if (!btn) return;
 
@@ -451,8 +452,7 @@ function checkApiKey() {
 
 function showApiModal() {
     document.getElementById('modal-api').classList.remove('hidden');
-    const existing = localStorage.getItem('tcgp_gemini_api_key');
-    if(existing) document.getElementById('input-api-key').value = existing;
+    // Pre-filling removed per session storage refactor
 }
 
 async function saveApiKey() {
@@ -484,7 +484,7 @@ async function saveApiKey() {
             throw new Error(err.error?.message || 'Key rejected by Gemini.');
         }
 
-        localStorage.setItem('tcgp_gemini_api_key', input);
+        _sessionApiKey = input;
         document.getElementById('modal-api').classList.add('hidden');
         checkApiKey();
         showToast('API Key Verified ✓', 'success');
@@ -939,7 +939,7 @@ Now output ONLY a valid JSON array of exactly 20 card name strings.
 Duplicates allowed up to 2 copies per name.
 No markdown. No explanation. No code blocks. Just the raw JSON array.`;
 
-    const apiKey = localStorage.getItem('tcgp_gemini_api_key');
+    const apiKey = _sessionApiKey;
     console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
     if (!apiKey) {
         if (typeof window.showToast === 'function') {
