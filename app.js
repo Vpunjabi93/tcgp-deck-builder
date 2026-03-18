@@ -871,6 +871,17 @@ window.fetchAISuggestion = async function(playstyle) {
 
     const ownedCardObjects = allOwnedCards.map(o => o.card);
 
+    // Step 2: Run ensemble simulation for card-level signals
+    let simSignals = {};
+    if (typeof window.runEnsembleSimulation === 'function' && ownedCardObjects.length >= 4) {
+        try {
+            const rawSim = window.runEnsembleSimulation(ownedCardObjects, 600);
+            simSignals = rawSim || {};
+        } catch(e) {
+            console.warn('Simulation skipped:', e.message);
+        }
+    }
+
     const collectionSummary = allOwnedCards
         .map(({ card, qty }) => {
             const score = typeof window.scorePokemon === 'function'
@@ -894,16 +905,6 @@ window.fetchAISuggestion = async function(playstyle) {
         })
         .join('\n');
 
-    // Step 2: Run ensemble simulation for card-level signals
-    let simSignals = {};
-    if (typeof window.runEnsembleSimulation === 'function' && ownedCardObjects.length >= 4) {
-        try {
-            const rawSim = window.runEnsembleSimulation(ownedCardObjects, 600);
-            simSignals = rawSim || {};
-        } catch(e) {
-            console.warn('Simulation skipped:', e.message);
-        }
-    }
 
     // Step 3: Replace the prompt with this deep strategy version
     const prompt = `You are a world-class Pokémon TCG Pocket competitive player and deck architect.
