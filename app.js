@@ -983,15 +983,31 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
 
         const data = await response.json();
         const responseText = data.candidates[0].content.parts[0].text;
-        
-        const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) throw new Error("AI returned invalid format.");
-        
+        console.log("Raw Gemini response:", responseText);
+
+        // The JSON array is always the last thing in the response per our prompt.
+        // Use lastIndexOf to find it precisely, ignoring any brackets in the reasoning text.
+        const lastBracket = responseText.lastIndexOf('[');
+        if (lastBracket === -1) throw new Error("AI returned invalid format.");
+
+        let jsonString = responseText.slice(lastBracket);
+        // Strip any accidental markdown code fences
+        jsonString = jsonString.replace(/```json?/gi, '').replace(/```/g, '').trim();
+        // Trim anything after the closing bracket of the array
+        const closingBracket = jsonString.lastIndexOf(']');
+        if (closingBracket === -1) throw new Error("AI returned invalid format.");
+        jsonString = jsonString.slice(0, closingBracket + 1);
+
         let suggestedCards = [];
         try {
-            suggestedCards = JSON.parse(jsonMatch[0]);
+            suggestedCards = JSON.parse(jsonString);
         } catch(e) {
-            throw new Error("Could not parse AI array.");
+            console.error("JSON parse failed on:", jsonString);
+            throw new Error("Could not parse AI array: " + e.message);
+        }
+
+        if (!Array.isArray(suggestedCards) || suggestedCards.length === 0) {
+            throw new Error("AI returned an empty or invalid deck list.");
         }
 
         if(typeof window.validateAndApplyAIDeck === 'function') {
