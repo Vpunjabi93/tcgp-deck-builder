@@ -501,11 +501,26 @@ async function saveApiKey() {
 window.generateCardHTML = function(card, imgClass = '') {
     const numPart = (card.id && card.id.includes('-')) ? card.id.split('-')[1] : '001';
     const paddedNum = numPart.padStart(3, '0');
-    const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode; 
+    const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode;
     const fallbackB_URL = `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/pocket/${cleanSetCode}/${cleanSetCode}_${paddedNum}_EN_SM.webp`;
-    const fallbackC_URL = `https://placehold.co/400x560?text=Offline`;
-    
-    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=()=>this.src='${fallbackC_URL}'">`;
+
+    // Final fallback: named card placeholder styled to match the card grid
+    const safeId = card.id.replace(/[^a-zA-Z0-9-]/g, '_');
+    const safeName = (card.name || 'Unknown').replace(/'/g, "\\'");
+    const safeType = (card.type || 'Colorless').toLowerCase().replace(/[^a-z]/g, '');
+
+    const finalFallback = `
+        (function(el) {
+            var wrap = document.createElement('div');
+            wrap.className = '${imgClass} card-name-fallback card-name-fallback--${safeType}';
+            wrap.setAttribute('data-id', '${safeId}');
+            wrap.innerHTML = '<span class=\\'fallback-set\\'>${card.id}<\\/span><span class=\\'fallback-name\\'>${safeName}<\\/span><span class=\\'fallback-type\\'>${card.type || ''}<\\/span>';
+            el.parentNode.replaceChild(wrap, el);
+        })(this)
+    `.replace(/\n\s*/g, ' ');
+
+    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" 
+        onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){ ${finalFallback} };">`;
 };
 
 // --- Collection Manager ---
