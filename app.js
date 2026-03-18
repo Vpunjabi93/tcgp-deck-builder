@@ -871,77 +871,83 @@ window.fetchAISuggestion = async function(playstyle) {
         .join('\n');
 
     // Step 2: Replace the prompt with this deep strategy version
-    const prompt = `You are a world-class Pokémon TCG Pocket competitive 
-player and deck architect.
+    const prompt = `You are a world-class Pokémon TCG Pocket competitive player and deck architect.
 
-I will give you my card collection with structural data. 
-You already know every card's attacks, abilities, and effects 
-from your training. Use that knowledge combined with the 
-structural data I provide to build the optimal deck.
+I will give you my card collection with structural data.
+You already know every card's attacks, abilities, and effects from your training.
+Use that knowledge combined with the structural data I provide to build the optimal deck.
 
-THINK THROUGH THESE STEPS IN ORDER:
+═══════════════════════════════════
+PHASE 1 — DECK PLAN (think out loud)
+═══════════════════════════════════
+Before choosing cards, write a short DECK PLAN covering these points:
 
-STEP 1 — WIN CONDITION
-From my collection, identify the single strongest win condition.
-This is typically the highest-HP EX or Stage 2 with the best 
-attack-to-energy ratio. Name it and commit to building around it.
+WIN CONDITION:
+- Name the single strongest win condition from my collection.
+- It must be the highest-HP EX or Stage 2 with the best attack-to-energy ratio.
 
-STEP 2 — ENERGY ACCELERATION
-Using your knowledge of card abilities:
-- Does any card in my collection have a passive that generates 
-  or attaches energy? (e.g. Gardevoir's Psy Shadow, Electrode's 
-  Magnetic Circuit, Misty's energy flip)
-- If yes, that card is MANDATORY. It cuts turns to power up 
-  the win condition by 1-2 turns.
-- If no acceleration exists, choose a win condition with lower 
-  energy cost (preferably 2 energy or less).
+ENERGY ACCELERATION:
+- Name any card in my collection with a passive that generates or attaches energy.
+- If one exists, it is MANDATORY. State which card and which ability.
+- If none exists, confirm you will pick a win condition costing 2 energy or less.
 
-STEP 3 — STATUS & TEMPO TOOLS  
-Using your knowledge of card effects:
-- Is there a card that inflicts Sleep, Paralysis, or Poison?
-- Avoid flip-dependent attacks as PRIMARY win conditions.
-  They are high variance. Use them only as secondary options.
-- A status setter + heavy hitter combo is stronger than 
-  two heavy hitters.
+TRAINER SELECTIONS:
+- List every Gym Leader Trainer you plan to include.
+- For each one, explicitly name which Pokémon in THIS deck they target.
+- If no matching Pokémon exist for a Trainer, do NOT include that Trainer.
 
-STEP 4 — PASSIVE ABILITY CHAINS
-Using your knowledge of card abilities:
-- Any card that draws extra cards (Bibarel, Clefable)?
-- Any card that reduces opponent's retreat cost or punishes retreat?
-- Any card that buffs the active's damage output?
-Include if it saves 1+ turns or gives a consistent advantage.
+EVOLUTION LINES:
+- List every evolution card you plan to include.
+- Confirm its Basic (and Stage 1 if Stage 2) is also in the list.
+- If the Basic is missing from my collection, remove the entire line.
 
-STEP 5 — RETREAT SAFETY
-Using the retreat cost data I provided:
-- Include at least 1 Pokémon with retreat cost 0 or 1 as a pivot.
-- Avoid building a deck where ALL Pokémon have retreat cost 3+.
+TYPE SUMMARY:
+- State the deck's dominant Pokémon type.
+- Confirm every Gym Leader Trainer matches that type.
 
-STEP 6 — EVOLUTION INTEGRITY
-Every Stage 1 needs its Basic. Every Stage 2 needs its Stage 1 AND Basic.
-Never include an evolution without the complete line.
-Check the stage data I provided carefully.
+═══════════════════════════════════
+PHASE 2 — SELF-CHECK (audit your plan)
+═══════════════════════════════════
+Before writing the final JSON, answer each question:
 
-STEP 7 — CONSISTENCY FLOOR
-- Minimum 3 Basic Pokémon (use stage + HP data to identify)
-- Minimum 2 Supporter cards
-- Maximum 2 copies of any single card name
-- Exactly 20 cards total
-- Gym Leader Trainers (Brock, Misty, Blaine, Erika, Koga, Lt. Surge) 
-  are ONLY valid if the deck contains at least 2 Pokémon of their 
-  corresponding type. Never include a Gym Leader Trainer in a deck 
-  that does not match their type affinity.
+1. TRAINER TYPE MATCH — Does every Gym Leader Trainer card match the deck's dominant type?
+   Brock = needs Onix/Golem/Geodude/Graveler in the list.
+   Misty = needs Water Pokémon in the list.
+   Blaine = needs Ninetales/Magmar/Rapidash in the list.
+   Erika = needs Grass Pokémon in the list.
+   Koga = needs Grimer/Weezing in the list.
+   Lt. Surge = needs Lightning Pokémon in the list.
+   → If any Trainer fails this check, REMOVE them from the plan.
 
+2. EVOLUTION INTEGRITY — Does every Stage 1 have its Basic? Every Stage 2 have Stage 1 + Basic?
+   → If any evolution is orphaned, remove it or add the missing Basic from my collection.
+
+3. CARD NAME ACCURACY — Is every card name exactly as it appears in my collection data below?
+   → Correct any name that doesn't match exactly.
+
+4. COUNT CHECK — Does your list total exactly 20 cards?
+   → Add or remove cards until it is exactly 20.
+
+5. DUPLICATE CHECK — Does any single card name appear more than 2 times?
+   → Reduce to maximum 2 copies.
+
+6. POKÉMON MINIMUM — Does the list contain at least 4 Basic Pokémon?
+   → If not, replace Trainer/Item cards with Basic Pokémon from my collection.
+
+═══════════════════════════════════
+PHASE 3 — FINAL OUTPUT
+═══════════════════════════════════
 PLAYSTYLE TARGET: ${playstyle}
 - Aggro: maximise early damage, low retreat costs, fast energy
-- Control: status conditions, retreat punishment, defensive bulk  
+- Control: status conditions, retreat punishment, defensive bulk
 - Balanced: resilient engine with setup speed
 
 MY COLLECTION (name, type, stage, HP, retreat cost, quantity):
 ${collectionSummary}
 
-Now output ONLY a valid JSON array of exactly 20 card name strings.
-Duplicates allowed up to 2 copies per name.
-No markdown. No explanation. No code blocks. Just the raw JSON array.`;
+Now output your DECK PLAN, then your SELF-CHECK answers, then FINALLY a JSON array of exactly 20 card name strings.
+The JSON must be the last thing in your response.
+No markdown fences around the JSON. No code blocks. Just the raw array at the end.`;
 
     const apiKey = _sessionApiKey;
     console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
@@ -965,7 +971,8 @@ No markdown. No explanation. No code blocks. Just the raw JSON array.`;
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.2 }
             })
         });
 

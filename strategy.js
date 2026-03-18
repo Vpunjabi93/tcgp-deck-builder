@@ -442,115 +442,110 @@ function getBasicForm(cardName) {
 }
 
 window.validateAndApplyAIDeck = function(aiNamesArray) {
-    if(!aiNamesArray || !Array.isArray(aiNamesArray) || aiNamesArray.length === 0) {
+    if (!aiNamesArray || !Array.isArray(aiNamesArray) || aiNamesArray.length === 0) {
         if (typeof window.showToast === 'function') {
             window.showToast('AI could not generate a deck. Try a different playstyle.', 'error');
         }
         return;
     }
     console.log("Original AI Suggestion:", aiNamesArray);
-    
-    // 1. The Resolver (Names to IDs)
-    let resolvedCards = [];
-    aiNamesArray.forEach(name => {
-        let match = window.TCGP_CARDS.find(c => c.name.toLowerCase() === name.toLowerCase());
-        if (match) {
-            resolvedCards.push(match);
-        }
-    });
 
-    // 2. The Inventory Check
-    let validatedDeck = [];
+    const allCards = window.TCGP_CARDS || [];
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     let tempInventory = { ...myCollection };
 
+    // GUARDRAIL 1 — Resolve names to card objects (exact match)
+    let resolvedCards = [];
+    aiNamesArray.forEach(name => {
+        const match = allCards.find(c => c.name.toLowerCase() === name.toLowerCase());
+        if (match) resolvedCards.push(match);
+    });
+
+    // GUARDRAIL 2 — Inventory reality check + 2-copy hard cap
+    let validatedDeck = [];
     resolvedCards.forEach(card => {
-        let countInDeck = validatedDeck.filter(c => c.name === card.name).length;
+        const countInDeck = validatedDeck.filter(c => c.name === card.name).length;
         if (tempInventory[card.id] > 0 && countInDeck < 2) {
             validatedDeck.push(card);
             tempInventory[card.id]--;
         }
     });
 
-    // 3. Evolution Integrity
-    validatedDeck = validatedDeck.filter(card => {
-        if (card.stage === 'Stage 1' || card.stage === 'Stage 2' || card.stage === 'Stage1' || card.stage === 'Stage2') {
-            const basicName = getBasicForm(card.name);
-            if (basicName) {
-                const hasBasic = validatedDeck.some(c => c.name.startsWith(basicName));
-                if (!hasBasic) {
-                    console.warn(`Removing ${card.name} due to missing Basic (${basicName})`);
-                    return false;
-                }
-            }
-        }
-        return true;
-    });
-
-    // 3b. Trainer-Type Compatibility Filter
-    const TRAINER_TYPE_REQUIREMENTS = {
-        'Brock':     'Fighting',
-        'Misty':     'Water',
-        'Blaine':    'Fire',
-        'Erika':     'Grass',
-        'Koga':      'Poison',
-        'Lt. Surge': 'Lightning'
+    // GUARDRAIL 3 — Strip incompatible Gym Leader Trainers
+    const BROCK_TARGETS = ['Onix', 'Golem', 'Geodude', 'Graveler', 'Rhyhorn', 'Rhydon'];
+    const TRAINER_TYPE_MAP = {
+        'Misty':     { type: 'Water' },
+        'Blaine':    { type: 'Fire' },
+        'Erika':     { type: 'Grass' },
+        'Koga':      { type: 'Poison' },
+        'Lt. Surge': { type: 'Lightning' }
     };
 
     validatedDeck = validatedDeck.filter(card => {
-        const requiredType = TRAINER_TYPE_REQUIREMENTS[card.name];
-        if (!requiredType) return true;
-        const hasMatchingType = validatedDeck.some(c => c.type === requiredType);
-        if (!hasMatchingType) {
-            console.warn(`Removing ${card.name} — no ${requiredType} Pokémon in deck`);
-            return false;
+        if (card.name === 'Brock') {
+            return validatedDeck.some(c => BROCK_TARGETS.includes(c.name));
+        }
+        const trainerRule = TRAINER_TYPE_MAP[card.name];
+        if (trainerRule) {
+            return validatedDeck.some(c => c.type === trainerRule.type);
         }
         return true;
     });
 
-    // 4. The Safety Net (Fill to 20)
+    // GUARDRAIL 4 — Safety Net: fill Basics first, then Trainers
     if (validatedDeck.length < 20) {
-        console.log(`Auto-filling ${20 - validatedDeck.length} slots...`);
-        
-        let remainingCards = Object.keys(tempInventory).map(id => ({
-            id: id,
-            qty: tempInventory[id]
-        })).filter(item => item.qty > 0);
+        const remaining = Object.keys(tempInventory)
+            .map(id => ({ id, qty: tempInventory[id] }))
+            .filter(item => item.qty > 0);
 
-        remainingCards.sort((a, b) => b.qty - a.qty);
-
-        for (let item of remainingCards) {
+        // Pass A — fill with Basic Pokémon first
+        for (let item of remaining) {
             if (validatedDeck.length >= 20) break;
-            let cardObj = window.TCGP_CARDS.find(c => c.id === item.id);
-            if (cardObj && (cardObj.type === 'Item' || cardObj.type === 'Supporter')) {
-                let countInDeck = validatedDeck.filter(c => c.name === cardObj.name).length;
-                let canAdd = Math.min(item.qty, 2 - countInDeck);
-                for (let i = 0; i < canAdd; i++) {
-                    if (validatedDeck.length < 20) {
-                        validatedDeck.push(cardObj);
-                    }
-                }
+            const card = allCards.find(c => c.id === item.id);
+            if (card && card.stage === 'Basic' && card.type !== 'Supporter' && card.type !== 'Item') {
+                const countInDeck = validatedDeck.filter(c => c.name === card.name).length;
+                if (countInDeck < 2) validatedDeck.push(card);
             }
+        }
+
+        // Pass B — fill remaining slots with Trainers (re-check compatibility)
+        for (let item of remaining) {
+            if (validatedDeck.length >= 20) break;
+            const card = allCards.find(c => c.id === item.id);
+            if (!card || (card.type !== 'Item' && card.type !== 'Supporter')) continue;
+
+            // Re-apply Gym Leader Trainer compatibility before adding
+            if (card.name === 'Brock' && !validatedDeck.some(c => BROCK_TARGETS.includes(c.name))) continue;
+            const trainerRule = TRAINER_TYPE_MAP[card.name];
+            if (trainerRule && !validatedDeck.some(c => c.type === trainerRule.type)) continue;
+
+            const countInDeck = validatedDeck.filter(c => c.name === card.name).length;
+            if (countInDeck < 2) validatedDeck.push(card);
         }
     }
 
-    // 5. UI Deployment
+    // GUARDRAIL 5 — Warn if deck is critically short
+    if (validatedDeck.length < 15) {
+        window.showToast(`Only ${validatedDeck.length} cards validated — try expanding your collection.`, 'error');
+    }
+
+    // Deploy
     window.currentDeck = validatedDeck;
-    
     if (typeof window.renderDeckSlots === 'function') window.renderDeckSlots();
     if (typeof window.renderDeckBuilderSidebar === 'function') window.renderDeckBuilderSidebar();
-    
     if (typeof window.showToast === 'function') {
         window.showToast('AI Strategy Validated & Applied \u2713', 'success');
     }
-    
-    // Update the recommender output
+
     const out = document.getElementById('recommender-output');
-    if(out) {
-        out.innerHTML = `<div style="background:var(--bg-dark); border: 1px solid var(--accent-gold); padding:12px; border-radius:8px;">
+    if (out) {
+        out.innerHTML = `<div style="background:var(--bg-dark); border:1px solid var(--accent-gold); padding:12px; border-radius:8px;">
             <p style="color:var(--accent-gold); margin-bottom:8px;">Deck Applied Successfully</p>
             <div style="font-size:0.9rem; color:var(--text-muted);">
-                We validated your inventory, enforced the 2-copy rule, and checked for evolution orphans. ${validatedDeck.length < 20 ? 'We could only find ' + validatedDeck.length + ' cards.' : 'You have a full 20-card deck!'} Choose "Save Deck" when ready.
+                Inventory verified, 2-copy rule enforced, trainer compatibility checked.
+                ${validatedDeck.length < 20
+                    ? `Only ${validatedDeck.length} cards could be validated.`
+                    : 'Full 20-card deck ready.'} Choose "Save Deck" when ready.
             </div>
         </div>`;
     }
