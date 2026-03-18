@@ -163,10 +163,40 @@ async function processMediaWithGemini(files) {
         const data = await response.json();
         const responseText = data.candidates[0].content.parts[0].text;
 
-        // Robust JSON extraction (handles markdown and text wrapping)
-        const jsonMatch = responseText.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("AI returned invalid data format. Try again.");
-        const scannedCards = JSON.parse(jsonMatch[0]);
+        // Robust JSON extraction — non-greedy, try/catch protected
+        let scannedCards = null;
+
+        // Strategy 1: find all {...} blocks, pick the last valid one
+        const objectMatches = [...responseText.matchAll(/\{[\s\S]*?\}/g)];
+        for (let i = objectMatches.length - 1; i >= 0; i--) {
+            try {
+                const candidate = objectMatches[i][0]
+                    .replace(/```json?/gi, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(candidate);
+                if (parsed && (Array.isArray(parsed.missingNumbers) || Array.isArray(parsed))) {
+                    scannedCards = parsed;
+                    break;
+                }
+            } catch(e) { continue; }
+        }
+
+        // Strategy 2: array fallback
+        if (!scannedCards) {
+            const arrayMatches = [...responseText.matchAll(/\[[\s\S]*?\]/g)];
+            for (let i = arrayMatches.length - 1; i >= 0; i--) {
+                try {
+                    const candidate = arrayMatches[i][0]
+                        .replace(/```json?/gi, '').replace(/```/g, '').trim();
+                    const parsed = JSON.parse(candidate);
+                    if (Array.isArray(parsed)) {
+                        scannedCards = parsed;
+                        break;
+                    }
+                } catch(e) { continue; }
+            }
+        }
+
+        if (!scannedCards) throw new Error("AI returned invalid data format. Try again.");
 
         statusText.innerText = `Preparing review...`;
 
@@ -396,15 +426,14 @@ function fileToBase64(file) {
 }
 
 function getCardByName(name) {
-    if (!name) return null;
     const lowerName = name.toLowerCase().trim()
-        .replace(/\s*ex$/i, '') // Remove 'EX' for looser matching
-        .replace(/[^a-z0-9]/g, ''); // Remove punctuation
+        .replace(/\s*ex$/i, '')             // Remove 'EX' for looser matching
+        .replace(/[^a-z0-9♀♂']/g, '');     // Preserve gender symbols and apostrophes
 
     return TCGP_CARDS.find(c => {
         const dbName = c.name.toLowerCase().trim()
             .replace(/\s*ex$/i, '')
-            .replace(/[^a-z0-9]/g, '');
+            .replace(/[^a-z0-9♀♂']/g, '');
         return dbName === lowerName || dbName.includes(lowerName) || lowerName.includes(dbName);
     });
 }
