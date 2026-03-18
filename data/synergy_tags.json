@@ -1,45 +1,329 @@
 {
-  "Gardevoir":    { "tags": ["energy_accel_passive"], "bonus": 22, "targets": [] },
-  "Electrode":    { "tags": ["energy_accel_passive"], "bonus": 22, "targets": [] },
-  "Baxcalibur":  { "tags": ["energy_accel_passive"], "bonus": 22, "targets": [] },
-  "Magnezone":   { "tags": ["energy_accel_passive"], "bonus": 18, "targets": [] },
-
-  "Ninetales":   { "tags": ["energy_accel_attack"], "bonus": 18, "targets": [] },
-  "Moltres EX":  { "tags": ["energy_accel_attack", "bench_setup"], "bonus": 20, "targets": [] },
-  "Empoleon":    { "tags": ["energy_accel_attack"], "bonus": 14, "targets": [] },
-
-  "Darkrai EX":  { "tags": ["bench_snipe", "status_on_attack"], "bonus": 16, "targets": [] },
-  "Pidgeot EX":  { "tags": ["bench_snipe"], "bonus": 10, "targets": [] },
-  "Raikou EX":   { "tags": ["bench_snipe", "draw_passive"], "bonus": 18, "targets": [] },
-  "Suicune EX":  { "tags": ["bench_snipe", "draw_passive"], "bonus": 16, "targets": [] },
-  "Chien-Pao EX":{ "tags": ["bench_snipe"], "bonus": 16, "targets": [] },
-  "Gholdengo EX":{ "tags": ["bench_snipe"], "bonus": 14, "targets": [] },
-
-  "Bibarel":     { "tags": ["draw_passive"], "bonus": 14, "targets": [] },
-  "Clefable":    { "tags": ["draw_passive"], "bonus": 12, "targets": [] },
-
-  "Gengar":      { "tags": ["status_on_attack"], "bonus": 14, "targets": [] },
-  "Hypno":       { "tags": ["status_on_attack"], "bonus": 10, "targets": [] },
-  "Weezing":     { "tags": ["status_on_attack"], "bonus": 10, "targets": [] },
-  "Muk":         { "tags": ["status_on_attack"], "bonus": 8,  "targets": [] },
-
-  "Leafeon EX":  { "tags": ["heal_passive"], "bonus": 14, "targets": [] },
-  "Arboliva":    { "tags": ["heal_passive"], "bonus": 12, "targets": [] },
-  "Manaphy":     { "tags": ["pivot_tool"], "bonus": 10, "targets": [] },
-  "Floatzel":    { "tags": ["pivot_tool"], "bonus": 8,  "targets": [] },
-
-  "Blaine":      { "tags": ["damage_boost_trainer"], "bonus": 12,
-                   "targets": ["Ninetales", "Magmar", "Rapidash"] },
-  "Brock":       { "tags": ["damage_boost_trainer"], "bonus": 10,
-                   "targets": ["Onix", "Golem", "Geodude", "Graveler", "Rhyhorn", "Rhydon"] },
-  "Lt. Surge":   { "tags": ["damage_boost_trainer"], "bonus": 12,
-                   "targets": ["Raichu", "Electrode", "Jolteon"] },
-  "Nemona":      { "tags": ["damage_boost_trainer"], "bonus": 10,
-                   "targets": ["Pawmot"] },
-  "Misty":       { "tags": ["energy_accel_trainer"], "bonus": 15,
-                   "targets": ["Water"] },
-  "Erika":       { "tags": ["heal_trainer"], "bonus": 10,
-                   "targets": ["Grass"] },
-  "Koga":        { "tags": ["disruption_trainer"], "bonus": 8,
-                   "targets": ["Grimer", "Weezing"] }
+  "Gardevoir": {
+    "tags": [
+      "energy_accel_passive"
+    ],
+    "bonus": 22,
+    "targets": []
+  },
+  "Electrode": {
+    "tags": [
+      "energy_accel_passive"
+    ],
+    "bonus": 22,
+    "targets": []
+  },
+  "Baxcalibur": {
+    "tags": [
+      "energy_accel_passive"
+    ],
+    "bonus": 22,
+    "targets": []
+  },
+  "Magnezone": {
+    "tags": [
+      "energy_accel_passive"
+    ],
+    "bonus": 18,
+    "targets": []
+  },
+  "Ninetales": {
+    "tags": [
+      "energy_accel_attack"
+    ],
+    "bonus": 18,
+    "targets": []
+  },
+  "Moltres EX": {
+    "tags": [
+      "energy_accel_attack",
+      "bench_setup"
+    ],
+    "bonus": 20,
+    "targets": []
+  },
+  "Empoleon": {
+    "tags": [
+      "energy_accel_attack"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Darkrai EX": {
+    "tags": [
+      "bench_snipe",
+      "status_on_attack"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Pidgeot EX": {
+    "tags": [
+      "bench_snipe"
+    ],
+    "bonus": 10,
+    "targets": []
+  },
+  "Raikou EX": {
+    "tags": [
+      "bench_snipe",
+      "draw_passive"
+    ],
+    "bonus": 18,
+    "targets": []
+  },
+  "Suicune EX": {
+    "tags": [
+      "bench_snipe",
+      "draw_passive"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Chien-Pao EX": {
+    "tags": [
+      "bench_snipe"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Gholdengo EX": {
+    "tags": [
+      "bench_snipe"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Bibarel": {
+    "tags": [
+      "draw_passive"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Clefable": {
+    "tags": [
+      "draw_passive"
+    ],
+    "bonus": 12,
+    "targets": []
+  },
+  "Gengar": {
+    "tags": [
+      "status_on_attack"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Hypno": {
+    "tags": [
+      "status_on_attack"
+    ],
+    "bonus": 10,
+    "targets": []
+  },
+  "Weezing": {
+    "tags": [
+      "status_on_attack"
+    ],
+    "bonus": 10,
+    "targets": []
+  },
+  "Muk": {
+    "tags": [
+      "status_on_attack"
+    ],
+    "bonus": 8,
+    "targets": []
+  },
+  "Leafeon EX": {
+    "tags": [
+      "heal_passive"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Arboliva": {
+    "tags": [
+      "heal_passive"
+    ],
+    "bonus": 12,
+    "targets": []
+  },
+  "Manaphy": {
+    "tags": [
+      "pivot_tool"
+    ],
+    "bonus": 10,
+    "targets": []
+  },
+  "Floatzel": {
+    "tags": [
+      "pivot_tool"
+    ],
+    "bonus": 8,
+    "targets": []
+  },
+  "Blaine": {
+    "tags": [
+      "damage_boost_trainer"
+    ],
+    "bonus": 12,
+    "targets": [
+      "Ninetales",
+      "Magmar",
+      "Rapidash"
+    ]
+  },
+  "Brock": {
+    "tags": [
+      "damage_boost_trainer"
+    ],
+    "bonus": 10,
+    "targets": [
+      "Onix",
+      "Golem",
+      "Geodude",
+      "Graveler",
+      "Rhyhorn",
+      "Rhydon"
+    ]
+  },
+  "Lt. Surge": {
+    "tags": [
+      "damage_boost_trainer"
+    ],
+    "bonus": 12,
+    "targets": [
+      "Raichu",
+      "Electrode",
+      "Jolteon"
+    ]
+  },
+  "Nemona": {
+    "tags": [
+      "damage_boost_trainer"
+    ],
+    "bonus": 10,
+    "targets": [
+      "Pawmot"
+    ]
+  },
+  "Misty": {
+    "tags": [
+      "energy_accel_trainer"
+    ],
+    "bonus": 15,
+    "targets": [
+      "Water"
+    ]
+  },
+  "Erika": {
+    "tags": [
+      "heal_trainer"
+    ],
+    "bonus": 10,
+    "targets": [
+      "Grass"
+    ]
+  },
+  "Koga": {
+    "tags": [
+      "disruption_trainer"
+    ],
+    "bonus": 8,
+    "targets": [
+      "Grimer",
+      "Weezing"
+    ]
+  },
+  "Meowscarada EX": {
+    "tags": [
+      "bench_snipe"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Skeledirge EX": {
+    "tags": [
+      "heal_passive"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Quaquaval EX": {
+    "tags": [
+      "energy_accel_attack"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Armarouge EX": {
+    "tags": [
+      "energy_accel_passive"
+    ],
+    "bonus": 18,
+    "targets": []
+  },
+  "Ceruledge EX": {
+    "tags": [
+      "bench_snipe",
+      "status_on_attack"
+    ],
+    "bonus": 16,
+    "targets": []
+  },
+  "Farigiraf": {
+    "tags": [
+      "draw_passive"
+    ],
+    "bonus": 12,
+    "targets": []
+  },
+  "Tinkaton EX": {
+    "tags": [
+      "bench_snipe"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Palafin EX": {
+    "tags": [
+      "energy_accel_attack"
+    ],
+    "bonus": 14,
+    "targets": []
+  },
+  "Klawf EX": {
+    "tags": [
+      "pivot_tool"
+    ],
+    "bonus": 8,
+    "targets": []
+  },
+  "Tulip": {
+    "tags": [
+      "heal_trainer"
+    ],
+    "bonus": 10,
+    "targets": [
+      "Psychic"
+    ]
+  },
+  "Kieran": {
+    "tags": [
+      "damage_boost_trainer"
+    ],
+    "bonus": 10,
+    "targets": [
+      "Dragon"
+    ]
+  },
+  "Penny": {
+    "tags": [
+      "disruption_trainer"
+    ],
+    "bonus": 8,
+    "targets": []
+  }
 }
