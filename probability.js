@@ -219,6 +219,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-calc-odds').addEventListener('click', updateCalculations);
 
+    function calcMulliganRisks(deck) {
+        const N = 20;
+        const n = 5;
+        const totalBasics = deck.filter(c => c.stage === 'Basic').length;
+
+        // P(no basic in opening hand) = mulligan rate
+        const mulliganRate = hypergeom(N, totalBasics, n, 0) * 100;
+
+        // If opponent mulligans, they draw extra cards — what are OUR odds then?
+        // We now effectively see 6, 7, or 8+ cards before our first turn
+        const give1ExtraCard = probAtLeast(N, totalBasics, n + 1, 1) * 100;
+        const give2ExtraCards = probAtLeast(N, totalBasics, n + 2, 1) * 100;
+        const give3PlusExtraCards = probAtLeast(N, totalBasics, n + 3, 1) * 100;
+
+        return {
+            mulliganRate,
+            give1ExtraCard,
+            give2ExtraCards,
+            give3PlusExtraCards
+        };
+    }
+
     function updateCalculations() {
         if(!currentLoadedDeck) return;
 
