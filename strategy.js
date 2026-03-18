@@ -634,59 +634,110 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         return true;
     });
 
-    // GUARDRAIL 3b — Evolution Integrity: strip evolutions whose pre-evolutions are absent
-    // Run up to 3 passes to handle Stage 2 chains (Basic → Stage 1 → Stage 2)
-    for (let pass = 0; pass < 3; pass++) {
-        const before = validatedDeck.length;
+    // GUARDRAIL 3b — Full evolution chain enforcement: Basic → Stage 1 → Stage 2
+    // Step A: Build a reverse lookup: cardName → its required Basic
+    // Step B: For every Stage 2 in deck, ensure Stage 1 AND Basic both exist
+    // Step C: For every Stage 1 in deck, ensure Basic exists
+    // Step D: If any link is missing, try to add it from collection, else strip the whole line
 
+    const allCards_g3b = window.TCGP_CARDS || [];
+
+    // Helper: given any card name, find its Basic form via BASICS_MAP
+    function getRequiredBasic(cardName) {
+        const clean = (cardName || '').replace(/ ex$/i, '').trim();
+        return (window.BASICS_MAP && window.BASICS_MAP[clean]) || null;
+    }
+
+    // Helper: given a Basic name, find the Stage 1 that evolves FROM it
+    function getStage1For(basicName) {
+        return Object.keys(window.BASICS_MAP || {}).find(s1 =>
+            window.BASICS_MAP[s1] === basicName
+        ) || null;
+    }
+
+    // Helper: try to add a card by name from tempInventory into validatedDeck
+    function tryAddFromInventory(nameToFind) {
+        const match = allCards_g3b.find(c =>
+            c.name === nameToFind && (tempInventory[c.id] || 0) > 0
+        );
+        if (match && validatedDeck.filter(c => c.name === match.name).length < 2) {
+            validatedDeck.push(match);
+            tempInventory[match.id] = Math.max(0, (tempInventory[match.id] || 0) - 1);
+            return true;
+        }
+        return false;
+    }
+
+    // Step 1: Collect all evolution cards in deck
+    const stage2InDeck = validatedDeck.filter(c => c.stage === 'Stage 2');
+    const stage1InDeck = () => validatedDeck.filter(c => c.stage === 'Stage 1'); // fn, re-evaluated after mutations
+
+    // Step 2: For each Stage 2, enforce full Basic → Stage 1 → Stage 2 chain
+    const linesToStrip = new Set(); // store Basic names of lines to fully remove
+
+    stage2InDeck.forEach(s2Card => {
+        const requiredBasic = getRequiredBasic(s2Card.name);
+        if (!requiredBasic) return; // unknown line, leave alone
+
+        const requiredStage1 = getStage1For(requiredBasic);
+
+        // Check Stage 1 presence
+        const hasStage1 = validatedDeck.some(c =>
+            c.stage === 'Stage 1' && getRequiredBasic(c.name) === requiredBasic
+        );
+        // Check Basic presence
+        const hasBasic = validatedDeck.some(c => c.name === requiredBasic);
+
+        let stage1OK = hasStage1;
+        let basicOK = hasBasic;
+
+        // Try to add Stage 1 if missing
+        if (!hasStage1 && requiredStage1) {
+            stage1OK = tryAddFromInventory(requiredStage1);
+            if (!stage1OK) {
+                console.warn(`Stage 2 line stripped — Stage 1 missing and not in collection: ${requiredStage1}`);
+                linesToStrip.add(requiredBasic);
+                return;
+            }
+        }
+
+        // Try to add Basic if missing
+        if (!hasBasic) {
+            basicOK = tryAddFromInventory(requiredBasic);
+            if (!basicOK) {
+                console.warn(`Stage 2 line stripped — Basic missing and not in collection: ${requiredBasic}`);
+                linesToStrip.add(requiredBasic);
+                return;
+            }
+        }
+    });
+
+    // Step 3: For each Stage 1, enforce Basic exists
+    stage1InDeck().forEach(s1Card => {
+        const requiredBasic = getRequiredBasic(s1Card.name);
+        if (!requiredBasic) return;
+        if (linesToStrip.has(requiredBasic)) return; // already being stripped
+
+        const hasBasic = validatedDeck.some(c => c.name === requiredBasic);
+        if (!hasBasic) {
+            const added = tryAddFromInventory(requiredBasic);
+            if (!added) {
+                console.warn(`Stage 1 stripped — Basic missing and not in collection: ${requiredBasic}`);
+                linesToStrip.add(requiredBasic);
+            }
+        }
+    });
+
+    // Step 4: Strip ALL cards belonging to broken lines
+    if (linesToStrip.size > 0) {
         validatedDeck = validatedDeck.filter(card => {
-            // Stage 1: requires its Basic to be present
-            if (card.stage === 'Stage 1') {
-                const requiredBasic = window.BASICS_MAP && window.BASICS_MAP[card.name.replace(/ ex$/i, '')];
-                if (!requiredBasic) return true; // Not in map, allow through
-                const hasBasic = validatedDeck.some(c =>
-                    c.name === requiredBasic || c.name === requiredBasic + ' EX'
-                );
-                if (!hasBasic) {
-                    // Try to find and add the basic from collection
-                    const basicCard = (window.TCGP_CARDS || []).find(c =>
-                        c.name === requiredBasic && (tempInventory[c.id] || 0) > 0
-                    );
-                    if (basicCard && validatedDeck.filter(c => c.name === basicCard.name).length < 2) {
-                        validatedDeck.push(basicCard);
-                        tempInventory[basicCard.id] = Math.max(0, (tempInventory[basicCard.id] || 0) - 1);
-                        return true; // Keep the Stage 1, Basic was just added
-                    }
-                    console.warn(`Removed orphaned Stage 1: ${card.name} (missing Basic: ${requiredBasic})`);
-                    return false; // Strip the orphan
-                }
+            const basic = getRequiredBasic(card.name) || card.name;
+            if (linesToStrip.has(basic)) {
+                console.warn(`Stripped from broken line (${basic}): ${card.name}`);
+                return false;
             }
-
-            // Stage 2: requires its Stage 1 to be present (Stage 1 check above handles the chain)
-            if (card.stage === 'Stage 2') {
-                const cleanName = card.name.replace(/ ex$/i, '');
-                const requiredStage1 = Object.keys(window.BASICS_MAP || {}).find(s1 =>
-                    window.BASICS_MAP[s1] === (window.BASICS_MAP[cleanName] || '')
-                    && s1 !== cleanName
-                );
-                // Simpler check: just verify at least one Stage 1 of same evolutionary line exists
-                const requiredBasic = window.BASICS_MAP && window.BASICS_MAP[cleanName];
-                if (requiredBasic) {
-                    const hasStage1 = validatedDeck.some(c =>
-                        c.stage === 'Stage 1' &&
-                        window.BASICS_MAP && window.BASICS_MAP[c.name.replace(/ ex$/i, '')] === requiredBasic
-                    );
-                    if (!hasStage1) {
-                        console.warn(`Removed orphaned Stage 2: ${card.name} (missing Stage 1 for basic: ${requiredBasic})`);
-                        return false;
-                    }
-                }
-            }
-
             return true;
         });
-
-        if (validatedDeck.length === before) break; // No changes this pass, stop
     }
 
     // GUARDRAIL 4 — Safety Net: fill Basics first, then Trainers
