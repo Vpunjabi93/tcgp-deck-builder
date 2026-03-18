@@ -329,10 +329,15 @@
                         </div>
 
                         <div class="prediction-results">
-                            <h4>Archetype Prediction</h4>
+                            <h4>Next Turn Prediction</h4>
                             <div id="prediction-matches">
-                                <p class="empty-text">Awaiting data...</p>
+                                <p class="empty-text">Awaiting data... (log 4 cards to activate)</p>
                             </div>
+                        </div>
+
+                        <div class="next-turn-prediction" id="next-turn-cards" style="display:none;">
+                            <h4 style="margin-bottom:10px; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Most Probable Next Play</h4>
+                            <div id="next-turn-card-grid" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;"></div>
                         </div>
                     </div>
 

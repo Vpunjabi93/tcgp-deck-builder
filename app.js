@@ -817,41 +817,150 @@ function renderRevealedCards() {
 
 async function updateOpponentPrediction() {
     const resultsContainer = document.getElementById('prediction-matches');
-    
+    const nextTurnSection = document.getElementById('next-turn-cards');
+    const nextTurnGrid = document.getElementById('next-turn-card-grid');
+
     if (liveRevealedCards.length === 0) {
-        resultsContainer.innerHTML = '<p class="empty-text">Awaiting data...</p>';
+        resultsContainer.innerHTML = '<p class="empty-text">Awaiting data... (log 4 cards to activate)</p>';
+        if (nextTurnSection) nextTurnSection.style.display = 'none';
         return;
     }
 
     if (actionsLoggedThisMatch < 4) {
-        resultsContainer.innerHTML = '<p class="empty-text" style="color:var(--accent-gold);">Analyzing Opponent Actions (Round 2 Required)...</p>';
+        resultsContainer.innerHTML = `<p class="empty-text" style="color:var(--accent-gold);">
+            Analyzing... (${actionsLoggedThisMatch}/4 cards logged)
+        </p>`;
+        if (nextTurnSection) nextTurnSection.style.display = 'none';
         return;
     }
-    
-    resultsContainer.innerHTML = '<p class="empty-text">Analyzing...</p>';
-    
-    // Call the prediction engine bound to window loaded from strategy.js
+
+    resultsContainer.innerHTML = '';
+
+    // ── Archetype prediction (text, kept compact) ──────────────────
     if (typeof predictOpponentDeck === 'function') {
         const predictions = await predictOpponentDeck(liveRevealedCards);
-        
-        if (!predictions || predictions.length === 0) {
-            let emptyMsg = (predictions && predictions.statusMessage) ? predictions.statusMessage : 'No matching archetypes found.';
-            resultsContainer.innerHTML = `<p class="empty-text">${emptyMsg}</p>`;
-            return;
-        }
-        
-        resultsContainer.innerHTML = predictions.map((p, idx) => `
-            <div class="prediction-match-card ${idx === 0 ? 'top-match' : ''}">
-                <div class="match-header">
-                    <span class="match-title">${p.archetype}</span>
-                    <span class="match-confidence">${p.confidenceScore}% Match</span>
+
+        if (predictions && predictions.length > 0) {
+            resultsContainer.innerHTML = predictions.map((p, idx) => `
+                <div class="prediction-match-card ${idx === 0 ? 'top-match' : ''}">
+                    <div class="match-header">
+                        <span class="match-title">${p.archetype}</span>
+                        <span class="match-confidence">${p.confidenceScore}% Match</span>
+                    </div>
+                    ${p.threatWarning ? `<div class="match-warning">⚠️ ${p.threatWarning}</div>` : ''}
                 </div>
-                ${p.threatWarning ? `<div class="match-warning">⚠️ ${p.threatWarning}</div>` : ''}
-            </div>
-        `).join('');
-    } else {
-        resultsContainer.innerHTML = '<p class="empty-text" style="color:var(--accent-red)">Prediction engine offline (strategy.js missing).</p>';
+            `).join('');
+        } else {
+            resultsContainer.innerHTML = '<p class="empty-text">No matching archetype found.</p>';
+        }
     }
+
+    // ── Next Turn Prediction ───────────────────────────────────────
+    if (!nextTurnSection || !nextTurnGrid) return;
+
+    const allCards = window.TCGP_CARDS || [];
+    const revealedSet = liveRevealedCards.map(n => n.toLowerCase());
+
+    // Build a scored candidate list from cards NOT yet revealed
+    const scored = [];
+
+    allCards.forEach(card => {
+        if (revealedSet.includes(card.name.toLowerCase())) return; // already seen
+
+        let score = 0;
+        const name = card.name.toLowerCase();
+        const type = card.type || '';
+        const stage = card.stage || '';
+
+        // === SYNERGY RULES ===
+
+        // Rule 1: Bench is empty (only 1 active seen) → Pokéball / Basic very likely
+        const pokemonSeen = liveRevealedCards.filter(n => {
+            const c = allCards.find(x => x.name.toLowerCase() === n.toLowerCase());
+            return c && c.type !== 'Supporter' && c.type !== 'Item';
+        });
+        const isOnlyOnePokemon = pokemonSeen.length <= 1;
+        if (isOnlyOnePokemon && name.includes('poké ball')) score += 40;
+        if (isOnlyOnePokemon && stage === 'Basic') score += 25;
+
+        // Rule 2: Opponent has an EX active → healing / support likely
+        const hasEXActive = liveRevealedCards.some(n => n.toLowerCase().includes(' ex'));
+        if (hasEXActive && (name.includes('potion') || name.includes('heal'))) score += 35;
+        if (hasEXActive && type === 'Supporter') score += 20;
+
+        // Rule 3: Evolution logic — if a Basic was seen, Stage 1 of that line is likely
+        liveRevealedCards.forEach(revealed => {
+            const basicForm = (window.BASICS_MAP && Object.keys(window.BASICS_MAP).find(k =>
+                window.BASICS_MAP[k].toLowerCase() === revealed.toLowerCase()
+            ));
+            if (basicForm && card.name === basicForm) score += 45;
+            // Reverse: basic seen → stage 1 probable
+            if (window.BASICS_MAP && window.BASICS_MAP[card.name] &&
+                revealedSet.includes(window.BASICS_MAP[card.name].toLowerCase())) {
+                score += 40;
+            }
+        });
+
+        // Rule 4: Type match — if revealed cards share a dominant type, same-type cards likely
+        const dominantType = (() => {
+            const tc = {};
+            liveRevealedCards.forEach(n => {
+                const c = allCards.find(x => x.name.toLowerCase() === n.toLowerCase());
+                if (c && c.type && c.type !== 'Supporter' && c.type !== 'Item') {
+                    tc[c.type] = (tc[c.type] || 0) + 1;
+                }
+            });
+            return Object.entries(tc).sort((a,b) => b[1]-a[1])[0]?.[0];
+        })();
+        if (dominantType && card.type === dominantType) score += 15;
+
+        // Rule 5: Draw/search Supporters always probable mid-game
+        if (type === 'Supporter' && (name.includes('research') || name.includes('sabrina') || name.includes('giovanni'))) {
+            score += 20;
+        }
+
+        // Rule 6: Already-seen archetype boosts matching cards
+        if (typeof cachedMetaDecks !== 'undefined' && cachedMetaDecks) {
+            cachedMetaDecks.forEach(deck => {
+                const isLikelyDeck = liveRevealedCards.some(r => deck.keyCards?.includes(r));
+                if (isLikelyDeck && deck.fullList?.includes(card.name)) score += 18;
+            });
+        }
+
+        if (score > 0) scored.push({ card, score });
+    });
+
+    // Normalise scores to %
+    const maxScore = Math.max(...scored.map(s => s.score), 1);
+    const topCards = scored
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(s => ({ ...s, pct: Math.min(Math.round((s.score / maxScore) * 100), 97) }));
+
+    if (topCards.length === 0) {
+        nextTurnSection.style.display = 'none';
+        return;
+    }
+
+    nextTurnSection.style.display = 'block';
+    nextTurnGrid.innerHTML = topCards.map(({ card, pct }) => {
+        const imgHTML = typeof window.generateCardHTML === 'function'
+            ? window.generateCardHTML(card, 'next-turn-card-img')
+            : `<img src="${card.img}" class="next-turn-card-img" alt="${card.name}">`;
+
+        const barColor = pct >= 70 ? 'var(--accent-gold)' : pct >= 40 ? '#78c850' : 'var(--text-muted)';
+
+        return `
+            <div class="next-turn-card-item">
+                ${imgHTML}
+                <div class="next-turn-card-label">${card.name}</div>
+                <div class="next-turn-pct-bar-wrap">
+                    <div class="next-turn-pct-bar" style="width:${pct}%; background:${barColor};"></div>
+                </div>
+                <div class="next-turn-pct-text" style="color:${barColor}">${pct}%</div>
+            </div>
+        `;
+    }).join('');
 }
 
 // --- AI Strategy Bridge ---

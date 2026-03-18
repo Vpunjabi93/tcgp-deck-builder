@@ -43,17 +43,43 @@ function generateStrategyReport(deck) {
         missing.push("Professor's Research");
     }
 
-    // 2. Archetype Detection
-    let archetype = "Custom Rogue Deck";
+    // 2. Archetype Detection — dynamic, works for any deck
+    const TYPE_EMOJI = {
+        'Fire': '🔥', 'Water': '💧', 'Grass': '🌿', 'Lightning': '⚡',
+        'Psychic': '👁️', 'Fighting': '👊', 'Darkness': '🌑',
+        'Metal': '⚙️', 'Dragon': '🐉', 'Colorless': '⭐'
+    };
+
+    // Find the highest-HP EX or Stage 2 as the win condition
+    const winCon = deck
+        .filter(c => c.name?.toLowerCase().includes(' ex') || c.stage === 'Stage 2')
+        .sort((a, b) => (parseInt(b.hp) || 0) - (parseInt(a.hp) || 0))[0];
+
+    // Find dominant Pokémon type (exclude Supporter/Item)
+    const typeCounts = {};
+    deck.forEach(c => {
+        if (c.type && c.type !== 'Supporter' && c.type !== 'Item') {
+            typeCounts[c.type] = (typeCounts[c.type] || 0) + 1;
+        }
+    });
+    const dominantType = Object.entries(typeCounts)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Colorless';
+
+    const emoji = TYPE_EMOJI[dominantType] || '🃏';
+
+    let archetype;
+    if (winCon) {
+        const winName = winCon.name.replace(/ ex$/i, ' EX');
+        const style = supporters.length >= 3 ? 'Control' : basics.length >= 8 ? 'Swarm' : 'Aggro';
+        archetype = `${emoji} ${winName} ${style}`;
+    } else {
+        archetype = `${emoji} ${dominantType} Basics Rush`;
+    }
+
     const hasCharizard = deck.some(c => c.name === 'Charizard EX');
     const hasMewtwo = deck.some(c => c.name === 'Mewtwo EX');
     const hasPikachu = deck.some(c => c.name === 'Pikachu EX');
     const hasArticuno = deck.some(c => c.name === 'Articuno EX');
-
-    if (hasCharizard) archetype = "🔥 Charizard EX Aggro";
-    else if (hasMewtwo) archetype = "👁️ Mewtwo EX Control";
-    else if (hasPikachu) archetype = "⚡ Pikachu EX Fast Aggro";
-    else if (hasArticuno) archetype = "💧 Articuno EX Freeze";
 
     // 3. Trainer Synergy Checks
     const hasBlaine = deck.some(c => c.name === 'Blaine');
@@ -117,6 +143,25 @@ function generateStrategyReport(deck) {
     if(waterCount > 0 && !hasMisty) {
         feedback.push("💡 Suggestion: You have Water Pokémon. Misty provides massive energy acceleration.");
         missing.push("Misty");
+    }
+
+    // 6. Fallback feedback — always show something useful
+    if (feedback.length === 0) {
+        if (basics.length >= 4 && supporters.length >= 2) {
+            feedback.push(`✅ Solid structure: ${basics.length} Basics and ${supporters.length} Supporters — good consistency foundation.`);
+        }
+        if (evolutions.length > 0) {
+            feedback.push(`📈 Evolution lines detected (${evolutions.length} cards). Ensure all Basics are included for smooth setup.`);
+        }
+        if (items.length >= 2) {
+            feedback.push(`🎒 ${items.length} Item cards give you good turn flexibility.`);
+        }
+        if (winCon) {
+            feedback.push(`⚔️ Win condition: ${winCon.name} (${winCon.hp} HP) — build energy acceleration around it.`);
+        }
+        if (feedback.length === 0) {
+            feedback.push(`🃏 Deck is built. Run a simulation or battle test to evaluate performance.`);
+        }
     }
 
     // Normalize score
