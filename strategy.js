@@ -487,6 +487,27 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         return true;
     });
 
+    // 3b. Trainer-Type Compatibility Filter
+    const TRAINER_TYPE_REQUIREMENTS = {
+        'Brock':     'Fighting',
+        'Misty':     'Water',
+        'Blaine':    'Fire',
+        'Erika':     'Grass',
+        'Koga':      'Poison',
+        'Lt. Surge': 'Lightning'
+    };
+
+    validatedDeck = validatedDeck.filter(card => {
+        const requiredType = TRAINER_TYPE_REQUIREMENTS[card.name];
+        if (!requiredType) return true;
+        const hasMatchingType = validatedDeck.some(c => c.type === requiredType);
+        if (!hasMatchingType) {
+            console.warn(`Removing ${card.name} — no ${requiredType} Pokémon in deck`);
+            return false;
+        }
+        return true;
+    });
+
     // 4. The Safety Net (Fill to 20)
     if (validatedDeck.length < 20) {
         console.log(`Auto-filling ${20 - validatedDeck.length} slots...`);

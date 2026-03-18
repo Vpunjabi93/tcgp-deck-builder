@@ -926,6 +926,10 @@ STEP 7 — CONSISTENCY FLOOR
 - Minimum 2 Supporter cards
 - Maximum 2 copies of any single card name
 - Exactly 20 cards total
+- Gym Leader Trainers (Brock, Misty, Blaine, Erika, Koga, Lt. Surge) 
+  are ONLY valid if the deck contains at least 2 Pokémon of their 
+  corresponding type. Never include a Gym Leader Trainer in a deck 
+  that does not match their type affinity.
 
 PLAYSTYLE TARGET: ${playstyle}
 - Aggro: maximise early damage, low retreat costs, fast energy
