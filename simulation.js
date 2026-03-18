@@ -35,8 +35,9 @@ function simulateSingleGame(deck, params) {
             hand.splice(discardIdx, 1);
         }
 
-        // Play Basic Pokémon from hand
-        hand.forEach((card, idx) => {
+        // Play Basic Pokémon from hand — iterate backwards to avoid index skipping on splice
+        for (let idx = hand.length - 1; idx >= 0; idx--) {
+            const card = hand[idx];
             if (card.stage === 'Basic' && card.type !== 'Supporter' && card.type !== 'Item') {
                 if (!active) {
                     active = card;
@@ -46,7 +47,7 @@ function simulateSingleGame(deck, params) {
                     hand.splice(idx, 1);
                 }
             }
-        });
+        }
 
         // Track which cards arrived in hand by which turn
         hand.forEach(card => {

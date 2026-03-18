@@ -240,12 +240,18 @@ async function predictOpponentDeck(revealedCards) {
         
         let confidenceScore = 0;
         if (maxPossibleScore > 0) {
-           confidenceScore = Math.round((actualScore / maxPossibleScore) * 100);
+            confidenceScore = Math.round((actualScore / maxPossibleScore) * 100);
         }
 
-        // Adjust for small sample size
+        // Require at least 1 key card match for high confidence
+        // Prevents generic cards (Potion, Poké Ball) from triggering 100% confidence
+        if (keyMatchCount === 0 && confidenceScore > 40) {
+            confidenceScore = Math.min(confidenceScore, 40);
+        }
+
+        // Cap early certainty on small sample sizes
         if (revealedCards.length < 3) {
-             confidenceScore = Math.min(confidenceScore, 60 + (revealedCards.length * 10)); // Cap early certainty
+            confidenceScore = Math.min(confidenceScore, 60 + (revealedCards.length * 10));
         }
 
         return {
@@ -391,7 +397,9 @@ async function recommendDecks(playstyle) {
 
         for (const [cardName, reqQty] of Object.entries(required)) {
             // Find all variations of this card name in the DB to check ownership across sets
-            const cardVariations = allCards.filter(c => c.name === cardName);
+            const cardVariations = allCards.filter(c =>
+            c.name.toLowerCase() === cardName.toLowerCase()
+        );
             let totalOwnedOfThisCard = 0;
             
             cardVariations.forEach(v => {
