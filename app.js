@@ -1,6 +1,7 @@
 // app.js - Main Application Logic for TCGP Analyzer
 
 window.TCGP_CARDS = []; // Global declaration
+window.getAllCards = function() { return window.TCGP_CARDS || []; };
 window.selectedCardsForLab = []; // Global array for Probability Lab
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -119,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveDeckBtn = document.getElementById('btn-save-deck');
     if (saveDeckBtn) {
         saveDeckBtn.addEventListener('click', () => {
-            if (currentDeck.length !== 20) return;
+            if (window.currentDeck.length !== 20) return;
             
             const deckName = document.getElementById('deck-name').value || 'My Deck';
             const deckToSave = {
                 id: Date.now().toString(),
                 name: deckName,
-                cards: currentDeck.map(c => c.id) // Only save IDs to save space
+                cards: window.currentDeck.map(c => c.id) // Only save IDs to save space
             };
             
             let savedDecks = JSON.parse(localStorage.getItem('tcgp_saved_decks') || '[]');
@@ -452,14 +453,45 @@ function showApiModal() {
     if(existing) document.getElementById('input-api-key').value = existing;
 }
 
-function saveApiKey() {
+async function saveApiKey() {
     const input = document.getElementById('input-api-key').value.trim();
-    if (input && input.startsWith('AIza')) {
+    if (!input || !input.startsWith('AIza')) {
+        alert("Invalid API key format.");
+        return;
+    }
+
+    const btn = document.getElementById('btn-save-key');
+    const originalText = btn.innerText;
+    btn.innerText = 'Verifying...';
+    btn.disabled = true;
+
+    try {
+        const testResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${input}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: 'ping' }] }]
+                })
+            }
+        );
+
+        if (!testResponse.ok) {
+            const err = await testResponse.json();
+            throw new Error(err.error?.message || 'Key rejected by Gemini.');
+        }
+
         localStorage.setItem('tcgp_gemini_api_key', input);
         document.getElementById('modal-api').classList.add('hidden');
         checkApiKey();
-    } else {
-        alert("Invalid API key.");
+        showToast('API Key Verified ✓', 'success');
+
+    } catch (e) {
+        showToast(`Invalid API Key — ${e.message}`, 'error');
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
 
@@ -591,7 +623,7 @@ window.renderCollectionGrid = function(searchQuery = '') {
 };
 
 // --- Deck Builder ---
-let currentDeck = [];
+window.currentDeck = [];
 let deckBuilderSearchQuery = '';
 
 window.renderDeckBuilderSidebar = function() {
@@ -625,7 +657,7 @@ window.renderDeckBuilderSidebar = function() {
     }
 
     availableCards.forEach(card => {
-        const countInDeck = currentDeck.filter(c => c.id === card.id).length;
+        const countInDeck = window.currentDeck.filter(c => c.id === card.id).length;
         const availableCount = myCollection[card.id] - countInDeck;
 
         if (availableCount > 0) {
@@ -652,7 +684,7 @@ function renderDeckSlots() {
     for (let i = 0; i < 20; i++) {
         const slot = document.createElement('div');
         slot.className = 'deck-slot';
-        const card = currentDeck[i];
+        const card = window.currentDeck[i];
 
         if (card) {
             slot.classList.add('filled');
@@ -664,22 +696,22 @@ function renderDeckSlots() {
         grid.appendChild(slot);
     }
 
-    document.getElementById('deck-current-count').innerText = currentDeck.length;
-    document.getElementById('btn-save-deck').disabled = currentDeck.length !== 20;
+    document.getElementById('deck-current-count').innerText = window.currentDeck.length;
+    document.getElementById('btn-save-deck').disabled = window.currentDeck.length !== 20;
 }
 
 window.addToDeck = function(id) {
-    if (currentDeck.length >= 20) return;
+    if (window.currentDeck.length >= 20) return;
     const card = TCGP_CARDS.find(c => c.id === id);
     if (card) {
-        currentDeck.push(card);
+        window.currentDeck.push(card);
         renderDeckSlots();
         renderDeckBuilderSidebar();
     }
 };
 
 window.removeFromDeck = function(index) {
-    currentDeck.splice(index, 1);
+    window.currentDeck.splice(index, 1);
     renderDeckSlots();
     renderDeckBuilderSidebar();
 };
@@ -855,7 +887,7 @@ window.fetchAISuggestion = async function(playstyle) {
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -863,7 +895,10 @@ window.fetchAISuggestion = async function(playstyle) {
             })
         });
 
-        if (!response.ok) throw new Error("API Auth Error");
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || "API Auth Error");
+        }
 
         const data = await response.json();
         const responseText = data.candidates[0].content.parts[0].text;

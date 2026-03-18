@@ -172,7 +172,7 @@ async function processMediaWithGemini(files) {
 
         setTimeout(() => {
             statusPanel.classList.add('hidden');
-            showReviewModalFromReverseScan(scannedData, targetSet);
+            showReviewModalFromReverseScan(scannedCards, targetSet);
         }, 500);
 
     } catch (error) {
