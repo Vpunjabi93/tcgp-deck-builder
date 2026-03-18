@@ -272,6 +272,21 @@ async function predictOpponentDeck(revealedCards) {
 
 // --- Playstyle Recommender ---
 
+function inferCardRole(card) {
+    if (!card) return 'Tech';
+    const name = (card.name || '').toLowerCase();
+    const stage = card.stage || '';
+    const type = card.type || '';
+
+    if (type === 'Supporter') return 'Supporter';
+    if (type === 'Item') return 'Item';
+    if (name.includes(' ex') && stage === 'Basic') return 'Main Attacker';
+    if (stage === 'Stage 2') return 'Main Attacker';
+    if (stage === 'Stage 1') return 'Secondary';
+    if (stage === 'Basic') return 'Setup';
+    return 'Tech';
+}
+
 function getRarityScore(rarity) {
     if (!rarity) return 0;
     if (rarity.includes('☆☆☆') || rarity.includes('👑')) return 6;

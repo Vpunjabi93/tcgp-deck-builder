@@ -1023,6 +1023,13 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
         }
 
         const data = await response.json();
+
+        // Guard: Gemini safety filter may return empty candidates
+        if (!data.candidates || data.candidates.length === 0) {
+            const blockReason = data.promptFeedback?.blockReason || 'Unknown';
+            throw new Error(`Gemini blocked this request (${blockReason}). Try a different playstyle or collection.`);
+        }
+
         const responseText = data.candidates[0].content.parts[0].text;
         console.log("Raw Gemini response:", responseText);
 
