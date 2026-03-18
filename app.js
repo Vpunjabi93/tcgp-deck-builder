@@ -1026,25 +1026,47 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
         const responseText = data.candidates[0].content.parts[0].text;
         console.log("Raw Gemini response:", responseText);
 
-        // The JSON array is always the last thing in the response per our prompt.
-        // Use lastIndexOf to find it precisely, ignoring any brackets in the reasoning text.
-        const lastBracket = responseText.lastIndexOf('[');
-        if (lastBracket === -1) throw new Error("AI returned invalid format.");
-
-        let jsonString = responseText.slice(lastBracket);
-        // Strip any accidental markdown code fences
-        jsonString = jsonString.replace(/```json?/gi, '').replace(/```/g, '').trim();
-        // Trim anything after the closing bracket of the array
-        const closingBracket = jsonString.lastIndexOf(']');
-        if (closingBracket === -1) throw new Error("AI returned invalid format.");
-        jsonString = jsonString.slice(0, closingBracket + 1);
-
         let suggestedCards = [];
-        try {
-            suggestedCards = JSON.parse(jsonString);
-        } catch(e) {
-            console.error("JSON parse failed on:", jsonString);
-            throw new Error("Could not parse AI array: " + e.message);
+
+        // GUARD: empty collection
+        if (allOwnedCards.length === 0) {
+            showToast('Your collection is empty. Add cards first.', 'error');
+            return;
+        }
+        if (allOwnedCards.length < 10) {
+            showToast('Small collection detected — AI will build the best deck possible.', 'success');
+        }
+
+        // ROBUST PARSER
+        // Strategy 1: scan ALL [...] blocks from last to first, pick first valid array ≥ 10 items
+        const arrayMatches = [...responseText.matchAll(/\[[\s\S]*?\]/g)];
+        for (let i = arrayMatches.length - 1; i >= 0; i--) {
+            try {
+                const candidate = arrayMatches[i][0]
+                    .replace(/```json?/gi, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(candidate);
+                if (Array.isArray(parsed) && parsed.length >= 10) {
+                    suggestedCards = parsed;
+                    break;
+                }
+            } catch(e) { continue; }
+        }
+
+        // Strategy 2: lastIndexOf fallback if Strategy 1 found nothing
+        if (suggestedCards.length === 0) {
+            const lastBracket = responseText.lastIndexOf('[');
+            if (lastBracket === -1) throw new Error("AI returned invalid format.");
+            let slice = responseText.slice(lastBracket);
+            slice = slice.replace(/```json?/gi, '').replace(/```/g, '').trim();
+            const closingBracket = slice.lastIndexOf(']');
+            if (closingBracket === -1) throw new Error("AI returned invalid format.");
+            slice = slice.slice(0, closingBracket + 1);
+            try {
+                suggestedCards = JSON.parse(slice);
+            } catch(e) {
+                console.error("JSON parse failed on:", slice);
+                throw new Error("Could not parse AI response: " + e.message);
+            }
         }
 
         if (!Array.isArray(suggestedCards) || suggestedCards.length === 0) {
