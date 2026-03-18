@@ -518,11 +518,21 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     let tempInventory = { ...myCollection };
 
-    // GUARDRAIL 1 — Resolve names to card objects (exact match)
+    let myCollectionForResolver = JSON.parse(
+        localStorage.getItem('tcgp_collection') || '{}'
+    );
     let resolvedCards = [];
     aiNamesArray.forEach(name => {
-        const match = allCards.find(c => c.name.toLowerCase() === name.toLowerCase());
-        if (match) resolvedCards.push(match);
+        const nameLower = name.toLowerCase();
+        const allMatches = allCards.filter(
+            c => c.name.toLowerCase() === nameLower
+        );
+        if (allMatches.length === 0) return;
+        // Prefer the version the user actually owns
+        const ownedMatch = allMatches.find(
+            c => (myCollectionForResolver[c.id] || 0) > 0
+        );
+        resolvedCards.push(ownedMatch || allMatches[0]);
     });
 
     // GUARDRAIL 2 — Inventory reality check + 2-copy hard cap
@@ -562,7 +572,7 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
             .map(id => ({ id, qty: tempInventory[id] }))
             .filter(item => item.qty > 0);
 
-        remainingCards.sort((a, b) => {
+        remaining.sort((a, b) => {
             const cardA = (window.TCGP_CARDS || []).find(c => c.id === a.id);
             const cardB = (window.TCGP_CARDS || []).find(c => c.id === b.id);
             const scoreA = cardA ? scorePokemon(cardA, validatedDeck) : 0;
