@@ -661,13 +661,16 @@ input:focus {
 .prob-header { margin-bottom: 16px; }
 
 .prob-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
+  align-items: start;
 }
 @media (min-width: 768px) {
-  .prob-grid { flex-direction: row; }
-  .prob-panel { flex: 1; }
+  .prob-grid {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+  }
 }
 
 .prob-panel {
@@ -675,6 +678,11 @@ input:focus {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 20px;
+  /* CRITICAL: prevent horizontal growth, allow vertical scroll */
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .prob-panel.chart { min-height: 280px; }
 #prob-chart { height: 240px !important; width: 100% !important; }
@@ -694,13 +702,17 @@ input[type="range"] {
 
 .prob-card-list {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
   padding: 8px 4px;
   background: var(--bg-dark);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
   min-height: 80px;
+  /* wrap cards vertically instead of expanding horizontally */
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 300px;
 }
 .prob-card-list::-webkit-scrollbar { height: 6px; }
 .prob-card-list::-webkit-scrollbar-track { background: var(--bg-dark); border-radius: 4px; }
