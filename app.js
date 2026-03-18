@@ -879,12 +879,33 @@ window.fetchAISuggestion = async function(playstyle) {
             return { card, qty, score };
         })
         .sort((a, b) => b.score - a.score)
-        .map(({ card, qty, score }) =>
-            `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty}, PowerScore:${score.toFixed(1)})`
-        )
+        .map(({ card, qty, score }) => {
+            const sig = simSignals[card.name];
+            const wf  = sig ? `, WeightedFit:${sig.weightedScore.toFixed(3)}`   : '';
+            const cr  = sig ? `, Consistency:${sig.consistencyRating.toFixed(3)}` : '';
+            const pt  = sig ? `, PeakTurn:${
+                (() => {
+                    const scores = [sig.bestCase, sig.baseCase, sig.worstCase];
+                    const best = Math.max(...scores);
+                    return best > 0 ? (1 / best).toFixed(1) : '?';
+                })()
+            }` : '';
+            return `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty}, PowerScore:${score.toFixed(1)}${wf}${cr}${pt})`;
+        })
         .join('\n');
 
-    // Step 2: Replace the prompt with this deep strategy version
+    // Step 2: Run ensemble simulation for card-level signals
+    let simSignals = {};
+    if (typeof window.runEnsembleSimulation === 'function' && ownedCardObjects.length >= 4) {
+        try {
+            const rawSim = window.runEnsembleSimulation(ownedCardObjects, 600);
+            simSignals = rawSim || {};
+        } catch(e) {
+            console.warn('Simulation skipped:', e.message);
+        }
+    }
+
+    // Step 3: Replace the prompt with this deep strategy version
     const prompt = `You are a world-class Pokémon TCG Pocket competitive player and deck architect.
 
 I will give you my card collection with structural data.
@@ -956,7 +977,12 @@ PLAYSTYLE TARGET: ${playstyle}
 - Control: status conditions, retreat punishment, defensive bulk
 - Balanced: resilient engine with setup speed
 
-MY COLLECTION (name, type, stage, HP, retreat cost, quantity):
+MY COLLECTION (name, type, stage, HP, retreat, qty, PowerScore, WeightedFit, Consistency, PeakTurn):
+Key: WeightedFit = simulation contribution score (higher = more impactful).
+     Consistency = stability under opponent disruption (1.0 = perfectly consistent).
+     PeakTurn    = estimated earliest turn this card reaches full impact (lower = faster).
+Use these signals to PREFER cards with high WeightedFit AND high Consistency.
+Deprioritise cards with PeakTurn > 5 unless they are the deck's primary win condition.
 ${collectionSummary}
 
 Now output your DECK PLAN, then your SELF-CHECK answers, then FINALLY a JSON array of exactly 20 card name strings.
