@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initApp() {
     setupNavigation();
     initFirebase();
+    if (!auth) {
+        console.warn('[Firebase] Not configured. Cloud sync disabled.');
+    }
     checkApiKey();
     
     // Bind global buttons
@@ -195,29 +198,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Firebase Cloud Sync (Mock) ---
 function initFirebase() {
-    let configStr = localStorage.getItem('firebase_config');
-    let firebaseConfig;
+    const raw = localStorage.getItem('firebase_config');
+    let firebaseConfig = null;
 
-    if (!configStr) {
-        // HARDCODED DEFAULT as requested by user
-        firebaseConfig = {
-            apiKey: "AIzaSyCnXljjyIYCWhsLhjLO62gDnIhNA29bHbM",
-            authDomain: "pokemon-tcgp-24c09.firebaseapp.com",
-            projectId: "pokemon-tcgp-24c09",
-            storageBucket: "pokemon-tcgp-24c09.firebasestorage.app",
-            messagingSenderId: "174569516136",
-            appId: "1:174569516136:web:c30c356093b7be0de39fdd",
-            measurementId: "G-H4SJJ2KELV"
-        };
-    } else {
-        try {
-            firebaseConfig = JSON.parse(configStr);
-        } catch (e) {
-            console.error("Firebase Config Parse Error:", e);
-        }
+    if (!raw) {
+        console.warn('[Firebase] No firebase_config found in localStorage. Cloud sync will stay disabled until user provides config.');
+        // Do NOT auto-initialize any default project here.
+        return;
     }
 
-    if (!firebaseConfig) return;
+    try {
+        firebaseConfig = JSON.parse(raw);
+    } catch (e) {
+        console.error('[Firebase] Config JSON parse error:', e);
+        // Fail closed: don't initialize Firebase with a broken config
+        return;
+    }
+
+    // Basic shape validation to avoid obviously broken configs
+    const requiredKeys = ['apiKey', 'authDomain', 'projectId'];
+    const missing = requiredKeys.filter(k => !firebaseConfig[k]);
+    if (missing.length > 0) {
+        console.error('[Firebase] Config missing required keys:', missing.join(', '));
+        return;
+    }
 
     try {
         if (!firebase.apps.length) {
@@ -234,7 +238,7 @@ function initFirebase() {
             }
         });
     } catch (e) {
-        console.error("Firebase Init Error:", e);
+        console.error('[Firebase] Init error:', e);
     }
 }
 
@@ -243,12 +247,19 @@ function updateAuthUI(user) {
     const userEmail = document.getElementById('user-email');
     if (!authBtn || !userEmail) return;
 
+    if (!auth) {
+        authBtn.innerText = 'Cloud Sync Off';
+        authBtn.disabled = true;
+        userEmail.classList.add('hidden');
+        return;
+    }
+
     if (user) {
-        authBtn.innerText = "Sign Out";
+        authBtn.innerText = 'Sign Out';
         userEmail.innerText = user.email;
         userEmail.classList.remove('hidden');
     } else {
-        authBtn.innerText = "Sign In";
+        authBtn.innerText = 'Sign In';
         userEmail.classList.add('hidden');
     }
 }
@@ -313,20 +324,36 @@ function showFirebaseConfigModal() {
 
 function saveFirebaseConfig() {
     let config = document.getElementById('input-firebase-config').value.trim();
+    if (!config) {
+        alert('Please paste a Firebase config object.');
+        return;
+    }
+
+    // Strip "const foo = " etc.
     config = config.replace(/^(const|let|var)\s+\w+\s*=\s*/, '');
     config = config.replace(/;$/, '');
-    
+
     try {
+        // Make it safe JSON if user pasted JS-style object
         let jsonCompliant = config
-            .replace(/([a-zA-Z0-9_]+):/g, '"$1":') 
-            .replace(/'/g, '"'); 
-            
-        JSON.parse(jsonCompliant);
-        localStorage.setItem('firebase_config', jsonCompliant);
+            .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":') // unquoted keys → quoted
+            .replace(/'/g, '"');
+
+        const parsed = JSON.parse(jsonCompliant);
+
+        // Minimal validation
+        if (!parsed.apiKey || !parsed.projectId) {
+            throw new Error('Missing apiKey or projectId');
+        }
+
+        localStorage.setItem('firebase_config', JSON.stringify(parsed));
         document.getElementById('modal-firebase').classList.add('hidden');
-        location.reload(); 
+
+        // Re-init Firebase with the new config (no page reload needed)
+        initFirebase();
+        showToast('Firebase config saved. Cloud sync enabled.', 'success');
     } catch (e) {
-        alert("Config Error: " + e.message);
+        alert('Config Error: ' + e.message);
     }
 }
 
