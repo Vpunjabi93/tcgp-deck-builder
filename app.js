@@ -1173,7 +1173,7 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
 
         // ROBUST PARSER
         // Strategy 1: scan ALL [...] blocks from last to first, pick first valid array ≥ 10 items
-        const arrayMatches = [...responseText.matchAll(/\[[\s\S]*?\]/g)];
+        const arrayMatches = [...responseText.matchAll(/\[[\s\S]*\]/g)];
         for (let i = arrayMatches.length - 1; i >= 0; i--) {
             try {
                 const candidate = arrayMatches[i][0]
@@ -1192,7 +1192,13 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
             if (lastBracket === -1) throw new Error("AI returned invalid format.");
             let slice = responseText.slice(lastBracket);
             slice = slice.replace(/```json?/gi, '').replace(/```/g, '').trim();
-            const closingBracket = slice.lastIndexOf(']');
+            // Find matching closing bracket by tracking nesting depth
+            let depth = 0;
+            let closingBracket = -1;
+            for (let i = 0; i < slice.length; i++) {
+                if (slice[i] === '[') depth++;
+                else if (slice[i] === ']') { depth--; if (depth === 0) { closingBracket = i; break; } }
+            }
             if (closingBracket === -1) throw new Error("AI returned invalid format.");
             slice = slice.slice(0, closingBracket + 1);
             try {
