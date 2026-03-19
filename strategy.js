@@ -803,6 +803,40 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         });
     }
 
+    // GUARDRAIL — Hard energy type cap: max 2 non-Colorless Pokémon types
+    const ENERGY_TYPE_LIMIT = 2;
+    const pokemonTypeCounts = {};
+    validatedDeck.forEach(c => {
+        if (c.type && c.type !== 'Supporter' && c.type !== 'Item' && c.type !== 'Colorless') {
+            pokemonTypeCounts[c.type] = (pokemonTypeCounts[c.type] || 0) + 1;
+        }
+    });
+
+    const distinctTypes = Object.keys(pokemonTypeCounts);
+    if (distinctTypes.length > ENERGY_TYPE_LIMIT) {
+        // Sort types by card count ascending — prune the smallest group(s) first
+        const typesByCount = Object.entries(pokemonTypeCounts)
+            .sort((a, b) => a - b);
+
+        // Build the set of allowed types (top 2 by count)
+        const allowedTypes = new Set(
+            typesByCount.slice(-ENERGY_TYPE_LIMIT).map(([type]) => type)
+        );
+
+        // Remove Pokémon whose type is not in the allowed set
+        // Supporters, Items, and Colorless always survive
+        validatedDeck = validatedDeck.filter(c => {
+            if (!c.type) return true;
+            if (c.type === 'Supporter' || c.type === 'Item' || c.type === 'Colorless') return true;
+            return allowedTypes.has(c.type);
+        });
+
+        const typeStr = [...allowedTypes].join(' + ');
+        if (typeof window.showToast === 'function') {
+            window.showToast(`⚡ Energy focused to ${typeStr} — filling remaining slots.`, 'success');
+        }
+    }
+
     // GUARDRAIL 4 — Safety Net: fill Basics first, then Trainers
     if (validatedDeck.length < 20) {
         const remaining = Object.keys(tempInventory)

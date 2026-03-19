@@ -1068,6 +1068,13 @@ TYPE SUMMARY:
 - State the deck's dominant Pokémon type.
 - Confirm every Gym Leader Trainer matches that type.
 
+ENERGY TYPE CONSTRAINT:
+- Count the distinct non-Colorless Pokémon energy types in your planned list (exclude Supporter, Item, and Colorless cards entirely).
+- You MUST use a maximum of 2 energy types. This is a hard rule, not a suggestion.
+- If your list has 3 or more types, identify the least-represented type and remove ALL Pokémon of that type.
+- Replace removed cards with Pokémon of your top 1-2 types from my collection, OR with Supporters/Items.
+- Colorless Pokémon do NOT count as an energy type and are always permitted.
+
 ═══════════════════════════════════
 PHASE 2 — SELF-CHECK (audit your plan)
 ═══════════════════════════════════
@@ -1096,6 +1103,12 @@ Before writing the final JSON, answer each question:
 
 6. POKÉMON MINIMUM — Does the list contain at least 4 Basic Pokémon?
    → If not, replace Trainer/Item cards with Basic Pokémon from my collection.
+
+7. ENERGY TYPE CAP — List every distinct non-Colorless Pokémon type in your final 20 cards.
+   → If more than 2 distinct types appear, this deck FAILS. Remove all Pokémon of the least-represented type.
+   → Replace removed slots with same-type Pokémon from my collection, or Supporters/Items.
+   → Re-run checks 4, 5, and 6 after this change.
+   → Colorless type does NOT count. Supporter and Item cards do NOT count.
 
 ═══════════════════════════════════
 PHASE 3 — FINAL OUTPUT
