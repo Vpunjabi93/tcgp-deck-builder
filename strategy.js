@@ -249,9 +249,10 @@ let cachedMetaDecks = null;
  * @returns {Promise<Array>} Top 2 most likely deck matches with confidence and warnings
  */
 async function predictOpponentDeck(revealedCards) {
-    if (revealedCards && revealedCards.length < 4) {
+    // Gate: need at least 4 cards for meaningful signal
+    if (!revealedCards || revealedCards.length < 4) {
         let arr = [];
-        arr.statusMessage = 'Analyzing patterns (2 rounds required)...';
+        arr.statusMessage = 'Analyzing patterns (4 cards required)...';
         return arr;
     }
 
@@ -261,58 +262,90 @@ async function predictOpponentDeck(revealedCards) {
             cachedMetaDecks = await res.json();
         } catch (e) {
             console.error("Failed to load meta decks:", e);
-            return [];
+            return [{
+                deckName: 'Unknown',
+                archetype: 'Unrecognised archetype — possible rogue build',
+                confidenceScore: 0,
+                threatWarning: null,
+                keyCards: [],
+                _posterior: 1,
+                _fullList: []
+            }];
         }
     }
 
-    if (!revealedCards || revealedCards.length === 0) return [];
+    const DECK_SIZE = 20;
+    const norm = s => (s || '').trim().toLowerCase();
 
-    const predictions = cachedMetaDecks.map(deck => {
-        let matchCount = 0;
-        let keyMatchCount = 0;
+    // ── LAYER 1: Hypergeometric Bayesian log-likelihood ──────────────
+    // P(seeing card x | deck i) = copies_in_deck / (DECK_SIZE - cards_seen_so_far)
+    // We accumulate log probabilities to avoid float underflow
+    const N = cachedMetaDecks.length;
 
+    const scored = cachedMetaDecks.map((deck, idx) => {
+        // Meta frequency prior: use deck.frequency if present, else uniform 1/N
+        const prior = deck.frequency || (1 / N);
+        let logLikelihood = Math.log(prior);
+
+        let cardsSeenSoFar = 0;
         revealedCards.forEach(cardName => {
-            if (deck.fullList.includes(cardName)) matchCount++;
-            if (deck.keyCards.includes(cardName)) keyMatchCount += 2; // Key cards are weighted more
+            const copies = deck.fullList.filter(
+                c => norm(c) === norm(cardName)
+            ).length;
+            // Remaining deck size shrinks as cards are revealed
+            const remainingDeckSize = Math.max(DECK_SIZE - cardsSeenSoFar, 1);
+            // Hypergeometric: P(draw this card | deck) = copies / remainingDeckSize
+            // Floor at 0.3/remainingDeckSize so unseen cards don't zero the whole deck
+            const p = copies > 0
+                ? copies / remainingDeckSize
+                : 0.3 / remainingDeckSize;
+            logLikelihood += Math.log(p);
+            cardsSeenSoFar++;
         });
 
-        // Calculate confidence
-        // Max possible score for the revealed cards if they were a perfect match
-        const maxPossibleScore = revealedCards.length + (revealedCards.filter(c => deck.keyCards.includes(c)).length * 2);
-        
-        // Base score off how many revealed cards actually matched this deck
-        const actualScore = matchCount + keyMatchCount;
-        
-        let confidenceScore = 0;
-        if (maxPossibleScore > 0) {
-            confidenceScore = Math.round((actualScore / maxPossibleScore) * 100);
-        }
-
-        // Require at least 1 key card match for high confidence
-        // Prevents generic cards (Potion, Poké Ball) from triggering 100% confidence
-        if (keyMatchCount === 0 && confidenceScore > 40) {
-            confidenceScore = Math.min(confidenceScore, 40);
-        }
-
-        // Cap early certainty on small sample sizes
-        if (revealedCards.length < 3) {
-            confidenceScore = Math.min(confidenceScore, 60 + (revealedCards.length * 10));
-        }
-
-        return {
-            deckName: deck.deckName,
-            archetype: deck.archetype,
-            confidenceScore: confidenceScore,
-            threatWarning: deck.threatWarning,
-            keyCards: deck.keyCards
-        };
+        return { deck, logLikelihood };
     });
 
-    // Sort by confidence descending
-    predictions.sort((a, b) => b.confidenceScore - a.confidenceScore);
+    // ── LAYER 2: Softmax → posterior probabilities ───────────────────
+    const maxLL = Math.max(...scored.map(s => s.logLikelihood));
+    const expScores = scored.map(s => ({
+        ...s,
+        exp: Math.exp(s.logLikelihood - maxLL)
+    }));
+    const total = expScores.reduce((sum, s) => sum + s.exp, 0);
+    const posteriors = expScores.map(s => ({
+        ...s,
+        posterior: s.exp / total
+    }));
 
-    // Return Top 2
-    return predictions.slice(0, 2);
+    // ── LAYER 3: Rogue detection ─────────────────────────────────────
+    // If no single deck has > 25% posterior, signal unknown archetype
+    const topPosterior = Math.max(...posteriors.map(p => p.posterior));
+    if (topPosterior < 0.25) {
+        return [{
+            deckName: 'Unknown',
+            archetype: '⚠️ Unrecognised archetype — possible rogue build',
+            confidenceScore: Math.round(topPosterior * 100),
+            threatWarning: 'Cards seen do not match any known meta deck. Play cautiously.',
+            keyCards: [],
+            _posterior: 1,
+            _fullList: []
+        }];
+    }
+
+    // ── Return top 2 with posterior passed forward for next-turn engine
+    return posteriors
+        .sort((a, b) => b.posterior - a.posterior)
+        .slice(0, 2)
+        .map(s => ({
+            deckName: s.deck.deckName,
+            archetype: s.deck.archetype,
+            confidenceScore: Math.round(s.posterior * 100),
+            threatWarning: s.deck.threatWarning || null,
+            keyCards: s.deck.keyCards || [],
+            _posterior: s.posterior,
+            _fullList: s.deck.fullList || []
+        }));
 }
 
 // --- Playstyle Recommender ---

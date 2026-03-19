@@ -879,81 +879,55 @@ async function updateOpponentPrediction() {
     const allCards = window.TCGP_CARDS || [];
     const revealedSet = liveRevealedCards.map(n => n.toLowerCase());
 
-    // Build a scored candidate list from cards NOT yet revealed
-    const scored = [];
+    // ── POSTERIOR PREDICTIVE: next-turn driven by deck identification ──
+    // Each prediction carries _posterior (probability) and _fullList (deck cards)
+    // P(next card = x) = Σ_i [ P(deck_i | evidence) × (copies_remaining_x_in_deck_i / cards_remaining_i) ]
+    const norm = s => (s || '').trim().toLowerCase();
+    const DECK_SIZE = 20;
+    const cardWeights = {};
 
-    allCards.forEach(card => {
-        if (revealedSet.includes(card.name.toLowerCase())) return; // already seen
+    if (predictions && predictions.length > 0 && predictions._fullList.length > 0) {
+        predictions.forEach(pred => {
+            if (!pred._fullList || pred._fullList.length === 0) return;
 
-        let score = 0;
-        const name = card.name.toLowerCase();
-        const type = card.type || '';
-        const stage = card.stage || '';
-
-        // === SYNERGY RULES ===
-
-        // Rule 1: Bench is empty (only 1 active seen) → Pokéball / Basic very likely
-        const pokemonSeen = liveRevealedCards.filter(n => {
-            const c = allCards.find(x => x.name.toLowerCase() === n.toLowerCase());
-            return c && c.type !== 'Supporter' && c.type !== 'Item';
-        });
-        const isOnlyOnePokemon = pokemonSeen.length <= 1;
-        if (isOnlyOnePokemon && name.includes('poké ball')) score += 40;
-        if (isOnlyOnePokemon && stage === 'Basic') score += 25;
-
-        // Rule 2: Opponent has an EX active → healing / support likely
-        const hasEXActive = liveRevealedCards.some(n => n.toLowerCase().includes(' ex'));
-        if (hasEXActive && (name.includes('potion') || name.includes('heal'))) score += 35;
-        if (hasEXActive && type === 'Supporter') score += 20;
-
-        // Rule 3: Evolution logic — if a Basic was seen, Stage 1 of that line is likely
-        liveRevealedCards.forEach(revealed => {
-            const basicForm = (window.BASICS_MAP && Object.keys(window.BASICS_MAP).find(k =>
-                window.BASICS_MAP[k].toLowerCase() === revealed.toLowerCase()
-            ));
-            if (basicForm && card.name === basicForm) score += 45;
-            // Reverse: basic seen → stage 1 probable
-            if (window.BASICS_MAP && window.BASICS_MAP[card.name] &&
-                revealedSet.includes(window.BASICS_MAP[card.name].toLowerCase())) {
-                score += 40;
-            }
-        });
-
-        // Rule 4: Type match — if revealed cards share a dominant type, same-type cards likely
-        const dominantType = (() => {
-            const tc = {};
-            liveRevealedCards.forEach(n => {
-                const c = allCards.find(x => x.name.toLowerCase() === n.toLowerCase());
-                if (c && c.type && c.type !== 'Supporter' && c.type !== 'Item') {
-                    tc[c.type] = (tc[c.type] || 0) + 1;
-                }
+            // Remove already-revealed cards from this deck's list (without replacement)
+            const remainingList = [...pred._fullList];
+            liveRevealedCards.forEach(revealed => {
+                const idx = remainingList.findIndex(c => norm(c) === norm(revealed));
+                if (idx !== -1) remainingList.splice(idx, 1);
             });
-            return Object.entries(tc).sort((a,b) => b[1]-a[1])[0]?.[0];
-        })();
-        if (dominantType && card.type === dominantType) score += 15;
 
-        // Rule 5: Draw/search Supporters always probable mid-game
-        if (type === 'Supporter' && (name.includes('research') || name.includes('sabrina') || name.includes('giovanni'))) {
-            score += 20;
-        }
+            const remainingCount = Math.max(remainingList.length, 1);
 
-        // Rule 6: Already-seen archetype boosts matching cards
-        if (typeof cachedMetaDecks !== 'undefined' && cachedMetaDecks) {
-            cachedMetaDecks.forEach(deck => {
-                const isLikelyDeck = liveRevealedCards.some(r => deck.keyCards?.includes(r));
-                if (isLikelyDeck && deck.fullList?.includes(card.name)) score += 18;
+            // Count copies of each unseen card remaining
+            const copyCount = {};
+            remainingList.forEach(c => {
+                const key = norm(c);
+                copyCount[key] = (copyCount[key] || 0) + 1;
             });
-        }
 
-        if (score > 0) scored.push({ card, score });
-    });
+            // Weight = posterior × (copies_remaining / cards_remaining)
+            // This is the hypergeometric draw probability weighted by deck likelihood
+            Object.entries(copyCount).forEach(([normName, copies]) => {
+                const weight = pred._posterior * (copies / remainingCount);
+                cardWeights[normName] = (cardWeights[normName] || 0) + weight;
+            });
+        });
+    }
 
-    // Normalise scores to %
-    const maxScore = Math.max(...scored.map(s => s.score), 1);
-    const topCards = scored
-        .sort((a, b) => b.score - a.score)
+    // Resolve normalised names back to card objects
+    const topCards = Object.entries(cardWeights)
+        .sort((a, b) => b - a)
         .slice(0, 3)
-        .map(s => ({ ...s, pct: Math.min(Math.round((s.score / maxScore) * 100), 97) }));
+        .map(([normName, weight]) => {
+            const card = allCards.find(c => norm(c.name) === normName);
+            return card ? { card, weight } : null;
+        })
+        .filter(Boolean)
+        .map(({ card, weight }, _, arr) => ({
+            card,
+            pct: Math.min(Math.round((weight / arr.weight) * 100), 97)
+        }));
 
     if (topCards.length === 0) {
         nextTurnSection.style.display = 'none';
