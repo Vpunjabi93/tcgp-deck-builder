@@ -574,6 +574,7 @@ function getBasicForm(cardName) {
 }
 
 window.validateAndApplyAIDeck = function(aiNamesArray) {
+    const normName = (n) => (n || '').trim().toLowerCase().replace(/\s+/g, ' ');
     if (!aiNamesArray || !Array.isArray(aiNamesArray) || aiNamesArray.length === 0) {
         if (typeof window.showToast === 'function') {
             window.showToast('AI could not generate a deck. Try a different playstyle.', 'error');
@@ -603,14 +604,76 @@ window.validateAndApplyAIDeck = function(aiNamesArray) {
         resolvedCards.push(ownedMatch || allMatches[0]);
     });
 
-    // GUARDRAIL 2 — Inventory reality check + 2-copy hard cap
+    // GUARDRAIL 2 — Proactive evolution cascade: resolve full chain before adding any card
     let validatedDeck = [];
-    resolvedCards.forEach(card => {
-        const countInDeck = validatedDeck.filter(c => c.name === card.name).length;
-        if (tempInventory[card.id] > 0 && countInDeck < 2) {
-            validatedDeck.push(card);
-            tempInventory[card.id]--;
+
+    // Helper: find a card by normalized name from inventory
+    function pickFromInventory(nameToFind) {
+        const normalized = normName(nameToFind);
+        const match = allCards.find(c =>
+            normName(c.name) === normalized && (tempInventory[c.id] || 0) > 0
+        );
+        if (match) {
+            tempInventory[match.id] = Math.max(0, (tempInventory[match.id] || 0) - 1);
+            return match;
         }
+        return null;
+    }
+
+    // Helper: get the Stage 1 that evolves from a given Basic name
+    function getStage1ForBasic(basicName) {
+        return Object.keys(window.BASICS_MAP || {}).find(s1 =>
+            normName(window.BASICS_MAP[s1]) === normName(basicName)
+        ) || null;
+    }
+
+    // Helper: get required Basic for any evolution card
+    function getBasicFor(cardName) {
+        const clean = normName(cardName).replace(/\s*ex$/, '').trim();
+        const key = Object.keys(window.BASICS_MAP || {}).find(k => normName(k) === clean);
+        return key ? window.BASICS_MAP[key] : null;
+    }
+
+    resolvedCards.forEach(card => {
+        if (!card) return;
+        const countInDeck = validatedDeck.filter(c => normName(c.name) === normName(card.name)).length;
+        if (countInDeck >= 2) return; // 2-copy cap
+        if ((tempInventory[card.id] || 0) <= 0) return; // not in inventory
+
+        // --- PROACTIVE CASCADE ---
+        // If this card is a Stage 2: ensure Basic + Stage 1 are in deck first
+        if (card.stage === 'Stage 2') {
+            const requiredBasic = getBasicFor(card.name);
+            const requiredStage1 = requiredBasic ? getStage1ForBasic(requiredBasic) : null;
+
+            // Add Basic if not already in deck
+            if (requiredBasic && !validatedDeck.some(c => normName(c.name) === normName(requiredBasic))) {
+                const basicCard = pickFromInventory(requiredBasic);
+                if (!basicCard) return; // can't build line without Basic — skip entire card
+                validatedDeck.push(basicCard);
+            }
+
+            // Add Stage 1 if not already in deck
+            if (requiredStage1 && !validatedDeck.some(c => normName(c.name) === normName(requiredStage1))) {
+                const stage1Card = pickFromInventory(requiredStage1);
+                if (!stage1Card) return; // can't build line without Stage 1 — skip entire card
+                validatedDeck.push(stage1Card);
+            }
+        }
+
+        // If this card is a Stage 1: ensure Basic is in deck first
+        if (card.stage === 'Stage 1') {
+            const requiredBasic = getBasicFor(card.name);
+            if (requiredBasic && !validatedDeck.some(c => normName(c.name) === normName(requiredBasic))) {
+                const basicCard = pickFromInventory(requiredBasic);
+                if (!basicCard) return; // can't build line without Basic — skip Stage 1
+                validatedDeck.push(basicCard);
+            }
+        }
+
+        // Now add the card itself
+        tempInventory[card.id] = Math.max(0, (tempInventory[card.id] || 0) - 1);
+        validatedDeck.push(card);
     });
 
     // GUARDRAIL 3 — Strip incompatible Gym Leader Trainers
