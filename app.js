@@ -91,8 +91,6 @@ function initApp() {
     const proceedBtn = document.getElementById('btn-proceed-decks');
     if (proceedBtn) {
         proceedBtn.addEventListener('click', () => {
-            document.querySelector('.nav-btn[data-target="view-decks"]')?.click();
-            // Fallback if ID is different
             document.querySelector('.nav-btn[data-target="view-deck-builder"]')?.click();
         });
     }
