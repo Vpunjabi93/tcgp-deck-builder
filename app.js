@@ -879,55 +879,39 @@ async function updateOpponentPrediction() {
     const allCards = window.TCGP_CARDS || [];
     const revealedSet = liveRevealedCards.map(n => n.toLowerCase());
 
-    // ── POSTERIOR PREDICTIVE: next-turn driven by deck identification ──
-    // Each prediction carries _posterior (probability) and _fullList (deck cards)
-    // P(next card = x) = Σ_i [ P(deck_i | evidence) × (copies_remaining_x_in_deck_i / cards_remaining_i) ]
+    // ── Next Turn Prediction: Evidence-Driven Posterior Predictive ─
     const norm = s => (s || '').trim().toLowerCase();
-    const DECK_SIZE = 20;
-    const cardWeights = {};
 
-    if (predictions && predictions.length > 0 && predictions._fullList.length > 0) {
-        predictions.forEach(pred => {
-            if (!pred._fullList || pred._fullList.length === 0) return;
+    let topCards = [];
 
-            // Remove already-revealed cards from this deck's list (without replacement)
-            const remainingList = [...pred._fullList];
-            liveRevealedCards.forEach(revealed => {
-                const idx = remainingList.findIndex(c => norm(c) === norm(revealed));
-                if (idx !== -1) remainingList.splice(idx, 1);
-            });
+    // predictions[0]._candidateScores is the ranked probability list
+    // produced by the new predictOpponentDeck engine in strategy.js
+    if (predictions && predictions.length > 0 &&
+        predictions[0]._candidateScores &&
+        predictions[0]._candidateScores.length > 0) {
 
-            const remainingCount = Math.max(remainingList.length, 1);
+        const candidates = predictions[0]._candidateScores;
+        const confirmedNorms = predictions[0]._confirmedNorms || new Set();
+        const inferredNorms  = predictions[0]._inferredNorms  || new Set();
 
-            // Count copies of each unseen card remaining
-            const copyCount = {};
-            remainingList.forEach(c => {
-                const key = norm(c);
-                copyCount[key] = (copyCount[key] || 0) + 1;
-            });
+        // Filter out already-revealed cards
+        const revealedNorms = new Set(liveRevealedCards.map(n => norm(n)));
 
-            // Weight = posterior × (copies_remaining / cards_remaining)
-            // This is the hypergeometric draw probability weighted by deck likelihood
-            Object.entries(copyCount).forEach(([normName, copies]) => {
-                const weight = pred._posterior * (copies / remainingCount);
-                cardWeights[normName] = (cardWeights[normName] || 0) + weight;
-            });
-        });
+        const filtered = candidates.filter(({ card }) =>
+            !revealedNorms.has(norm(card.name))
+        );
+
+        if (filtered.length > 0) {
+            const maxScore = filtered[0].score;
+            topCards = filtered
+                .slice(0, 3)
+                .map(({ card, score }) => ({
+                    card,
+                    pct: Math.min(Math.round((score / maxScore) * 100), 97),
+                    isInferred: inferredNorms.has(norm(card.name))
+                }));
+        }
     }
-
-    // Resolve normalised names back to card objects
-    const topCards = Object.entries(cardWeights)
-        .sort((a, b) => b - a)
-        .slice(0, 3)
-        .map(([normName, weight]) => {
-            const card = allCards.find(c => norm(c.name) === normName);
-            return card ? { card, weight } : null;
-        })
-        .filter(Boolean)
-        .map(({ card, weight }, _, arr) => ({
-            card,
-            pct: Math.min(Math.round((weight / arr.weight) * 100), 97)
-        }));
 
     if (topCards.length === 0) {
         nextTurnSection.style.display = 'none';
@@ -935,7 +919,7 @@ async function updateOpponentPrediction() {
     }
 
     nextTurnSection.style.display = 'block';
-    nextTurnGrid.innerHTML = topCards.map(({ card, pct }) => {
+    nextTurnGrid.innerHTML = topCards.map(({ card, pct, isInferred }) => {
         const imgHTML = typeof window.generateCardHTML === 'function'
             ? window.generateCardHTML(card, 'next-turn-card-img')
             : `<img src="${card.img}" class="next-turn-card-img" alt="${card.name}">`;
@@ -945,7 +929,7 @@ async function updateOpponentPrediction() {
         return `
             <div class="next-turn-card-item">
                 ${imgHTML}
-                <div class="next-turn-card-label">${card.name}</div>
+                <div class="next-turn-card-label">${card.name}${isInferred ? ' <span style="color:var(--accent-gold);font-size:0.7rem;">★ inferred</span>' : ''}</div>
                 <div class="next-turn-pct-bar-wrap">
                     <div class="next-turn-pct-bar" style="width:${pct}%; background:${barColor};"></div>
                 </div>

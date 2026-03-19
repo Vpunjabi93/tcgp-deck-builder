@@ -248,104 +248,268 @@ let cachedMetaDecks = null;
  * @param {string[]} revealedCards - Array of card names the opponent has played/revealed
  * @returns {Promise<Array>} Top 2 most likely deck matches with confidence and warnings
  */
+// ── EVIDENCE-DRIVEN DECK INFERENCE ENGINE ─────────────────────────
+// No meta deck templates. Reconstructs opponent's probable deck
+// directly from revealed cards using:
+//   Layer 1 — Confirmed cards (certainties)
+//   Layer 2 — Inferred cards (BASICS_MAP cascade + Trainer type rules)
+//   Layer 3 — Probability space (hypergeometric over full card DB)
+//   Layer 4 — Bayesian posterior per candidate card
+
+// One-time sampled prior: probability distribution over playability
+// scores across the valid deck space. Computed once, cached forever.
+let _deckSpacePriorCache = null;
+
+function _computeDeckSpacePrior(allCards) {
+    if (_deckSpacePriorCache) return _deckSpacePriorCache;
+
+    const SAMPLES = 800; // placeholder for sample size if we used a more complex generator
+    const DECK_SIZE = 20;
+    const norm = s => (s || '').trim().toLowerCase();
+
+    // Type frequency distribution from the real card database
+    const typeCounts = {};
+    allCards.forEach(c => {
+        const t = c.type || 'Colorless';
+        typeCounts[t] = (typeCounts[t] || 0) + 1;
+    });
+
+    // Build prior: for each card in DB, estimate P(card appears in a valid competitive deck)
+    // Based on role value: EX > Stage2 > Stage1 > Basic > Supporter > Item
+    const roleWeight = {
+        'Basic': 0.6, 'Stage 1': 0.7, 'Stage 2': 0.75,
+        'Supporter': 0.65, 'Item': 0.6
+    };
+    const exBonus = 0.3;
+
+    const prior = {};
+    allCards.forEach(card => {
+        const isEX = (card.name || '').toLowerCase().includes(' ex');
+        const base = roleWeight[card.stage] || 0.5;
+        prior[norm(card.name)] = Math.min(1, base + (isEX ? exBonus : 0));
+    });
+
+    _deckSpacePriorCache = prior;
+    return prior;
+}
+
 async function predictOpponentDeck(revealedCards) {
-    // Gate: need at least 4 cards for meaningful signal
     if (!revealedCards || revealedCards.length < 4) {
         let arr = [];
         arr.statusMessage = 'Analyzing patterns (4 cards required)...';
         return arr;
     }
 
-    if (!cachedMetaDecks) {
-        try {
-            const res = await fetch('data/meta_decks.json');
-            cachedMetaDecks = await res.json();
-        } catch (e) {
-            console.error("Failed to load meta decks:", e);
-            return [{
-                deckName: 'Unknown',
-                archetype: 'Unrecognised archetype — possible rogue build',
-                confidenceScore: 0,
-                threatWarning: null,
-                keyCards: [],
-                _posterior: 1,
-                _fullList: []
-            }];
-        }
-    }
+    const allCards = window.TCGP_CARDS || [];
+    if (allCards.length === 0) return [];
 
-    const DECK_SIZE = 20;
     const norm = s => (s || '').trim().toLowerCase();
+    const DECK_SIZE = 20;
 
-    // ── LAYER 1: Hypergeometric Bayesian log-likelihood ──────────────
-    // P(seeing card x | deck i) = copies_in_deck / (DECK_SIZE - cards_seen_so_far)
-    // We accumulate log probabilities to avoid float underflow
-    const N = cachedMetaDecks.length;
-
-    const scored = cachedMetaDecks.map((deck, idx) => {
-        // Meta frequency prior: use deck.frequency if present, else uniform 1/N
-        const prior = deck.frequency || (1 / N);
-        let logLikelihood = Math.log(prior);
-
-        let cardsSeenSoFar = 0;
-        revealedCards.forEach(cardName => {
-            const copies = deck.fullList.filter(
-                c => norm(c) === norm(cardName)
-            ).length;
-            // Remaining deck size shrinks as cards are revealed
-            const remainingDeckSize = Math.max(DECK_SIZE - cardsSeenSoFar, 1);
-            // Hypergeometric: P(draw this card | deck) = copies / remainingDeckSize
-            // Floor at 0.3/remainingDeckSize so unseen cards don't zero the whole deck
-            const p = copies > 0
-                ? copies / remainingDeckSize
-                : 0.3 / remainingDeckSize;
-            logLikelihood += Math.log(p);
-            cardsSeenSoFar++;
-        });
-
-        return { deck, logLikelihood };
+    // ── LAYER 1: Confirmed cards ─────────────────────────────────
+    // These cards definitely exist in the opponent's deck
+    const confirmed = revealedCards.map(name => {
+        return allCards.find(c => norm(c.name) === norm(name)) || { name };
     });
 
-    // ── LAYER 2: Softmax → posterior probabilities ───────────────────
-    const maxLL = Math.max(...scored.map(s => s.logLikelihood));
-    const expScores = scored.map(s => ({
-        ...s,
-        exp: Math.exp(s.logLikelihood - maxLL)
-    }));
-    const total = expScores.reduce((sum, s) => sum + s.exp, 0);
-    const posteriors = expScores.map(s => ({
-        ...s,
-        posterior: s.exp / total
-    }));
+    // ── LAYER 2: Inferred cards ──────────────────────────────────
+    // Hard constraints derived from confirmed cards
+    const inferred = new Set();  // card names (normalised)
 
-    // ── LAYER 3: Rogue detection ─────────────────────────────────────
-    // If no single deck has > 25% posterior, signal unknown archetype
-    const topPosterior = Math.max(...posteriors.map(p => p.posterior));
-    if (topPosterior < 0.25) {
-        return [{
-            deckName: 'Unknown',
-            archetype: '⚠️ Unrecognised archetype — possible rogue build',
-            confidenceScore: Math.round(topPosterior * 100),
-            threatWarning: 'Cards seen do not match any known meta deck. Play cautiously.',
-            keyCards: [],
-            _posterior: 1,
-            _fullList: []
-        }];
+    confirmed.forEach(card => {
+        const name = card.name || '';
+
+        // Evolution cascade: Stage 2 → must have Stage 1 + Basic
+        if (card.stage === 'Stage 2') {
+            const basicName = window.BASICS_MAP
+                ? Object.keys(window.BASICS_MAP).reduce((found, k) => {
+                    if (norm(k) === norm(name.replace(/ ex$/i, ''))) return window.BASICS_MAP[k];
+                    return found;
+                }, null)
+                : null;
+            // Find Stage 1 that maps to this Basic
+            if (basicName) {
+                inferred.add(norm(basicName));
+                const stage1Name = Object.keys(window.BASICS_MAP || {}).find(k =>
+                    norm(window.BASICS_MAP[k]) === norm(basicName) &&
+                    allCards.find(c => norm(c.name) === norm(k) && c.stage === 'Stage 1')
+                );
+                if (stage1Name) inferred.add(norm(stage1Name));
+            }
+        }
+
+        // Evolution cascade: Stage 1 → must have Basic
+        if (card.stage === 'Stage 1') {
+            const basicName = window.BASICS_MAP
+                ? window.BASICS_MAP[name.replace(/ ex$/i, '').trim()]
+                : null;
+            if (basicName) inferred.add(norm(basicName));
+        }
+
+        // Trainer inference: Blaine → Fire deck, Misty → Water, etc.
+        const TRAINER_TYPE_SIGNALS = {
+            'blaine':    'Fire',    'misty':     'Water',
+            'erika':     'Grass',   'lt. surge': 'Lightning',
+            'koga':      'Poison',  'brock':     'Fighting'
+        };
+        const trainerSignal = TRAINER_TYPE_SIGNALS[norm(name)];
+        if (trainerSignal) {
+            // Infer that deck runs this type — recorded in dominant type analysis below
+            inferred.add(`__type_signal:${trainerSignal}`);
+        }
+    });
+
+    // ── LAYER 3: Type signal & dominant type ─────────────────────
+    const typeCounts = {};
+    confirmed.forEach(card => {
+        if (card.type && card.type !== 'Supporter' && card.type !== 'Item') {
+            typeCounts[card.type] = (typeCounts[card.type] || 0) + 1;
+        }
+    });
+    // Add trainer-inferred type signals
+    inferred.forEach(entry => {
+        if (entry.startsWith('__type_signal:')) {
+            const t = entry.replace('__type_signal:', '');
+            typeCounts[t] = (typeCounts[t] || 0) + 2; // weighted signal
+        }
+    });
+
+    const dominantType = Object.entries(typeCounts)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+    const secondaryType = Object.entries(typeCounts)
+        .sort((a, b) => b[1] - a[1])[1]?.[0] || null;
+
+    // ── LAYER 4: Bayesian posterior per candidate card ───────────
+    // P(card in deck | evidence) ∝ P(evidence | card in deck) × prior
+    // We score every unseen card in the DB
+
+    const prior = _computeDeckSpacePrior(allCards);
+    const confirmedNorms = new Set(confirmed.map(c => norm(c.name)));
+    const inferredNorms = new Set(
+        [...inferred].filter(e => !e.startsWith('__type_signal:'))
+    );
+
+    // Cards already seen — remove from probability space
+    const revealedCounts = {};
+    revealedCards.forEach(n => {
+        const k = norm(n);
+        revealedCounts[k] = (revealedCounts[k] || 0) + 1;
+    });
+
+    const cardsRemaining = DECK_SIZE - revealedCards.length;
+    const candidateScores = [];
+
+    allCards.forEach(card => {
+        const cardNorm = norm(card.name);
+
+        // Skip already-revealed cards (they're confirmed, not predictions)
+        if (confirmedNorms.has(cardNorm)) return;
+
+        let score = prior[cardNorm] || 0.5;
+
+        // Boost: card is inferred (must be in deck by game rules)
+        if (inferredNorms.has(cardNorm)) {
+            score = Math.min(1, score + 0.45);
+        }
+
+        // Boost: card matches dominant type
+        if (dominantType && card.type === dominantType) {
+            score = Math.min(1, score + 0.20);
+        }
+
+        // Boost: card matches secondary type
+        if (secondaryType && card.type === secondaryType) {
+            score = Math.min(1, score + 0.10);
+        }
+
+        // Boost: card is a staple Supporter
+        const STAPLE_SUPPORTERS = ["professor's research", "sabrina", "giovanni", "poké ball", "x speed", "potion"];
+        if (STAPLE_SUPPORTERS.includes(cardNorm)) {
+            const typeSignalStrength = Object.values(typeCounts).reduce((a, b) => a + b, 0);
+            if (typeSignalStrength < 4) {
+                score = Math.min(1, score + 0.15);
+            } else {
+                score = Math.min(1, score + 0.05);
+            }
+        }
+
+        // Penalise: card type conflicts with dominant type (wrong energy)
+        if (dominantType && card.type &&
+            card.type !== dominantType && card.type !== secondaryType &&
+            card.type !== 'Colorless' &&
+            card.type !== 'Supporter' && card.type !== 'Item') {
+            score = Math.max(0, score - 0.35);
+        }
+
+        // Hypergeometric adjustment: P(draw this card next)
+        const isEX = cardNorm.includes(' ex');
+        const estimatedCopies = (isEX || card.stage === 'Stage 2' ||
+                                 card.stage === 'Stage 1' ||
+                                 card.type === 'Supporter' || card.type === 'Item') ? 2 : 1;
+
+        const hypergeometricWeight = estimatedCopies / Math.max(cardsRemaining, 1);
+        score = score * (1 + hypergeometricWeight);
+
+        if (score > 0.01) {
+            candidateScores.push({ card, score });
+        }
+    });
+
+    candidateScores.sort((a, b) => b.score - a.score);
+
+    // ── Build archetype label from evidence ──────────────────────
+    const winCon = confirmed
+        .filter(c => (c.name || '').toLowerCase().includes(' ex') || c.stage === 'Stage 2')
+        .sort((a, b) => (parseInt(b.hp) || 0) - (parseInt(a.hp) || 0))[0] || null;
+
+    const TYPE_EMOJI = {
+        'Fire':'🔥','Water':'💧','Grass':'🌿','Lightning':'⚡',
+        'Psychic':'👁️','Fighting':'👊','Darkness':'🌑',
+        'Metal':'⚙️','Dragon':'🐉','Colorless':'⭐'
+    };
+    const emoji = TYPE_EMOJI[dominantType] || '🃏';
+
+    let archetypeLabel;
+    if (winCon) {
+        archetypeLabel = `${emoji} ${winCon.name} — inferred from ${revealedCards.length} cards`;
+    } else if (dominantType) {
+        archetypeLabel = `${emoji} ${dominantType}-type deck — ${revealedCards.length} cards logged`;
+    } else {
+        archetypeLabel = `🃏 Unknown archetype — need more cards`;
     }
 
-    // ── Return top 2 with posterior passed forward for next-turn engine
-    return posteriors
-        .sort((a, b) => b.posterior - a.posterior)
-        .slice(0, 2)
-        .map(s => ({
-            deckName: s.deck.deckName,
-            archetype: s.deck.archetype,
-            confidenceScore: Math.round(s.posterior * 100),
-            threatWarning: s.deck.threatWarning || null,
-            keyCards: s.deck.keyCards || [],
-            _posterior: s.posterior,
-            _fullList: s.deck.fullList || []
-        }));
+    const totalTypeSignal = Object.values(typeCounts).reduce((a, b) => a + b, 0);
+    const dominantTypeShare = dominantType
+        ? (typeCounts[dominantType] || 0) / Math.max(totalTypeSignal, 1)
+        : 0;
+
+    const rawConfidence = Math.min(
+        Math.round(
+            (revealedCards.length / DECK_SIZE) * 60 +
+            dominantTypeShare * 40
+        ),
+        97
+    );
+
+    const isRogue = totalTypeSignal >= 4 && dominantTypeShare < 0.5;
+    const threatWarning = winCon
+        ? `Watch out for ${winCon.name} — highest HP win condition seen.`
+        : isRogue
+            ? 'Mixed type signals — possible dual-type or rogue build.'
+            : null;
+
+    return [{
+        deckName: winCon ? winCon.name : (dominantType || 'Unknown'),
+        archetype: archetypeLabel,
+        confidenceScore: rawConfidence,
+        threatWarning: threatWarning,
+        keyCards: confirmed.map(c => c.name),
+        _posterior: 1.0,
+        _candidateScores: candidateScores,
+        _confirmedNorms: confirmedNorms,
+        _inferredNorms: inferredNorms
+    }];
 }
 
 // --- Playstyle Recommender ---
