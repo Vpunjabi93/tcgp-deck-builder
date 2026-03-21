@@ -764,6 +764,25 @@ const BASICS_MAP = {
     "Luxio": "Shinx", "Luxray": "Shinx", "Gabite": "Gible", "Garchomp": "Gible"
 };
 
+// Append newer sets (A1a, A2, etc.) to BASICS_MAP dynamically
+Object.assign(BASICS_MAP, {
+    "Servine":"Snivy", "Serperior":"Snivy", "Volcarona":"Larvesta", "Drednaw":"Chewtle",
+    "Galvantula":"Joltik", "Beheeyem":"Elgyem", "Floette":"Flabébé", "Florges":"Flabébé",
+    "Slurpuff":"Swirlix", "Liepard":"Purrloin", "Whirlipede":"Venipede", "Scolipede":"Venipede",
+    "Grotle":"Turtwig", "Torterra":"Turtwig", "Kricketune":"Kricketot", "Wormadam":"Burmy",
+    "Vespiquen":"Combee", "Leafeon":"Eevee", "Magmortar":"Magmar", "Magcargo":"Slugma",
+    "Monferno":"Chimchar", "Infernape ex":"Chimchar", "Floatzel":"Buizel", "Gastrodon":"Shellos",
+    "Lumineon":"Finneon", "Abomasnow":"Snover", "Glaceon":"Eevee",
+    "Magnezone":"Magnemite", "Electivire":"Electabuzz",
+    "Togetic":"Togepi", "Togekiss":"Togepi", "Mismagius ex":"Misdreavus", "Dusclops":"Duskull", "Dusknoir":"Duskull",
+    "Drifblim":"Drifloon", "Gliscor":"Gligar",
+    "Rampardos":"Cranidos", "Lucario":"Riolu", "Hippowdon":"Hippopotas", "Gallade ex":"Ralts",
+    "Honchkrow":"Murkrow", "Weavile ex":"Sneasel", "Mightyena":"Poochyena", "Skuntank":"Stunky",
+    "Drapion":"Skorupi", "Toxicroak":"Croagunk", "Bastiodon":"Shieldon", "Bronzong":"Bronzor", "Probopass":"Nosepass",
+    "Lickilicky ex":"Lickitung", "Porygon2":"Porygon", "Porygon-Z":"Porygon",
+    "Ambipom":"Aipom", "Staravia":"Starly", "Staraptor":"Starly", "Bibarel":"Bidoof", "Lopunny":"Buneary", "Purugly":"Glameow"
+});
+
 function getBasicForm(cardName) {
     if(!cardName) return null;
     let clean = cardName.replace(/ ex$/i, '');

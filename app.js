@@ -4,14 +4,19 @@ const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 let _sessionApiKey = null;
 
 window.TCGP_CARDS = []; // Global declaration
-window.getAllCards = function() { return window.TCGP_CARDS || []; };
+window.getAllCards = function () { return window.TCGP_CARDS || []; };
 window.selectedCardsForLab = []; // Global array for Probability Lab
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const response = await fetch('data/all_cards.json');
         if (!response.ok) throw new Error("Failed to load card database");
-        window.TCGP_CARDS = await response.json();
+        const rawCards = await response.json();
+        // Normalize stages to match strategy.js expectations
+        window.TCGP_CARDS = rawCards.map(c => ({
+            ...c,
+            stage: c.stage === 'Stage1' ? 'Stage 1' : c.stage === 'Stage2' ? 'Stage 2' : c.stage
+        }));
         console.log(`Loaded ${window.TCGP_CARDS.length} cards from database.`);
         initApp();
     } catch (e) {
@@ -24,23 +29,23 @@ function initApp() {
     setupNavigation();
     initFirebase();
     if (!auth) {
-        console.warn('[Firebase] Not configured. Cloud sync disabled.');
+        console.warn('[Firebase] Not initialized. Running in local-only mode.');
     }
     checkApiKey();
-    
+
     // Bind global buttons
     document.getElementById('api-key-btn').addEventListener('click', showApiModal);
     document.getElementById('btn-save-key').addEventListener('click', saveApiKey);
-    
+
     const authBtn = document.getElementById('auth-btn');
     if (authBtn) authBtn.addEventListener('click', showAuthModal);
-    
+
     const toggleAuthBtn = document.getElementById('btn-toggle-auth');
     if (toggleAuthBtn) toggleAuthBtn.addEventListener('click', toggleAuthMode);
-    
+
     const authActionBtn = document.getElementById('btn-auth-action');
     if (authActionBtn) authActionBtn.addEventListener('click', handleAuthAction);
-    
+
     const manualAddBtn = document.getElementById('btn-manual-add-entry');
     if (manualAddBtn) manualAddBtn.addEventListener('click', processManualAdd);
 
@@ -50,7 +55,7 @@ function initApp() {
             if (e.key === 'Enter') processManualAdd();
         });
     }
-    
+
     // Card Entry Tabs
     const entryTabs = document.querySelectorAll('.entry-tab-btn');
     const entryContents = document.querySelectorAll('.entry-tab-content');
@@ -59,13 +64,13 @@ function initApp() {
             entryTabs.forEach(b => b.classList.remove('active'));
             entryContents.forEach(c => c.classList.remove('active', 'hidden'));
             entryContents.forEach(c => c.style.display = 'none'); // Ensure hidden ones are non-blocking
-            
+
             btn.classList.add('active');
             const target = document.getElementById(btn.dataset.target);
             if (target) {
                 target.classList.add('active');
                 target.style.display = 'block';
-                if(btn.dataset.target === 'tab-visual') {
+                if (btn.dataset.target === 'tab-visual') {
                     renderVisualSelectionGrid();
                 }
             }
@@ -74,17 +79,17 @@ function initApp() {
 
     // Visual Selection Search
     const visualSearch = document.getElementById('visual-search');
-    if(visualSearch) {
+    if (visualSearch) {
         visualSearch.addEventListener('input', (e) => {
             renderVisualSelectionGrid(e.target.value);
         });
     }
 
     const visualSetSelect = document.getElementById('visual-set-select');
-    if(visualSetSelect) {
-         visualSetSelect.addEventListener('change', () => {
-             renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
-         });
+    if (visualSetSelect) {
+        visualSetSelect.addEventListener('change', () => {
+            renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
+        });
     }
 
     // Mega Proceed Button
@@ -125,24 +130,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveDeckBtn) {
         saveDeckBtn.addEventListener('click', () => {
             if (window.currentDeck.length !== 20) return;
-            
+
             const deckName = document.getElementById('deck-name').value || 'My Deck';
             const deckToSave = {
                 id: Date.now().toString(),
                 name: deckName,
                 cards: window.currentDeck.map(c => c.id) // Only save IDs to save space
             };
-            
+
             let savedDecks = JSON.parse(localStorage.getItem('tcgp_saved_decks') || '[]');
             savedDecks.push(deckToSave);
             localStorage.setItem('tcgp_saved_decks', JSON.stringify(savedDecks));
-            
+
             showToast('Deck Saved Successfully!', 'success');
-            
+
             // Refresh logic in probability and live match
-            if(window.populateProbabilityDropdowns) window.populateProbabilityDropdowns();
+            if (window.populateProbabilityDropdowns) window.populateProbabilityDropdowns();
             const liveDrops = document.getElementById('live-deck-select');
-            if(liveDrops && window.populateProbabilityDropdowns) window.populateProbabilityDropdowns(); // Shared logic
+            if (liveDrops && window.populateProbabilityDropdowns) window.populateProbabilityDropdowns(); // Shared logic
         });
     }
 
@@ -152,27 +157,27 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRecommend.addEventListener('click', async () => {
             const playstyle = document.getElementById('db-playstyle-select').value;
             const outputArea = document.getElementById('recommender-output');
-            
+
             outputArea.classList.remove('hidden');
             outputArea.innerHTML = '<span class="empty-state">Analyzing collection...</span>';
-            
+
             if (typeof recommendDecks === 'function') {
                 const recs = await recommendDecks(playstyle);
                 if (recs.length === 0) {
                     outputArea.innerHTML = '<span class="empty-state">No matching decks found for this playstyle.</span>';
                     return;
                 }
-                
+
                 outputArea.innerHTML = recs.map(r => `
                     <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:12px;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                             <strong>${r.archetype}</strong>
                             <span style="color:${r.completionPct >= 80 ? 'var(--accent-gold)' : 'var(--text-muted)'}">${r.completionPct}% Owned</span>
                         </div>
-                        ${r.missingCards.length > 0 
-                            ? `<div style="font-size:0.85rem; color:#ff8888; margin-top:6px; line-height:1.4;">Missing:<br> ${r.missingCards.join('<br>')}</div>` 
-                            : `<div style="font-size:0.8rem; color:#78c850;">Ready to build!</div>`
-                        }
+                        ${r.missingCards.length > 0
+                        ? `<div style="font-size:0.85rem; color:#ff8888; margin-top:6px; line-height:1.4;">Missing:<br> ${r.missingCards.join('<br>')}</div>`
+                        : `<div style="font-size:0.8rem; color:#78c850;">Ready to build!</div>`
+                    }
                     </div>
                 `).join('');
             } else {
@@ -196,30 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Firebase Cloud Sync (Mock) ---
 function initFirebase() {
-    const raw = localStorage.getItem('firebase_config');
-    let firebaseConfig = null;
-
-    if (!raw) {
-        console.warn('[Firebase] No firebase_config found in localStorage. Cloud sync will stay disabled until user provides config.');
-        // Do NOT auto-initialize any default project here.
-        return;
-    }
-
-    try {
-        firebaseConfig = JSON.parse(raw);
-    } catch (e) {
-        console.error('[Firebase] Config JSON parse error:', e);
-        // Fail closed: don't initialize Firebase with a broken config
-        return;
-    }
-
-    // Basic shape validation to avoid obviously broken configs
-    const requiredKeys = ['apiKey', 'authDomain', 'projectId'];
-    const missing = requiredKeys.filter(k => !firebaseConfig[k]);
-    if (missing.length > 0) {
-        console.error('[Firebase] Config missing required keys:', missing.join(', '));
-        return;
-    }
+    const firebaseConfig = {
+        apiKey: "AIzaSyCnXljjyIYCWhsLhjLO62gDnIhNA29bHbM",
+        authDomain: "pokemon-tcgp-24c09.firebaseapp.com",
+        projectId: "pokemon-tcgp-24c09",
+        storageBucket: "pokemon-tcgp-24c09.firebasestorage.app",
+        messagingSenderId: "174569516136",
+        appId: "1:174569516136:web:c30c356093b7be0de39fdd",
+        measurementId: "G-H4SJJ2KELV"
+    };
 
     try {
         if (!firebase.apps.length) {
@@ -246,7 +236,7 @@ function updateAuthUI(user) {
     if (!authBtn || !userEmail) return;
 
     if (!auth) {
-        authBtn.innerText = 'Cloud Sync Off';
+        authBtn.innerText = 'Cloud Sync Unavailable';
         authBtn.disabled = true;
         userEmail.classList.add('hidden');
         return;
@@ -254,10 +244,12 @@ function updateAuthUI(user) {
 
     if (user) {
         authBtn.innerText = 'Sign Out';
+        authBtn.disabled = false;
         userEmail.innerText = user.email;
         userEmail.classList.remove('hidden');
     } else {
         authBtn.innerText = 'Sign In';
+        authBtn.disabled = false;
         userEmail.classList.add('hidden');
     }
 }
@@ -360,7 +352,7 @@ async function syncCollectionToCloud() {
     if (!currentUser || !db) return;
     const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     const myDecks = JSON.parse(localStorage.getItem('tcgp_decks') || '[]');
-    
+
     await db.collection('users').doc(currentUser.uid).set({
         collection: myCollection,
         decks: myDecks,
@@ -448,9 +440,9 @@ function setupNavigation() {
             btn.classList.add('active');
             const targetId = btn.getAttribute('data-target');
             document.getElementById(targetId).classList.add('active');
-            
-            if(targetId === 'view-collection') renderCollectionGrid();
-            if(targetId === 'view-deck-builder') renderDeckBuilderSidebar();
+
+            if (targetId === 'view-collection') renderCollectionGrid();
+            if (targetId === 'view-deck-builder') renderDeckBuilderSidebar();
         });
     });
 
@@ -523,7 +515,7 @@ async function saveApiKey() {
 }
 
 // --- Image Error Failsafe ---
-window.generateCardHTML = function(card, imgClass = '') {
+window.generateCardHTML = function (card, imgClass = '') {
     const numPart = (card.id && card.id.includes('-')) ? card.id.split('-')[1] : '001';
     const paddedNum = numPart.padStart(3, '0');
     const cleanSetCode = card.setCode === 'P-A' ? 'P-A' : card.setCode;
@@ -549,21 +541,21 @@ window.generateCardHTML = function(card, imgClass = '') {
 };
 
 // --- Collection Manager ---
-window.renderVisualSelectionGrid = function(searchQuery = '') {
+window.renderVisualSelectionGrid = function (searchQuery = '') {
     const grid = document.getElementById('visual-card-grid');
     const setSelect = document.getElementById('visual-set-select');
     if (!grid || !setSelect) return;
-    
+
     grid.innerHTML = '';
     const setCode = setSelect.value;
     const allCards = TCGP_CARDS.filter(c => c.setCode === setCode);
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
-    
+
     let displayCards = allCards;
-    if(searchQuery) {
+    if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        displayCards = allCards.filter(c => 
-            c.name.toLowerCase().includes(q) || 
+        displayCards = allCards.filter(c =>
+            c.name.toLowerCase().includes(q) ||
             c.type?.toLowerCase().includes(q) ||
             c.id.toLowerCase().includes(q) ||
             c.rarity?.toLowerCase().includes(q)
@@ -573,10 +565,10 @@ window.renderVisualSelectionGrid = function(searchQuery = '') {
     displayCards.forEach(card => {
         const qty = myCollection[card.id] || 0;
         const isOwned = qty > 0;
-        
+
         const cardEl = document.createElement('div');
         cardEl.className = `visual-card ${isOwned ? 'owned' : ''}`;
-        
+
         cardEl.innerHTML = `
             ${generateCardHTML(card, '')}
             ${isOwned ? `<div class="qty-badge">${qty}</div>` : ''}
@@ -593,42 +585,42 @@ window.renderVisualSelectionGrid = function(searchQuery = '') {
     });
 };
 
-window.updateCardQuantity = function(cardId, change) {
+window.updateCardQuantity = function (cardId, change) {
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     let currentQty = myCollection[cardId] || 0;
-    
+
     let newQty = currentQty + change;
     if (newQty <= 0) {
         delete myCollection[cardId];
     } else {
         myCollection[cardId] = newQty;
     }
-    
+
     localStorage.setItem('tcgp_collection', JSON.stringify(myCollection));
-    
+
     // Update the visual grid without losing search context
     const visualSearch = document.getElementById('visual-search');
     renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
-    
+
     // Sync other background views
     renderCollectionGrid();
     renderDeckBuilderSidebar();
     syncCollectionToCloud();
 };
 
-window.renderCollectionGrid = function(searchQuery = '') {
+window.renderCollectionGrid = function (searchQuery = '') {
     const grid = document.getElementById('collection-grid');
     if (!grid) return;
     grid.innerHTML = '';
 
     const allCards = TCGP_CARDS;
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
-    
+
     let uniqueCount = 0;
     let totalCopies = 0;
 
     let displayCards = allCards;
-    if(searchQuery) {
+    if (searchQuery) {
         const q = searchQuery.toLowerCase();
         displayCards = allCards.filter(c => c.name.toLowerCase().includes(q) || c.type?.toLowerCase().includes(q));
     }
@@ -640,9 +632,9 @@ window.renderCollectionGrid = function(searchQuery = '') {
         const isOwned = qty > 0;
         const cardEl = document.createElement('div');
         cardEl.className = `tcgp-card ${isOwned ? 'owned' : ''}`;
-        
+
         let colorVar = `var(--type-${card.type?.toLowerCase() || 'colorless'})`;
-        if(card.type === 'Supporter' || card.type === 'Item') colorVar = '#8b949e';
+        if (card.type === 'Supporter' || card.type === 'Item') colorVar = '#8b949e';
         cardEl.style.borderTop = `4px solid ${colorVar}`;
 
         cardEl.innerHTML = `
@@ -668,7 +660,7 @@ window.renderCollectionGrid = function(searchQuery = '') {
 window.currentDeck = [];
 let deckBuilderSearchQuery = '';
 
-window.renderDeckBuilderSidebar = function() {
+window.renderDeckBuilderSidebar = function () {
     const list = document.getElementById('db-available-cards');
     if (!list) return;
     list.innerHTML = '';
@@ -687,8 +679,8 @@ window.renderDeckBuilderSidebar = function() {
     // Apply Search Filter
     if (deckBuilderSearchQuery.trim() !== '') {
         const q = deckBuilderSearchQuery.trim().toLowerCase();
-        availableCards = availableCards.filter(c => 
-            c.name.toLowerCase().includes(q) || 
+        availableCards = availableCards.filter(c =>
+            c.name.toLowerCase().includes(q) ||
             (c.type && c.type.toLowerCase().includes(q))
         );
     }
@@ -745,7 +737,7 @@ function renderDeckSlots() {
     document.getElementById('btn-save-deck').disabled = window.currentDeck.length !== 20;
 }
 
-window.addToDeck = function(id) {
+window.addToDeck = function (id) {
     if (window.currentDeck.length >= 20) return;
     const card = TCGP_CARDS.find(c => c.id === id);
     if (card) {
@@ -755,7 +747,7 @@ window.addToDeck = function(id) {
     }
 };
 
-window.removeFromDeck = function(index) {
+window.removeFromDeck = function (index) {
     window.currentDeck.splice(index, 1);
     renderDeckSlots();
     renderDeckBuilderSidebar();
@@ -764,7 +756,7 @@ window.removeFromDeck = function(index) {
 window.showFirebaseConfigModal = showFirebaseConfigModal;
 
 // --- Toast Notification ---
-window.showToast = function(message, type = 'success') {
+window.showToast = function (message, type = 'success') {
     let toast = document.getElementById('scan-toast');
     if (!toast) {
         toast = document.createElement('div');
@@ -827,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hide suggestions on click outside
     document.addEventListener('click', (e) => {
-        if(e.target !== oppInput && e.target !== suggBox) suggBox.classList.add('hidden');
+        if (e.target !== oppInput && e.target !== suggBox) suggBox.classList.add('hidden');
     });
 });
 
@@ -838,7 +830,7 @@ async function addRevealedCard(cardName) {
     await updateOpponentPrediction();
 }
 
-window.removeRevealedCard = function(idx) {
+window.removeRevealedCard = function (idx) {
     liveRevealedCards.splice(idx, 1);
     renderRevealedCards();
     updateOpponentPrediction();
@@ -846,11 +838,11 @@ window.removeRevealedCard = function(idx) {
 
 function renderRevealedCards() {
     const list = document.getElementById('revealed-cards-list');
-    if(liveRevealedCards.length === 0) {
+    if (liveRevealedCards.length === 0) {
         list.innerHTML = '<span class="empty-text">No cards logged yet...</span>';
         return;
     }
-    
+
     list.innerHTML = liveRevealedCards.map((c, i) => `
         <div class="revealed-tag">
             ${c} <span class="tag-remove" onclick="removeRevealedCard(${i})">×</span>
@@ -917,7 +909,7 @@ async function updateOpponentPrediction() {
 
         const candidates = predictions[0]._candidateScores;
         const confirmedNorms = predictions[0]._confirmedNorms || new Set();
-        const inferredNorms  = predictions[0]._inferredNorms  || new Set();
+        const inferredNorms = predictions[0]._inferredNorms || new Set();
 
         // Filter out already-revealed cards
         const revealedNorms = new Set(liveRevealedCards.map(n => norm(n)));
@@ -965,11 +957,11 @@ async function updateOpponentPrediction() {
 }
 
 // --- AI Strategy Bridge ---
-window.fetchAISuggestion = async function(playstyle) {
+window.fetchAISuggestion = async function (playstyle) {
     const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     const allCards = window.TCGP_CARDS || [];
-    
-// Step 1: Build a richer collection summary using available data
+
+    // Step 1: Build a richer collection summary using available data
     const allOwnedCards = Object.entries(myCollection)
         .filter(([id, qty]) => qty > 0)
         .map(([id, qty]) => {
@@ -987,7 +979,7 @@ window.fetchAISuggestion = async function(playstyle) {
         try {
             const rawSim = window.runEnsembleSimulation(ownedCardObjects, 600);
             simSignals = rawSim || {};
-        } catch(e) {
+        } catch (e) {
             console.warn('Simulation skipped:', e.message);
         }
     }
@@ -1002,15 +994,14 @@ window.fetchAISuggestion = async function(playstyle) {
         .sort((a, b) => b.score - a.score)
         .map(({ card, qty, score }) => {
             const sig = simSignals[card.name];
-            const wf  = sig ? `, WeightedFit:${sig.weightedScore.toFixed(3)}`   : '';
-            const cr  = sig ? `, Consistency:${sig.consistencyRating.toFixed(3)}` : '';
-            const pt  = sig ? `, PeakTurn:${
-                (() => {
+            const wf = sig ? `, WeightedFit:${sig.weightedScore.toFixed(3)}` : '';
+            const cr = sig ? `, Consistency:${sig.consistencyRating.toFixed(3)}` : '';
+            const pt = sig ? `, PeakTurn:${(() => {
                     const scores = [sig.bestCase, sig.baseCase, sig.worstCase];
                     const best = Math.max(...scores);
                     return best > 0 ? (1 / best).toFixed(1) : '?';
                 })()
-            }` : '';
+                }` : '';
             return `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty}, PowerScore:${score.toFixed(1)}${wf}${cr}${pt})`;
         })
         .join('\n');
@@ -1179,7 +1170,7 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
                     suggestedCards = parsed;
                     break;
                 }
-            } catch(e) { continue; }
+            } catch (e) { continue; }
         }
 
         // Strategy 2: lastIndexOf fallback if Strategy 1 found nothing
@@ -1199,7 +1190,7 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
             slice = slice.slice(0, closingBracket + 1);
             try {
                 suggestedCards = JSON.parse(slice);
-            } catch(e) {
+            } catch (e) {
                 console.error("JSON parse failed on:", slice);
                 throw new Error("Could not parse AI response: " + e.message);
             }
@@ -1209,13 +1200,13 @@ No markdown fences around the JSON. No code blocks. Just the raw array at the en
             throw new Error("AI returned an empty or invalid deck list.");
         }
 
-        if(typeof window.validateAndApplyAIDeck === 'function') {
+        if (typeof window.validateAndApplyAIDeck === 'function') {
             window.validateAndApplyAIDeck(suggestedCards);
         }
     } catch (e) {
         console.error("Gemini Build Error:", e);
         const out = document.getElementById('recommender-output');
-        if(out) out.innerHTML = `<span class="empty-state" style="color:var(--accent-red)">AI error: ${e.message}</span>`;
+        if (out) out.innerHTML = `<span class="empty-state" style="color:var(--accent-red)">AI error: ${e.message}</span>`;
     } finally {
         if (btn) {
             btn.innerHTML = 'AI Build \u2728';
