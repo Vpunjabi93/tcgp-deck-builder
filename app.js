@@ -4,6 +4,11 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 let _sessionApiKey = null;
 
 window.TCGP_CARDS = []; // Global declaration
+
+window.handleType2Change = function(val) {
+    document.getElementById('variance-warning').style.display = val === 'None' ? 'none' : 'block';
+};
+
 window.getAllCards = function () { return window.TCGP_CARDS || []; };
 window.selectedCardsForLab = []; // Global array for Probability Lab
 
@@ -1128,7 +1133,13 @@ window.fetchAISuggestion = async function(playstyle) {
     const sortedTypes = Object.entries(typeGroups)
         .sort((a, b) => b[1].totalScore - a[1].totalScore)
         .map(([type]) => type);
-    const allowedTypes = new Set(sortedTypes.slice(0, 2));
+    
+    const type1 = document.getElementById('db-type-select-1')?.value || 'Any';
+    const type2 = document.getElementById('db-type-select-2')?.value || 'None';
+
+    const allowedTypes = (type1 === 'Any')
+        ? new Set(sortedTypes.slice(0, 2)) // fallback to auto-pick if no preference
+        : new Set([type1, type2 !== 'None' ? type2 : null].filter(Boolean));
 
     const filteredCollection = [
         ...pokemonCards.filter(({ card }) => allowedTypes.has(card.type)),
@@ -1193,6 +1204,8 @@ window.fetchAISuggestion = async function(playstyle) {
             cardDb: window.TCGP_CARDS,
             ownedCardIds: Object.keys(myCollection).filter(id => myCollection[id] > 0),
             playstyle,
+            type1: document.getElementById('db-type-select-1')?.value || 'Any',
+            type2: document.getElementById('db-type-select-2')?.value || 'None',
             apiKey: apiKey,
             modelName: GEMINI_MODEL,
             simSignals

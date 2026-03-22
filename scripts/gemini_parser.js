@@ -1,7 +1,7 @@
 // gemini_parser.js — Prompt builder + response parser for AI deck building
 'use strict';
 
-function buildGeminiPrompt(ownedCards, simSignals = {}, playstyle = 'Balanced') {
+function buildGeminiPrompt(ownedCards, simSignals = {}, playstyle = 'Balanced', type1 = 'Any', type2 = 'None') {
     const sorted = [...ownedCards].sort((a, b) => (b._powerScore || 0) - (a._powerScore || 0));
 
     const collectionLines = sorted.map(({ card, qty, _powerScore, _sim }) => {
@@ -105,6 +105,7 @@ PLAYSTYLE: ${playstyle}
   Aggro = fast basics, low retreat, 1-2 energy attacks
   Control = status, disruption, defensive bulk
   Balanced = reliable setup with mid-game power spike
+- Restrict Pokémon to these energy types: ${[type1, type2 !== 'None' ? type2 : null].filter(Boolean).filter(t => t !== 'Any').join(' and ') || 'Any'}
 ═══════════════════════════════════════════════════════════
 
 AVAILABLE ENERGY TYPES: ${energyTypes.join(', ') || 'Colorless only'}
@@ -194,8 +195,8 @@ function parseGeminiResponse(responseText) {
     return { nameList, reasoning: '', parseMethod, error };
 }
 
-async function runGeminiDeckBuild({ ownedCards, cardDb, ownedCardIds, playstyle, apiKey, modelName, simSignals = {} }) {
-    const prompt1 = buildGeminiPrompt(ownedCards, simSignals, playstyle);
+async function runGeminiDeckBuild({ ownedCards, cardDb, ownedCardIds, playstyle, apiKey, modelName, type1 = 'Any', type2 = 'None', simSignals = {} }) {
+    const prompt1 = buildGeminiPrompt(ownedCards, simSignals, playstyle, type1, type2);
     
     // CALL 1: Reasoning
     const res1 = await fetch(

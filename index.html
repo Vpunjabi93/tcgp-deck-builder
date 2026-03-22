@@ -210,18 +210,49 @@
                         </div>
                         
                         <!-- Playstyle Recommender Strip -->
-                        <div class="recommender-strip" style="background:var(--bg-surface); padding:12px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-subtle); display:flex; gap:16px; align-items:center;">
+                        <div class="recommender-strip" style="background:var(--bg-surface); padding:12px; border-radius:8px; margin-bottom:8px; border:1px solid var(--border-subtle); display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
                             <div>
-                                <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Auto-Build from Collection</label>
-                                <select id="db-playstyle-select" class="dropdown" style="width:150px;">
-                                    <option value="Any">Any Playstyle</option>
+                                <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Playstyle</label>
+                                <select id="db-playstyle-select" class="dropdown" style="width:130px;">
+                                    <option value="Any">Any</option>
                                     <option value="Aggro">Aggro</option>
                                     <option value="Control">Control</option>
                                     <option value="Balanced">Balanced</option>
                                 </select>
                             </div>
-                            <button id="btn-recommend-decks" class="btn-secondary" style="height:fit-content; margin-top:16px;">Suggest Decks 🪄</button>
-                            <button id="btn-ai-build" class="btn-primary" style="height:fit-content; margin-top:16px;">AI Build ✨</button>
+                            <div>
+                                <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Energy Type 1</label>
+                                <select id="db-type-select-1" class="dropdown" style="width:130px;">
+                                    <option value="Any">Any</option>
+                                    <option value="Fire">🔥 Fire</option>
+                                    <option value="Water">💧 Water</option>
+                                    <option value="Grass">🌿 Grass</option>
+                                    <option value="Lightning">⚡ Lightning</option>
+                                    <option value="Psychic">🔮 Psychic</option>
+                                    <option value="Fighting">🥊 Fighting</option>
+                                    <option value="Darkness">🌑 Darkness</option>
+                                    <option value="Colorless">⚪ Colorless</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:4px;">Energy Type 2 <span style="font-size:0.7rem; color:var(--text-muted);">(optional)</span></label>
+                                <select id="db-type-select-2" class="dropdown" style="width:130px;" onchange="handleType2Change(this.value)">
+                                    <option value="None">None</option>
+                                    <option value="Fire">🔥 Fire</option>
+                                    <option value="Water">💧 Water</option>
+                                    <option value="Grass">🌿 Grass</option>
+                                    <option value="Lightning">⚡ Lightning</option>
+                                    <option value="Psychic">🔮 Psychic</option>
+                                    <option value="Fighting">🥊 Fighting</option>
+                                    <option value="Darkness">🌑 Darkness</option>
+                                    <option value="Colorless">⚪ Colorless</option>
+                                </select>
+                            </div>
+                            <button id="btn-recommend-decks" class="btn-secondary" style="height:fit-content;">Suggest 🪄</button>
+                            <button id="btn-ai-build" class="btn-primary" style="height:fit-content;">AI Build ✨</button>
+                        </div>
+                        <div id="variance-warning" style="display:none; margin-bottom:12px; padding:8px 12px; border-radius:8px; background:rgba(255,180,0,0.1); border:1px solid rgba(255,180,0,0.3); font-size:0.8rem; color:#ffcc44;">
+                            ⚠️ Two-type decks draw inconsistently. Works best with Colorless Pokémon or energy acceleration supporters.
                         </div>
                         
                         <!-- Recommender Output -->
