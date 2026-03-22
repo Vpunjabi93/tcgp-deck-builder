@@ -7,7 +7,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -270,69 +270,81 @@
             </section>
 
             <!-- View: 4. Probability Lab -->
-            <section id="view-probability" class="view-section">
-                <div class="prob-header">
-                    <h2>Probability & Strategy</h2>
-                    <select id="prob-deck-select" class="dropdown">
-                        <option value="">Select a saved deck...</option>
-                    </select>
+            <section id="view-probability" class="view-section" style="padding: 24px;">
+                <!-- Header -->
+                <div class="prob-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; letter-spacing: -0.5px; color: var(--accent-gold); text-transform: uppercase;">Neon Laboratory</h2>
+                        <p class="subtitle" style="color: var(--text-muted); font-size: 0.9rem;">Advanced Tactical Deck Analysis</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span id="cards-remaining-count" style="font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; color: var(--neon-cyan);"></span>
+                        <button id="btn-reset-tracker" class="btn-ghost" style="display: none; border: 1px solid var(--border-subtle); padding: 6px 12px; font-size: 0.8rem;">⟲ Reset State</button>
+                        <select id="prob-deck-select" class="dropdown glass-input" style="background: var(--bg-surface-high); border: 1px solid var(--border-subtle); color: var(--text-main); font-family: 'Space Grotesk', sans-serif;">
+                            <option value="">Select a saved deck...</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="prob-grid">
-                    <!-- Calculator Panel -->
-                    <div class="prob-panel calculator">
-                        <h3>Match Tracker</h3>
-                        <div class="calc-controls">
-                            <label>Targeted Cards (Click to Select):</label>
-                            <div id="prob-card-list" class="prob-card-list">
-                                <p class="empty-text" style="font-size:0.9rem; padding: 10px;">Select a deck first.</p>
-                            </div>
-                            
-                            <div class="slider-group">
-                                <label>Cards Remaining in Deck (N): <span id="val-deck-size">20</span></label>
-                                <input type="range" id="slider-deck-size" min="1" max="20" value="20">
-                            </div>
-                            
-                            <div class="slider-group">
-                                <label>Target Copies Remaining (K): <span id="val-target-copies">2</span></label>
-                                <input type="range" id="slider-target-copies" min="0" max="2" value="2">
-                            </div>
-
-                            <button id="btn-calc-odds" class="btn-primary full-width">Calculate True Odds</button>
+                <!-- Elite Dashboard Grid -->
+                <div class="elite-grid" style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+                    
+                    <!-- Left Sidebar: Live Tracker & Controls -->
+                    <div class="glass-panel" style="background: var(--bg-surface-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px;">
+                        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">Target Assets</h3>
+                        
+                        <div id="prob-card-list" class="prob-card-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <p class="empty-text" style="color: var(--text-muted); font-size: 0.85rem;">Select a deck to load interactive slots.</p>
                         </div>
-                        <div class="calc-result">
-                            <div class="big-percent" id="result-percent">--%</div>
-                            <p id="result-text">Chance to draw on next turn</p>
+                        
+                        <div class="slider-group" style="margin-top: 24px; display: none;">
+                            <!-- Hidden, handled by _labPlayState but kept for JS compatibility -->
+                            <input type="range" id="slider-deck-size" min="1" max="20" value="20">
+                            <input type="range" id="slider-target-copies" min="0" max="2" value="2">
+                            <span id="val-deck-size">20</span>
+                            <span id="val-target-copies">2</span>
                         </div>
                     </div>
 
-                    <!-- Chart Panel -->
-                    <div class="prob-panel chart">
-                        <h3>Draw Probability by Turn</h3>
-                        <canvas id="prob-chart"></canvas>
-                    </div>
+                    <!-- Right Column: Data Vis & Tactical Bar -->
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        
+                        <!-- Top Row: Odds & Next Draw -->
+                        <div style="display: grid; grid-template-columns: 240px 1fr; gap: 16px;">
+                            <!-- Highlight Gauge -->
+                            <div class="glass-panel" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; text-align: center; position: relative;">
+                                <div style="position: absolute; top:0; left:50%; transform:translateX(-50%); width:40%; height:1px; background:var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);"></div>
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Selected Target Draw</h4>
+                                <div class="big-percent" id="result-percent" style="font-size: 3rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 20px rgba(106,156,255,0.4); margin: 8px 0;">--%</div>
+                                <p id="result-text" style="font-size: 0.75rem; color: var(--text-muted);">Awaiting manual target selection...</p>
+                                <button id="btn-calc-odds" style="display: none;">Trigger</button>
+                            </div>
 
-                    <!-- Mulligan Risk Panel -->
-                    <div class="prob-panel">
-                        <h3>Mulligan Risk Analysis</h3>
-                        <div class="mulligan-stats" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">
-                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
-                                <span style="color:var(--text-muted)">Base Mulligan Rate:</span>
-                                <strong id="mulligan-base-rate" style="color:var(--text-main)">--%</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
-                                <span style="color:var(--text-muted)">Opponent Draws +1:</span>
-                                <strong id="mulligan-draw-1" style="color:var(--accent-gold)">--%</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:4px;">
-                                <span style="color:var(--text-muted)">Opponent Draws +2:</span>
-                                <strong id="mulligan-draw-2" style="color:var(--accent-gold)">--%</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:var(--text-muted)">Opponent Draws +3 or more:</span>
-                                <strong id="mulligan-draw-3" style="color:var(--accent-red)">--%</strong>
+                            <!-- Next Draw Radar (Tactical Bar) -->
+                            <div class="glass-panel" id="next-draw-panel" style="background: var(--bg-surface-high); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; display: none;">
+                                <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Next Draw Trajectory</h4>
+                                <div id="next-draw-cards" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;">
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Mid Row: Draw Chart -->
+                        <div class="glass-panel" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px;">
+                            <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 16px;">Draw Velocity (5 Turns)</h3>
+                            <canvas id="prob-chart" style="max-height: 250px;"></canvas>
+                        </div>
+
+                        <!-- Bottom Row: Mulligan Stats (Condensed) -->
+                        <div id="mulligan-strip" class="glass-panel tactical-bar" style="display: none; background: rgba(253, 66, 33, 0.05); border: 1px solid rgba(253, 66, 33, 0.2); border-radius: 8px; padding: 12px 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                            <div style="font-size: 0.8rem; color: var(--neon-red); text-transform: uppercase; letter-spacing: 0.5px;">Mulligan Risk Analysis</div>
+                            <div style="display: flex; gap: 24px;">
+                                <div><span style="color:var(--text-muted); font-size: 0.75rem;">Base Rate:</span> <strong id="mulligan-base-rate" style="color:var(--text-main); font-family: 'Space Grotesk', sans-serif;">--%</strong></div>
+                                <div><span style="color:var(--text-muted); font-size: 0.75rem;">Opp +1:</span> <strong id="mulligan-draw-1" style="color:var(--accent-gold); font-family: 'Space Grotesk', sans-serif;">--%</strong></div>
+                                <div><span style="color:var(--text-muted); font-size: 0.75rem;">Opp +2:</span> <strong id="mulligan-draw-2" style="color:var(--accent-gold); font-family: 'Space Grotesk', sans-serif;">--%</strong></div>
+                                <div><span style="color:var(--text-muted); font-size: 0.75rem;">Opp +3+:</span> <strong id="mulligan-draw-3" style="color:var(--neon-red); font-family: 'Space Grotesk', sans-serif;">--%</strong></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>

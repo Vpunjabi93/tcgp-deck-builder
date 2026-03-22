@@ -256,13 +256,13 @@ function renderLabCardList() {
 
         const isSelected = _selectedProbCard && _selectedProbCard.card.name === card.name;
         const isFullyGone = remaining <= 0;
-        const barColor = parseFloat(prob) >= 15 ? '#f5c518' : parseFloat(prob) >= 8 ? '#78c850' : '#8b949e';
+        const barColor = parseFloat(prob) >= 15 ? '#fcd434' : parseFloat(prob) >= 8 ? '#6a9cff' : '#acaaae';
 
         const row = document.createElement('div');
         row.style.cssText = `
             display:flex; align-items:center; gap:10px; width:100%;
-            background:${isSelected ? 'rgba(245,197,24,0.08)' : 'rgba(255,255,255,0.04)'};
-            border:1px solid ${isSelected ? 'var(--accent-gold)' : 'rgba(255,255,255,0.1)'};
+            background:${isSelected ? 'rgba(252,212,52,0.08)' : 'rgba(255,255,255,0.04)'};
+            border:1px solid ${isSelected ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)'};
             border-radius:8px; padding:8px 10px; margin-bottom:6px;
             opacity:${isFullyGone ? '0.4' : '1'};
             cursor:pointer;
@@ -273,10 +273,10 @@ function renderLabCardList() {
             ? window.generateCardHTML(card, 'prob-card-thumb') : '';
 
         const handBadge = inHand > 0
-            ? `<span style="font-size:0.7rem; padding:2px 6px; background:rgba(120,200,80,0.2); border:1px solid rgba(120,200,80,0.4); border-radius:4px; color:#78c850; margin-left:4px;">✋ ${inHand} in hand</span>`
+            ? `<span style="font-size:0.7rem; padding:2px 6px; background:rgba(106,156,255,0.15); border:1px solid rgba(106,156,255,0.3); border-radius:4px; color:#6a9cff; margin-left:4px;">✋ ${inHand} in hand</span>`
             : '';
         const playedBadge = played > 0
-            ? `<span style="font-size:0.7rem; padding:2px 6px; background:rgba(255,68,68,0.15); border:1px solid rgba(255,68,68,0.3); border-radius:4px; color:#ff8888; margin-left:4px;">▶ ${played} played</span>`
+            ? `<span style="font-size:0.7rem; padding:2px 6px; background:rgba(253,66,33,0.15); border:1px solid rgba(253,66,33,0.3); border-radius:4px; color:#fd4221; margin-left:4px;">▶ ${played} played</span>`
             : '';
 
         row.innerHTML = `
@@ -295,17 +295,17 @@ function renderLabCardList() {
                 <button data-action="hand" data-card="${card.name}"
                     style="padding:3px 9px; font-size:0.75rem; border-radius:5px;
                     cursor:${remaining > 0 ? 'pointer' : 'default'};
-                    background:${remaining > 0 ? 'rgba(120,200,80,0.15)' : 'rgba(255,255,255,0.04)'};
-                    border:1px solid ${remaining > 0 ? 'rgba(120,200,80,0.4)' : 'rgba(255,255,255,0.08)'};
-                    color:${remaining > 0 ? '#78c850' : '#444'};">
+                    background:${remaining > 0 ? 'rgba(106,156,255,0.15)' : 'rgba(255,255,255,0.04)'};
+                    border:1px solid ${remaining > 0 ? 'rgba(106,156,255,0.4)' : 'rgba(255,255,255,0.08)'};
+                    color:${remaining > 0 ? '#6a9cff' : '#444'};">
                     ✋ In Hand
                 </button>
                 <button data-action="played" data-card="${card.name}"
                     style="padding:3px 9px; font-size:0.75rem; border-radius:5px;
                     cursor:${inHand > 0 || remaining > 0 ? 'pointer' : 'default'};
-                    background:${inHand > 0 ? 'rgba(74,158,255,0.15)' : 'rgba(255,255,255,0.06)'};
-                    border:1px solid ${inHand > 0 ? 'rgba(74,158,255,0.4)' : 'rgba(255,255,255,0.1)'};
-                    color:${inHand > 0 ? '#4a9eff' : remaining > 0 ? '#999' : '#444'};">
+                    background:${inHand > 0 ? 'rgba(253,66,33,0.15)' : 'rgba(255,255,255,0.06)'};
+                    border:1px solid ${inHand > 0 ? 'rgba(253,66,33,0.4)' : 'rgba(255,255,255,0.1)'};
+                    color:${inHand > 0 ? '#fd4221' : remaining > 0 ? '#999' : '#444'};">
                     ▶ Played
                 </button>
             </div>
@@ -389,7 +389,7 @@ function renderNextDrawPanel() {
     panel.style.display = 'block';
     grid.innerHTML = ranked.map(({ card, remaining, total, prob }) => {
         const pct = (prob * 100).toFixed(1);
-        const barColor = parseFloat(pct) >= 15 ? '#f5c518' : parseFloat(pct) >= 8 ? '#78c850' : '#8b949e';
+        const barColor = parseFloat(pct) >= 15 ? '#fcd434' : parseFloat(pct) >= 8 ? '#6a9cff' : '#acaaae';
         const imgHTML = typeof window.generateCardHTML === 'function'
             ? window.generateCardHTML(card, 'next-draw-thumb') : '';
         return `
@@ -421,7 +421,7 @@ function renderProbChart(deckCards) {
         grouped[c.name].count++;
     });
     const top3 = Object.values(grouped).sort((a, b) => b.count - a.count).slice(0, 3);
-    const colors = ['#f5c518', '#78c850', '#6890f0'];
+    const colors = ['#fcd434', '#6a9cff', '#7038F8'];
 
     const datasets = top3.map((entry, i) => ({
         label: entry.name,
@@ -436,10 +436,10 @@ function renderProbChart(deckCards) {
         data: { labels, datasets },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: '#e6edf3', font: { size: 11 } } } },
+            plugins: { legend: { labels: { color: '#f0edf1', font: { family: "'Space Grotesk', sans-serif", size: 11 } } } },
             scales: {
-                x: { ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y: { min: 0, max: 100, ticks: { color: '#8b949e', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { ticks: { color: '#acaaae' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { min: 0, max: 100, ticks: { color: '#acaaae', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
             }
         }
     });
@@ -469,7 +469,7 @@ function renderProbChartForSelected(deckCards, selectedName) {
         .sort((a, b) => b.count - a.count)
         .slice(0, 2);
     const entries = [grouped[selectedName], ...others].filter(Boolean);
-    const colors = ['#f5c518', '#78c850', '#6890f0'];
+    const colors = ['#fcd434', '#6a9cff', '#7038F8'];
 
     const datasets = entries.map((entry, i) => ({
         label: entry.name + (i === 0 ? ' ★' : ''),
@@ -488,10 +488,10 @@ function renderProbChartForSelected(deckCards, selectedName) {
         data: { labels, datasets },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: '#e6edf3', font: { size: 11 } } } },
+            plugins: { legend: { labels: { color: '#f0edf1', font: { family: "'Space Grotesk', sans-serif", size: 11 } } } },
             scales: {
-                x: { ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                y: { min: 0, max: 100, ticks: { color: '#8b949e', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { ticks: { color: '#acaaae' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { min: 0, max: 100, ticks: { color: '#acaaae', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' } }
             }
         }
     });
