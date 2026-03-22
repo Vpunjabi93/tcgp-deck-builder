@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-container": "#f7f7ff",
+            "inverse-surface": "#fcf8fd",
+            "on-primary-fixed-variant": "#655300",
+            "on-tertiary-fixed-variant": "#750f00",
+            "tertiary-fixed-dim": "#ff7c62",
+            "surface-container": "#19191d",
+            "surface-container-highest": "#25252a",
+            "error-container": "#a70138",
+            "surface-tint": "#fcd434",
+            "on-secondary-fixed": "#003173",
+            "outline-variant": "#48474b",
+            "on-surface-variant": "#acaaae",
+            "on-error": "#490013",
+            "on-tertiary-container": "#000000",
+            "surface": "#0e0e11",
+            "secondary-fixed-dim": "#aac3ff",
+            "secondary-dim": "#6a9cff",
+            "background": "#0e0e11",
+            "inverse-on-surface": "#555458",
+            "tertiary-dim": "#ff7256",
+            "on-secondary": "#001e4b",
+            "surface-dim": "#0e0e11",
+            "error-dim": "#d73357",
+            "on-primary-fixed": "#443700",
+            "surface-bright": "#2c2c30",
+            "primary-fixed-dim": "#edc624",
+            "surface-variant": "#25252a",
+            "primary-fixed": "#fcd434",
+            "on-surface": "#f0edf1",
+            "secondary": "#6a9cff",
+            "on-tertiary": "#470600",
+            "secondary-container": "#005ac5",
+            "surface-container-high": "#1f1f23",
+            "error": "#ff6e84",
+            "primary-dim": "#edc624",
+            "tertiary-container": "#fd4221",
+            "on-tertiary-fixed": "#380300",
+            "on-error-container": "#ffb2b9",
+            "tertiary": "#ff7256",
+            "inverse-primary": "#725d00",
+            "secondary-fixed": "#bfd1ff",
+            "tertiary-fixed": "#ff937d",
+            "on-secondary-fixed-variant": "#004caa",
+            "primary": "#fcd434",
+            "primary-container": "#d8b300",
+            "surface-container-low": "#131316",
+            "on-background": "#f0edf1",
+            "outline": "#767579",
+            "on-primary-container": "#403300",
+            "surface-container-lowest": "#000000",
+            "on-primary": "#5a4900"
+          },
+          fontFamily: {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Space Grotesk"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .neon-violet-glow {
+      box-shadow: 0 0 15px rgba(112, 56, 248, 0.3);
+    }
+    .card-grid-overlay {
+      background-image: radial-gradient(#7038F8 0.5px, transparent 0.5px);
+      background-size: 24px 24px;
+      opacity: 0.1;
+    }
+    .owned-glow {
+      box-shadow: inset 0 0 12px rgba(34, 197, 94, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-[#7038F8]/30">
+<!-- TopAppBar from Shared Components -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e11]/80 backdrop-blur-xl border-b border-[#7038F8]/15 flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold tracking-tighter text-[#7038F8] drop-shadow-[0_0_8px_rgba(112,56,248,0.4)] font-['Space_Grotesk'] uppercase">NEON LAB</span>
+</div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] uppercase tracking-tighter">
+<a class="text-[#7038F8] brightness-125 transition-colors" href="#">Collection</a>
+<a class="text-slate-500 hover:text-[#7038F8] transition-colors" href="#">Deck Builder</a>
+<a class="text-slate-500 hover:text-[#7038F8] transition-colors" href="#">Probability Lab</a>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined hover:text-[#7038F8] cursor-pointer transition-colors" data-icon="account_circle">account_circle</span>
+<span class="material-symbols-outlined hover:text-[#7038F8] cursor-pointer transition-colors" data-icon="settings">settings</span>
+</div>
+</header>
+<!-- SideNavBar from Shared Components -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-[#131316] hidden lg:flex flex-col py-8 px-4 gap-2">
+<div class="flex items-center gap-3 px-2 mb-6">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-[#7038F8]/30 flex items-center justify-center overflow-hidden">
+<img alt="User Scientist Avatar" class="w-full h-full object-cover" data-alt="Futuristic scientist avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnm_vVY6ZHC9UjyubwGSXmhGsZC5tVPFEbMEAAGXIkM9yB11UKZg-7vn9TrtHrOdPgTg6kVh6W1HKCYse-HzULdRAXQHoZpK_QtWdHv5oWGLG35UV89uLAEDYLYaFyjOpVCZ7582S8ypZJhmiZehLXvbMuFSl8R0s9E3OIn0oG3pBY9XPy5GoceJgKFA_MkMnfdFRUrqvI5AndkSP_E1BwD_h2ZFjj0jNmRyRibp9gR1B3PelQhnWIW3GjKW4EV15sqzMotDj_e3E2"/>
+</div>
+<div>
+<div class="font-['Space_Grotesk'] font-medium text-xs tracking-widest text-[#7038F8] uppercase">LAB_OPERATOR_01</div>
+<div class="text-[10px] text-slate-500 font-label tracking-widest uppercase">Elite Rank</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="bg-[#2c2c30] text-[#7038F8] border-r-2 border-[#7038F8] shadow-[4px_0_12px_rgba(112,56,248,0.2)] flex items-center gap-3 py-3 px-4 rounded-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs tracking-widest uppercase">Collection</span>
+</a>
+<a class="text-slate-400 opacity-70 hover:opacity-100 hover:bg-[#1f1f23] flex items-center gap-3 py-3 px-4 rounded-sm transition-all hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs tracking-widest uppercase">Deck Builder</span>
+</a>
+<a class="text-slate-400 opacity-70 hover:opacity-100 hover:bg-[#1f1f23] flex items-center gap-3 py-3 px-4 rounded-sm transition-all hover:translate-x-1 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs tracking-widest uppercase">Probability Lab</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 border-t border-outline-variant/15 pt-4">
+<button class="w-full py-3 px-4 bg-[#7038F8]/10 text-[#7038F8] border border-[#7038F8]/30 font-['Space_Grotesk'] text-[10px] font-bold tracking-[0.2em] mb-4 hover:bg-[#7038F8]/20 transition-all active:scale-95 uppercase">
+        NEW_SIMULATION
+      </button>
+<a class="text-slate-400 opacity-70 hover:opacity-100 hover:bg-[#1f1f23] flex items-center gap-3 py-2 px-4 rounded-sm transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="terminal">terminal</span>
+<span class="font-['Space_Grotesk'] font-medium text-[10px] tracking-widest uppercase">System Log</span>
+</a>
+<a class="text-slate-400 opacity-70 hover:opacity-100 hover:bg-[#1f1f23] flex items-center gap-3 py-2 px-4 rounded-sm transition-all" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help_center">help_center</span>
+<span class="font-['Space_Grotesk'] font-medium text-[10px] tracking-widest uppercase">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-64 pt-16 min-h-screen relative overflow-hidden">
+<div class="absolute inset-0 card-grid-overlay pointer-events-none"></div>
+<!-- Content Wrapper -->
+<div class="relative z-10 p-6 max-w-7xl mx-auto">
+<!-- Tactical Filter Bar -->
+<section class="mb-8 p-1 bg-surface-container-low rounded-xl flex flex-wrap items-center gap-2 border-b border-[#7038F8]/10">
+<div class="flex items-center gap-2 px-4 py-2 text-[#7038F8]">
+<span class="material-symbols-outlined text-xl" data-icon="filter_list">filter_list</span>
+<span class="font-headline font-bold text-xs tracking-widest uppercase">Tactical Filters</span>
+</div>
+<!-- Dropdowns -->
+<div class="flex flex-wrap items-center gap-2 flex-1">
+<div class="relative group">
+<button class="bg-surface-container hover:bg-surface-bright px-4 py-2 rounded-lg flex items-center gap-3 transition-all border border-transparent hover:border-[#7038F8]/30">
+<span class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-tighter">Type</span>
+<span class="text-xs font-headline font-medium text-on-surface uppercase tracking-widest">Psychic</span>
+<span class="material-symbols-outlined text-sm text-[#7038F8]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="bg-surface-container hover:bg-surface-bright px-4 py-2 rounded-lg flex items-center gap-3 transition-all border border-transparent hover:border-[#7038F8]/30">
+<span class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-tighter">Stage</span>
+<span class="text-xs font-headline font-medium text-on-surface uppercase tracking-widest">EX_RANK</span>
+<span class="material-symbols-outlined text-sm text-[#7038F8]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="bg-surface-container hover:bg-surface-bright px-4 py-2 rounded-lg flex items-center gap-3 transition-all border border-transparent hover:border-[#7038F8]/30">
+<span class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-tighter">Expansion</span>
+<span class="text-xs font-headline font-medium text-on-surface uppercase tracking-widest">Genetic Apex</span>
+<span class="material-symbols-outlined text-sm text-[#7038F8]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<div class="px-4 py-2 flex items-center gap-4">
+<div class="text-right">
+<div class="text-[10px] font-headline font-bold text-slate-500 uppercase tracking-tighter">Collection_Sync</div>
+<div class="text-xs font-headline font-bold text-primary tracking-widest uppercase">142 / 256</div>
+</div>
+<div class="w-12 h-1 bg-surface-container-highest overflow-hidden rounded-full">
+<div class="h-full bg-primary w-[55%] shadow-[0_0_8px_#fcd434]"></div>
+</div>
+</div>
+</section>
+<!-- Massive Card Grid -->
+<section class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 pb-24">
+<!-- Owned Card Example -->
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 hover:z-20 cursor-pointer owned-glow">
+<img alt="Mewtwo EX Card" class="w-full h-full object-cover" data-alt="Holographic psychic pokemon card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb7PRGWgUIocwTdpLUhhbAZkqs4_OgB_ckVxCMmtFFa5526Le9Ee3s73TK7wBwWs50ffp4kO_aE4tuIIQkKKUqrhIN8yJcNOeT-YyxDEJB_3VPpYkGprsHEcACn7Ni1c-lh9z4aHLIZyqZPCyJK5tt14NgCHd4RV-Qh-iE0VWpUPBpUlKqKqOEF7KzcLL6FfSkwau083-ZTR7KArZmEwm5Ooi2kolD3Ug3a2vkXs7zZklLtpAswv__Wfv9spAAXCL-Jleahi4b-QIZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0e0e11]/90 via-transparent to-transparent opacity-60"></div>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.6)]">
+<span class="material-symbols-outlined text-xs text-white font-bold" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<div class="text-[10px] font-headline font-bold text-[#7038F8] tracking-widest uppercase">014/256</div>
+<div class="text-xs font-headline font-bold text-white truncate uppercase tracking-tight">Mewtwo EX</div>
+</div>
+<!-- Selection Glow Overlay -->
+<div class="absolute inset-0 border-2 border-primary/0 group-hover:border-primary/50 transition-all rounded-xl"></div>
+</div>
+<!-- Missing Card Example -->
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container-low transition-all hover:scale-105 hover:z-20 cursor-pointer">
+<div class="absolute inset-0 grayscale contrast-125 opacity-40">
+<img alt="Pikachu Card" class="w-full h-full object-cover" data-alt="Grayscale pokemon card placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrB2JvP69quIhG9ATZDdEEsFeMPaDcOgSYn411Ay-WbeBGFIputojrq7r9_n2pCn1G5BhuEGJayAjgEXY1y8GIpmhizdp5kFqD4F8GSiX-Sp7QjtMgN50VDATD2C2KFIkQZCuLy3apjaN5cfYhGmZEPPUm5lYub87Hvn37xvYhYNXcaNCHLiv8u41MUkUB0ClxO0Q_drnGXLiJf8YytjnPbFKVK_31-DA2eZ9V87aN5L4L_PtvuFXGlsju_fKdJrDCGvMpNpy0rB-k"/>
+</div>
+<div class="absolute inset-0 flex items-center justify-center bg-[#0e0e11]/20">
+<div class="w-10 h-10 rounded-full border border-slate-500/30 flex items-center justify-center bg-surface-container-low/80 backdrop-blur-sm group-hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary" data-icon="add">add</span>
+</div>
+</div>
+<div class="absolute bottom-3 left-3 right-3">
+<div class="text-[10px] font-headline font-bold text-slate-500 tracking-widest uppercase">025/256</div>
+<div class="text-xs font-headline font-bold text-slate-400 truncate uppercase tracking-tight">Pikachu</div>
+</div>
+</div>
+<!-- More Grid Items (Simulated) -->
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 hover:z-20 cursor-pointer owned-glow">
+<img alt="Charizard EX" class="w-full h-full object-cover" data-alt="Vibrant fire pokemon card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_Z8BGB3emBuufC6qLyiVlp9VHKz_qbCnhrB7O3NM96ng3w6J6QSNnP4V-zoK1S2RSyX7H84ah4B1ogPqnUfDXVA4gVFSWqRfzTOI_fbNRSwzoXcHntAvs53ifkCrJZ7IYPzfhkJnOZIxE-R7kyBz4uyC7OXWdRUXyEAa0Xvc6ta18io-__S42ujO9gKVlIU6R_fg9y8VuSkIdiTr1LOZyL3V0glitA2vZq3SQEUqdZwCRXJYf2JrnVOSUl_iCEkvGyxG8Ij2G34ed"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.6)]">
+<span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span>
+</div>
+<div class="absolute bottom-3 left-3 right-3"><div class="text-[10px] font-headline font-bold text-[#7038F8] tracking-widest uppercase">006/256</div><div class="text-xs font-headline font-bold text-white truncate uppercase">Charizard EX</div></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container-low transition-all hover:scale-105 cursor-pointer">
+<div class="absolute inset-0 grayscale opacity-30"><img alt="Venusaur" class="w-full h-full object-cover" data-alt="Placeholder forest card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbVsEjcnE6AvX8nvVDCVUk8fOD6U3jFV-bYXKVDUk4snan5EFJpRYJX1SxqOnv1bJ_haCYW0GfSOqIabmia-YiT4ICW4SkqQX2qbB2dXTBccQkZHuM91ue5VUPNpry4pxMvlCFM3jGJyggVEbd6i1txLdIX67IT0HCRET_9nHckYnx0ge5vGyCH101dKBoMsrjeyYtX_aoIQQYRmt0EZdMUKiJDsBpPWeyrqPqM6fI2Ha76p2XWL1dc7ca8s1Ud-zpZ6kxEtIGv_Wr"/></div>
+<div class="absolute inset-0 flex items-center justify-center"><span class="material-symbols-outlined text-slate-500" data-icon="add">add</span></div>
+<div class="absolute bottom-3 left-3 right-3"><div class="text-[10px] font-headline font-bold text-slate-500 tracking-widest uppercase">003/256</div><div class="text-xs font-headline font-bold text-slate-400 truncate uppercase">Venusaur</div></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 owned-glow cursor-pointer">
+<img alt="Blastoise" class="w-full h-full object-cover" data-alt="Holographic water pokemon card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARn4h0uT9dFjP1tlvP2u9IIIkkPqtcD4if6lu91vcnmvcX8wICvKc0tFItOAtPlNalj-V0yNl_Fx4vTAa4XxqL0BWqfh3p6VVNadkYZ7dXwYIKGPrpAjtTBG4Rw6zxE6VdW8fLfK9SY5N3DiKACjh1Kji-TflLpWvtnL_tUrJ_4ov-207inPlLwDyEmPtdC5QUJSPKgKpoXMI-aS0hBhrgW3u7rYz5bbTRtOq-hzRaEUpKprxIRKVGr4at1CW8EIsR4Voy9uw3RuZN"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span></div>
+<div class="absolute bottom-3 left-3 right-3"><div class="text-[10px] font-headline font-bold text-[#7038F8] tracking-widest uppercase">009/256</div><div class="text-xs font-headline font-bold text-white truncate uppercase">Blastoise EX</div></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container-low transition-all hover:scale-105 cursor-pointer">
+<div class="absolute inset-0 grayscale opacity-30"><img alt="Articuno" class="w-full h-full object-cover" data-alt="Placeholder ice card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVGOzwTIYeUI0hj9S8iX7SJovm3nFUj6OKXhoiHeZ0TVsVu5_osSKYds5rALcBVYqBNFyCKdzKbWv9dAHHbb5J1Fc7O90x50cjuOi3576bPiQgJPzpqiye1iMK8L8S-EGM4vomCoNZvHQCCVQbslp4UKMJORYmwg6fDI6htPXzc4kGpLQRCgHkse4P0n8vkM7JxDdjD3c6IJ1GhbKLStjm46D33aD5o0AXB-Bx9YV488AIjjDxamqSVCvgsyJ5ekbeSD8ZQSNX4WeX"/></div>
+<div class="absolute inset-0 flex items-center justify-center"><span class="material-symbols-outlined text-slate-500" data-icon="add">add</span></div>
+<div class="absolute bottom-3 left-3 right-3"><div class="text-[10px] font-headline font-bold text-slate-500 tracking-widest uppercase">144/256</div><div class="text-xs font-headline font-bold text-slate-400 truncate uppercase">Articuno</div></div>
+</div>
+<!-- Repeated placeholders for "massive dense grid" feel -->
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 owned-glow cursor-pointer">
+<img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon trading card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKQmMnX8OiCuyhyqBVv-B4abrjGvqcE44E9S7x-nE_HwlImo_fgjukuON13zYDn_-pgd0Gk3bsg8Pn3TirmBFis7ZxnC0m0t4CF4b9qaaq0ShGYLqPahTStqcuX_YoVw53VFu9JNynntlgfBMn7M7KbGBjAtN1dTIM2eYWQXJwE9psByIpnLcP6vqt6Z0rv9it1DU7Z0L7LObh46SDo-75bmG2wK5NHluRPPIY7O6fYo2883hfE3sAfmnnMZln9v6m9URNRHvZ6g4B"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container-low transition-all hover:scale-105 cursor-pointer">
+<div class="absolute inset-0 grayscale opacity-30"><img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon card placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARb49YTH8__FuHaCYYTyyWMso5pHK4ubULyV9VOeKf7xO8N3qkAEiz1lVBbOzx1pU6JRpV9A6WYapd13gU2dMbC-8rN3oEE_-4Va1fInpPBFwzzZnoC8tkXyOEKUgdA1IfSlx35TtI_1WKn0uE-hvoCUPhUh9nx0DC0Ncxo_0-3gqw_zwkrO8vfWUzXJ75E0MVBsbK96ugHGGoNfLCqMaSRA1ZwW4vuoG5od6G79A3b3_plTLXeHY3V_WVn94jHx2t___MN0il7799"/></div>
+<div class="absolute inset-0 flex items-center justify-center"><span class="material-symbols-outlined text-slate-500" data-icon="add">add</span></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 owned-glow cursor-pointer">
+<img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_FOP0dxPWib1ycIh1sbsQld_yS6aV6L-g9DbTvrhkrR-thteoMTKEdKoeMZ9e-vH0_SQ-0STyIQaNE-JH_hcKp8BL7GFbL7ESNXQknlS81t11hzXVp93khl4EUoRzCT3tNpFFUuBn1-946R2eyXNTqb7w1wfdWj_mgyzm8sBL8AbQzE1hl_YoAE1GBrJaWmhvyTBYxhD-sPTY8OwpAvSgAmgdljMwcuCyLpUs38iUD0MtHaBs6iQrPpJ30BSA3UYx3lVVM2h46Epr"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 owned-glow cursor-pointer">
+<img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIOjHTmEwBisgkitI4IDbAgboZfIveYy_KwFFr5j685T-zsSIWKJAIyupCBTucgMViiZop_evpTjR4aO5sbjWFSfUAv9efobRHLwGsyPnY9zmb62CgUvq7VhkpS7h-cBBY7Fezq8Xb6XtCEywl0THiNOIDiVDrNj3gdmvXHG747_Xz-usZrTpMlGlh6WBPH5WzXAjTAJR0H_DYgT0jDnlnkt50pKQajS18sqEkloZFyQJAscrysrL21ZWnk6YeDSbBvbLR8N-73LYl"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container-low transition-all hover:scale-105 cursor-pointer">
+<div class="absolute inset-0 grayscale opacity-30"><img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon card placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnQbx-24oidjw3deUUfn4poVlYDobQa7YGQT-t3B5wxLltcYcxsl882xH2st4kRVO0M77aHQSjgfJRNGjsMpblK9cKkrG7un1G71mYP8-PbA4kL8DeDKSKQozr-9Tajf_sCvS785zBI05yoBFwYtjsYdLFaS6SAsReSKrut9Bkpxx-06w_tOr2XFVFSAFhOsUdkIDJ6BnQpB2kBUWXzsQyiacYYjpZgMmiigyTvF2eaMKhT3xx3ufHIxkRioTT5co47JDfd649BZwZ"/></div>
+<div class="absolute inset-0 flex items-center justify-center"><span class="material-symbols-outlined text-slate-500" data-icon="add">add</span></div>
+</div>
+<div class="group relative aspect-[2.5/3.5] rounded-xl overflow-hidden bg-surface-container transition-all hover:scale-105 owned-glow cursor-pointer">
+<img alt="Card" class="w-full h-full object-cover" data-alt="Pokemon card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByUMC4GWlETf192I1Dj_Ex6Gr3MWzEOFwIc5uppehq6HJB13rxKHK2Tlb0WKMotLxFoF0nv6t_Al6r9t9BKkpgz13WHtJNlJXGsZlLws2N3FaEp6eXKxVsOJ7qFIwuPpQe4QZKA5qbiOEmFZBS7l4HBRuKf-jl9DBC9impe0HfVG8g7rMW-dAe4ccSohBwJI48sGPWWTt7Y18H7pJkgMP2kzOkXQitub95HxI97C0182rWYuvOQK9FjAqZEdKggSMnSrpjMZsFs9tT"/>
+<div class="absolute top-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="check">check</span></div>
+</div>
+</section>
+</div>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 z-[60] flex items-center gap-3 bg-gradient-to-r from-[#7038F8] to-[#fcd434] hover:from-[#fcd434] hover:to-[#7038F8] p-[2px] rounded-full shadow-[0_0_30px_rgba(112,56,248,0.5)] group transition-all duration-500 active:scale-90">
+<div class="bg-[#131316] flex items-center gap-3 px-6 py-4 rounded-full">
+<span class="material-symbols-outlined text-[#fcd434] group-hover:rotate-180 transition-transform duration-700" data-icon="sync" style="font-variation-settings: 'FILL' 1;">sync</span>
+<span class="font-headline font-bold text-sm tracking-[0.2em] text-white uppercase">SYNC COLLECTION</span>
+</div>
+</button>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#0e0e11]/90 backdrop-blur-xl flex justify-around items-center h-16 border-t border-[#7038F8]/15 px-4 z-50">
+<div class="flex flex-col items-center gap-1 text-[#7038F8]">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[8px] font-headline font-bold uppercase tracking-widest">Cards</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="text-[8px] font-headline font-bold uppercase tracking-widest">Decks</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[8px] font-headline font-bold uppercase tracking-widest">Lab</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[8px] font-headline font-bold uppercase tracking-widest">Profile</span>
+</div>
+</nav>
+</main>
+<!-- Visual Polish Overlay -->
+<div class="fixed top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-[#7038F8]/40 to-transparent pointer-events-none z-[100]"></div>
+</body></html>

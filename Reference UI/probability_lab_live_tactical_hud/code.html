@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PROBABILITY LAB - Neon Laboratory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "#f0edf1",
+                        "outline": "#767579",
+                        "on-primary-container": "#403300",
+                        "surface-container-low": "#131316",
+                        "on-primary": "#5a4900",
+                        "tertiary-fixed": "#ff937d",
+                        "primary": "#fcd434",
+                        "on-secondary-fixed-variant": "#004caa",
+                        "secondary-fixed": "#bfd1ff",
+                        "surface-container-lowest": "#000000",
+                        "primary-container": "#d8b300",
+                        "on-tertiary-fixed": "#380300",
+                        "on-error-container": "#ffb2b9",
+                        "tertiary-container": "#fd4221",
+                        "inverse-primary": "#725d00",
+                        "tertiary": "#ff7256",
+                        "secondary-container": "#005ac5",
+                        "on-tertiary": "#470600",
+                        "primary-dim": "#edc624",
+                        "surface-container-high": "#1f1f23",
+                        "error": "#ff6e84",
+                        "on-primary-fixed": "#443700",
+                        "surface-dim": "#0e0e11",
+                        "error-dim": "#d73357",
+                        "secondary": "#6a9cff",
+                        "primary-fixed": "#fcd434",
+                        "on-surface": "#f0edf1",
+                        "surface-bright": "#2c2c30",
+                        "primary-fixed-dim": "#edc624",
+                        "surface-variant": "#25252a",
+                        "secondary-fixed-dim": "#aac3ff",
+                        "inverse-on-surface": "#555458",
+                        "secondary-dim": "#6a9cff",
+                        "background": "#0e0e11",
+                        "tertiary-dim": "#ff7256",
+                        "on-secondary": "#001e4b",
+                        "on-error": "#490013",
+                        "on-surface-variant": "#acaaae",
+                        "surface": "#0e0e11",
+                        "on-tertiary-container": "#000000",
+                        "on-secondary-container": "#f7f7ff",
+                        "inverse-surface": "#fcf8fd",
+                        "on-secondary-fixed": "#003173",
+                        "surface-tint": "#fcd434",
+                        "outline-variant": "#48474b",
+                        "on-tertiary-fixed-variant": "#750f00",
+                        "on-primary-fixed-variant": "#655300",
+                        "surface-container-highest": "#25252a",
+                        "error-container": "#a70138",
+                        "tertiary-fixed-dim": "#ff7c62",
+                        "surface-container": "#19191d"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .glass-panel {
+            background: rgba(25, 25, 29, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(252, 212, 52, 0.2);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(252, 212, 52, 0.15);
+        }
+        .neon-glow-secondary {
+            box-shadow: 0 0 15px rgba(106, 156, 255, 0.2);
+        }
+        .cyber-grid {
+            background-image: linear-gradient(rgba(112, 56, 248, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(112, 56, 248, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary-container overflow-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e11]/80 backdrop-blur-xl border-b border-[#7038F8]/15 flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold tracking-tighter text-[#7038F8] drop-shadow-[0_0_8px_rgba(112,56,248,0.4)] font-headline uppercase">PROBABILITY LAB</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-500 font-label text-xs tracking-widest uppercase">
+<span class="hover:text-[#7038F8] transition-colors duration-200 cursor-pointer">Live Feed</span>
+<span class="text-[#7038F8] font-bold">Analysis</span>
+<span class="hover:text-[#7038F8] transition-colors duration-200 cursor-pointer">History</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#7038F8] cursor-pointer">timer</span>
+<span class="material-symbols-outlined text-[#7038F8] cursor-pointer">sensors</span>
+<span class="material-symbols-outlined text-[#7038F8] cursor-pointer">settings</span>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-20 md:w-64 z-40 bg-[#131316] border-r border-[#7038F8]/15 flex flex-col py-20 px-4 gap-4">
+<div class="px-2 mb-6">
+<div class="text-lg font-black text-white font-headline">NEON_LAB_V1</div>
+<div class="text-[10px] font-bold uppercase tracking-widest text-[#7038F8] opacity-80">SESSION: ACTIVE</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-4 p-3 rounded-lg text-slate-500 hover:text-slate-300 transition-all duration-300 cursor-pointer group">
+<span class="material-symbols-outlined">swords</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest hidden md:block">Battle</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg bg-[#1f1f23] text-[#7038F8] border-r-4 border-[#7038F8] shadow-[0_0_15px_rgba(112,56,248,0.2)] cursor-pointer">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest hidden md:block">Probability</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg text-slate-500 hover:text-slate-300 transition-all duration-300 cursor-pointer group">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest hidden md:block">Energy</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-lg text-slate-500 hover:text-slate-300 transition-all duration-300 cursor-pointer group">
+<span class="material-symbols-outlined">database</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest hidden md:block">Logs</span>
+</div>
+</div>
+<button class="mt-auto w-full py-3 bg-primary text-on-primary-container font-label text-xs font-bold uppercase tracking-widest rounded-sm hover:brightness-110 active:scale-95 transition-all">
+            RECALCULATE
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-20 md:ml-64 pt-16 h-screen overflow-hidden cyber-grid">
+<div class="p-6 grid grid-cols-12 gap-6 h-full pb-32">
+<!-- Left Panel: Target Tracker -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline text-lg font-bold uppercase tracking-tighter text-secondary">Target Track</h2>
+<span class="text-[10px] font-bold text-outline uppercase tracking-widest">Deck Weight: High</span>
+</div>
+<!-- Card Slot: Charizard EX -->
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col gap-3 group hover:bg-surface-container transition-colors duration-300">
+<div class="flex gap-4">
+<div class="w-16 h-22 bg-surface-container-highest rounded border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Charizard EX TCG card visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJTn2LLJ3KchQbv5iJX5OHVKqNGJhTYjZY0etzq31VryH2GnZbTaj8eMqGpeVlQyZFWgMovKTV2q0C-4fyMI_FEnPSQlwQ67QF5fD8EcyvW13g6D1nQx2xD7VloR_KfeuoPbqQmmMSbNfDJGV_r9q0Et7g3nPYNVFyOwkTTdTp6hj4fV0-r_iozioGKErbDcquxq1Ne27mpWRjlgKgt1eXsBCdFmTTZj8IM2WXxlVUQwKb5PjosViXNQOpnknJJYCwZ-YWBt67FHcd"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline font-bold text-sm tracking-tight">Charizard EX</h3>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-error/20 text-error border border-error/30 uppercase tracking-tighter">Played</span>
+<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-secondary/20 text-secondary border border-secondary/30 uppercase tracking-tighter">1 Rem.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Slot: Moltres EX -->
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col gap-3 group hover:bg-surface-container transition-colors duration-300 border-l-4 border-primary">
+<div class="flex gap-4">
+<div class="w-16 h-22 bg-surface-container-highest rounded border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Moltres EX TCG card visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVQp_xbSd2hlH-kp3xkbQKTgtvc9Np0gW4LvfXQQUaAf394U2gDHcWU0r8b3Itx6tv5u-MkLi0P-bk322syAnbHlUGuyYkXk4AdvX90DD_W-PgDXRb9mHnVj0JRh0DmFna3ZmXZ90z_hUBIxL-qyu7D8Cte1vVOVtvtFOY1A0rNhTxKn7kghUsOvoSpRYr66PpygD4ZQvwhtnw1z5hsI2dyf-veOVsRU3etoZH8m-kGulxjadQUjotD3QbifKqzunYA76QOX7iac7o"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline font-bold text-sm tracking-tight">Moltres EX</h3>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-tighter">In Hand</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Slot: Prof Research -->
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col gap-3 group hover:bg-surface-container transition-colors duration-300">
+<div class="flex gap-4">
+<div class="w-16 h-22 bg-surface-container-highest rounded border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Professor Research Trainer card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1jIr0DfyIDU91vmK6ij9LoW8uJLzVworh7QOe6uuGE1GzIT3W-nrMYit_8zwpmpiKzPKX5wXeu_EvFYgMyRWWqun-gbEDGlFgfIHegBsp7e4zpxJg15k-ltY3vj9b9WD8Kncub513vSV6R6LwqeVHdzX7zyfgVVMCRtNuKR1lddbsA4NMu-Hb0_dX6-WpbT5txTfFEgDaWJlwHLeu5CtUpl8d70aNSUDjlJukxEJRg9iNOiv2ldGPJnUf2raAV1EwbeujEM3DiCoN"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-headline font-bold text-sm tracking-tight">Professor's Research</h3>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-700 text-slate-300 uppercase tracking-tighter">Remaining</span>
+<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-secondary/20 text-secondary border border-secondary/30 uppercase tracking-tighter">2 Deck</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center Panel: Trajectory -->
+<div class="col-span-12 lg:col-span-6 flex flex-col">
+<div class="glass-panel rounded-2xl p-8 h-full flex flex-col relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-secondary animate-pulse">monitoring</span>
+</div>
+<h2 class="font-headline text-xs font-bold uppercase tracking-[0.3em] text-outline mb-1">Next Draw Trajectory</h2>
+<h1 class="font-headline text-6xl font-black text-secondary drop-shadow-[0_0_20px_rgba(106,156,255,0.3)] tracking-tighter">35% <span class="text-lg align-top text-outline-variant">TRUE_ODDS</span></h1>
+<div class="flex-grow mt-8 flex flex-col justify-end gap-1">
+<!-- Simulated Chart -->
+<div class="flex items-end gap-2 h-48">
+<div class="w-full bg-surface-container-highest h-[40%] rounded-t-sm relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline opacity-0 group-hover:opacity-100">T+1</div>
+</div>
+<div class="w-full bg-secondary/20 h-[35%] rounded-t-sm border-t-2 border-secondary relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-secondary">T+2</div>
+<div class="absolute inset-0 bg-secondary/10 blur-xl opacity-50"></div>
+</div>
+<div class="w-full bg-surface-container-highest h-[55%] rounded-t-sm relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline opacity-0 group-hover:opacity-100">T+3</div>
+</div>
+<div class="w-full bg-surface-container-highest h-[45%] rounded-t-sm relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline opacity-0 group-hover:opacity-100">T+4</div>
+</div>
+<div class="w-full bg-surface-container-highest h-[65%] rounded-t-sm relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline opacity-0 group-hover:opacity-100">T+5</div>
+</div>
+<div class="w-full bg-surface-container-highest h-[30%] rounded-t-sm relative group cursor-crosshair">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline opacity-0 group-hover:opacity-100">T+6</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 font-headline text-[10px] font-bold text-outline-variant uppercase tracking-widest border-t border-outline-variant/20 pt-2">
+<span>Iteration: 50,000</span>
+<span>Algorithm: Monte Carlo V2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Mulligan Risk -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-6">
+<div class="bg-surface-container-low rounded-2xl p-6 flex flex-col gap-6">
+<h2 class="font-headline text-xs font-bold uppercase tracking-widest text-primary">Mulligan Risk Analyzer</h2>
+<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label text-xs text-outline uppercase">0 Mulligans</span>
+<span class="font-headline font-bold text-lg text-on-surface">62.4%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[62.4%] shadow-[0_0_8px_rgba(106,156,255,0.4)]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label text-xs text-outline uppercase">1 Mulligan</span>
+<span class="font-headline font-bold text-lg text-on-surface">28.1%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[28.1%] shadow-[0_0_8px_rgba(252,212,52,0.4)]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="font-label text-xs text-outline uppercase">2+ Mulligans</span>
+<span class="font-headline font-bold text-lg text-error">9.5%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error w-[9.5%] shadow-[0_0_8px_rgba(255,110,132,0.4)]"></div>
+</div>
+</div>
+</div>
+<div class="mt-4 p-4 rounded-xl bg-surface-container border border-outline-variant/10 text-[11px] leading-relaxed text-on-surface-variant font-body italic">
+                        "Current build prioritizes early energy setup. Risk of dead-hand is elevated due to Stage 2 heavy distribution."
+                    </div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-6 flex-grow flex flex-col justify-center items-center gap-4 text-center">
+<span class="material-symbols-outlined text-4xl text-[#7038F8]/40">auto_awesome</span>
+<div>
+<div class="font-headline text-xs font-bold uppercase tracking-widest text-on-surface mb-1">Winning Path</div>
+<div class="text-xs text-outline">Evolve Charizard by T3 (Probability: 41%)</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Stats Bar -->
+<footer class="fixed bottom-0 w-full bg-surface-container-lowest h-20 border-t border-outline-variant/10 flex items-center justify-between px-10 z-50">
+<div class="flex items-center gap-12">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-outline uppercase tracking-[0.2em]">Deck Size</span>
+<span class="font-headline text-xl font-bold text-on-surface">12 <span class="text-sm text-outline">/ 20</span></span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-outline uppercase tracking-[0.2em]">Prize Cards</span>
+<span class="font-headline text-xl font-bold text-primary">4</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-outline uppercase tracking-[0.2em]">Current Turn</span>
+<span class="font-headline text-xl font-bold text-secondary">6</span>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="hidden md:flex flex-col items-end">
+<span class="text-[10px] font-bold text-outline uppercase tracking-[0.2em]">Opponent Deck</span>
+<span class="font-headline text-sm font-bold text-error">Mewtwo EX (Psychic)</span>
+</div>
+<div class="h-10 w-10 rounded-full border border-primary/40 flex items-center justify-center p-1">
+<img class="w-full h-full object-cover rounded-full" data-alt="Elite Trainer user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq88BdJUyvGy1PjoLU7kpIVqoNUMCTzErsN_1caOgMz7SS__YFQxezo3G4gEmDP5ChOrURleLesy8MFxnnQjNKgcVAi8gsjIeubbVQRdtY7WyrcuFokPk7twraJA16vkz19hIEuziYdjvp-4225FfUcx3-egI0f0OkQbo7-yvWyB2Du1H0HclEtL_P0b3_CyQcKQ5MrnjQHV8D9vtdDd7zIepE3RgH_N7Zn4mW24AGuPgPO-2-Pt00ywbYVMcsGrxtmDQhR3ZnQBmc"/>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

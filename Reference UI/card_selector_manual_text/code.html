@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#f0edf1",
+              "secondary": "#6a9cff",
+              "inverse-surface": "#fcf8fd",
+              "surface": "#0e0e11",
+              "error-dim": "#d73357",
+              "on-tertiary": "#470600",
+              "on-primary-fixed": "#443700",
+              "tertiary-container": "#fd4221",
+              "on-tertiary-container": "#000000",
+              "on-secondary": "#001e4b",
+              "tertiary-fixed-dim": "#ff7c62",
+              "tertiary-fixed": "#ff937d",
+              "inverse-on-surface": "#555458",
+              "outline-variant": "#48474b",
+              "secondary-fixed-dim": "#aac3ff",
+              "primary": "#fcd434",
+              "surface-container-lowest": "#000000",
+              "primary-container": "#d8b300",
+              "secondary-dim": "#6a9cff",
+              "surface-bright": "#2c2c30",
+              "tertiary-dim": "#ff7256",
+              "outline": "#767579",
+              "on-secondary-fixed-variant": "#004caa",
+              "on-secondary-fixed": "#003173",
+              "on-tertiary-fixed": "#380300",
+              "on-primary": "#5a4900",
+              "secondary-fixed": "#bfd1ff",
+              "surface-variant": "#25252a",
+              "on-surface": "#f0edf1",
+              "surface-dim": "#0e0e11",
+              "on-error": "#490013",
+              "error-container": "#a70138",
+              "surface-tint": "#fcd434",
+              "on-surface-variant": "#acaaae",
+              "background": "#0e0e11",
+              "on-tertiary-fixed-variant": "#750f00",
+              "error": "#ff6e84",
+              "tertiary": "#ff7256",
+              "surface-container-highest": "#25252a",
+              "on-primary-container": "#403300",
+              "secondary-container": "#005ac5",
+              "primary-fixed": "#fcd434",
+              "on-error-container": "#ffb2b9",
+              "surface-container": "#19191d",
+              "on-primary-fixed-variant": "#655300",
+              "inverse-primary": "#725d00",
+              "on-secondary-container": "#f7f7ff",
+              "primary-dim": "#edc624",
+              "surface-container-high": "#1f1f23",
+              "surface-container-low": "#131316",
+              "primary-fixed-dim": "#edc624"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(31, 31, 35, 0.6);
+        backdrop-filter: blur(24px);
+        border-top: 0.5px solid rgba(252, 212, 52, 0.2);
+      }
+      .neon-glow-primary {
+        box-shadow: 0 0 15px rgba(252, 212, 52, 0.3);
+      }
+      .neon-glow-secondary {
+        box-shadow: 0 0 15px rgba(106, 156, 255, 0.3);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e11]/80 backdrop-blur-xl border-b border-[#7038F8]/10 shadow-[0_4px_20px_rgba(112,56,248,0.1)]">
+<div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#7038F8] italic font-headline">TCG POCKET LAB</div>
+<div class="hidden md:flex items-center gap-8 font-headline tracking-tight">
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Inventory</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Analysis</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Settings</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-gray-400 hover:bg-[#7038F8]/10 transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-gray-400 hover:bg-[#7038F8]/10 transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 h-screen">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-full py-8 bg-[#131316] h-screen w-64 border-r border-[#7038F8]/5">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-[#7038F8]/20 flex items-center justify-center overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="Holographic user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3LTRsvd80RMZSPLciT86D_64SgWDjGGKckxu8xs7dXpQkfhuxazWzyjU7y1m5F_fhMAQuYVzwPOzUIaMVIWzAvYTMnWJnoJ2HywZAyd1HfIL4PS4ZTpXy3P4Msb5uzUdnyoyGrFmSw8IaQ1kldnxWjshXLDelqXRg8aIzre56sVTt4vPgnxj-_b2ruTNMR88s2Br8TkUzdk3mbNOzgPVlhbUdF4bIvUSwQ70p4vyhfxNneohxJeZocXE-AoPcI8D3A1CV4sABS9XA"/>
+</div>
+<div>
+<div class="font-headline font-black text-white text-sm">OPERATOR_01</div>
+<div class="font-headline uppercase text-[10px] tracking-widest text-gray-500">Elite Analyst</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="bg-[#7038F8]/20 text-[#7038F8] border-r-4 border-[#7038F8] px-6 py-3 flex items-center gap-3 font-headline uppercase text-xs tracking-widest translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined">style</span>
+                    Card Selector
+                </a>
+<a class="text-gray-500 px-6 py-3 flex items-center gap-3 hover:text-gray-200 hover:bg-[#1f1f23] transition-colors font-headline uppercase text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined">dashboard_customize</span>
+                    Deck Builder
+                </a>
+<a class="text-gray-500 px-6 py-3 flex items-center gap-3 hover:text-gray-200 hover:bg-[#1f1f23] transition-colors font-headline uppercase text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+                    Probabilities
+                </a>
+<a class="text-gray-500 px-6 py-3 flex items-center gap-3 hover:text-gray-200 hover:bg-[#1f1f23] transition-colors font-headline uppercase text-xs tracking-widest" href="#">
+<span class="material-symbols-outlined">auto_awesome_motion</span>
+                    Collection
+                </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-[#7038F8] text-white font-headline font-bold text-xs tracking-widest rounded-sm hover:brightness-110 transition-all active:scale-95">
+                    GENERATE REPORT
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto bg-background p-8">
+<div class="max-w-5xl mx-auto space-y-12">
+<!-- Page Header -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-headline text-4xl font-bold tracking-tight text-white flex items-center gap-3">
+<span class="text-secondary material-symbols-outlined text-4xl">terminal</span>
+                            MANUAL_INPUT_PROTOCOL
+                        </h1>
+<p class="text-on-surface-variant font-body mt-2">Enter card identifiers to synchronize your local database with the Laboratory neural net.</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface-container text-[10px] font-headline tracking-tighter border border-outline-variant/20 rounded-full text-secondary uppercase">Status: Live</span>
+<span class="px-3 py-1 bg-surface-container text-[10px] font-headline tracking-tighter border border-outline-variant/20 rounded-full text-primary uppercase">Region: Genetic Apex</span>
+</div>
+</header>
+<!-- Control Panel Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Main Input Form (Glassmorphism) -->
+<div class="lg:col-span-7 glass-panel p-8 rounded-xl space-y-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5">
+<span class="material-symbols-outlined text-9xl">labs</span>
+</div>
+<div class="space-y-6">
+<!-- Set Selector -->
+<div class="space-y-2">
+<label class="font-headline text-[10px] tracking-widest text-gray-400 uppercase">Target Set Expansion</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-0 text-on-background py-4 px-4 rounded-lg focus:ring-1 focus:ring-primary appearance-none font-headline tracking-wide">
+<option>Genetic Apex (A1)</option>
+<option>Promotional Cards (P-A)</option>
+<option>Mythical Discovery (A2)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary">expand_more</span>
+</div>
+</div>
+<!-- Card Numbers Input -->
+<div class="space-y-2">
+<label class="font-headline text-[10px] tracking-widest text-gray-400 uppercase">Identifier String (Numbers)</label>
+<div class="relative group">
+<textarea class="w-full bg-surface-container-low border-0 text-primary py-4 px-4 rounded-lg focus:ring-1 focus:ring-primary placeholder:text-gray-600 font-mono text-lg tracking-widest resize-none" placeholder="e.g. 1-20, 22, 150-155" rows="4"></textarea>
+<div class="absolute bottom-4 right-4 text-[10px] font-headline text-gray-500 uppercase">Input Format: Range or Single</div>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full group relative flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-black text-sm tracking-[0.2em] rounded-lg neon-glow-primary hover:brightness-110 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined group-hover:rotate-90 transition-transform duration-500">add_circle</span>
+                            INITIALIZE CARD SYNC
+                        </button>
+</div>
+<!-- Side Analytics / Info -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl border-l-2 border-secondary">
+<h3 class="font-headline text-xs font-bold tracking-widest text-secondary uppercase mb-4">Input Intelligence</h3>
+<ul class="space-y-4 font-body text-sm text-on-surface-variant">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span>Supports comma-separated values (1, 4, 12).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">check_circle</span>
+<span>Supports hyphenated ranges (100-110).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">bolt</span>
+<span>Duplicate IDs will be automatically merged into the quantity count.</span>
+</li>
+</ul>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-2 border-primary">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline text-xs font-bold tracking-widest text-primary uppercase">Quick Tally</h3>
+<span class="text-2xl font-headline font-bold text-white">124/226</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-[55%] h-full bg-primary neon-glow-primary"></div>
+</div>
+<p class="mt-3 text-[10px] font-headline text-gray-500 uppercase tracking-widest">Genetic Apex Collection Completion</p>
+</div>
+</div>
+</section>
+<!-- Recently Added Area -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-xs font-bold tracking-[0.3em] text-white uppercase">Recently_Synchronized_Assets</h2>
+<button class="text-secondary font-headline text-[10px] tracking-widest hover:underline uppercase">Clear History</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+<!-- Card Slot 1 -->
+<div class="group relative aspect-[3/4] bg-surface-container-lowest rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer">
+<img alt="Mewtwo EX" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Pokemon Card Mewtwo EX Genetic Apex Full Art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyoWIdrwkLR41LALVGFCk80BvMnpATeiJeZhKtEz3L7IhUG-2v9B16X17VVvet1at6boU6I4KyfPwIYxeYkFJQ8u8zeOTB-W5s2OErsDi8SwjyLRKQInG8f59FI6RoZ86tvPu_fxeabnP2PeR7iE76xit4NQ_2TiZ-fbjhAYNACEnddhRcjH86Gqr9edwyXdyxcs7yOUgdmf9_VBoSlvJhcqaEt8R7aBk_xiPBy4NLVMLWePjyJXdP4hNLQ-miBYT2PgpUg49ogsPy"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex flex-col justify-end">
+<span class="text-[10px] font-headline text-secondary tracking-widest uppercase">Psychic</span>
+<div class="font-headline font-bold text-white leading-tight">Mewtwo EX</div>
+<div class="flex justify-between items-end mt-2">
+<span class="text-[10px] text-gray-400 font-mono">#129/226</span>
+<span class="bg-secondary/20 text-secondary text-[8px] px-2 py-0.5 rounded border border-secondary/30">ULTRARARE</span>
+</div>
+</div>
+<div class="absolute inset-0 border border-secondary/0 group-hover:border-secondary/40 transition-all rounded-xl"></div>
+</div>
+<!-- Card Slot 2 -->
+<div class="group relative aspect-[3/4] bg-surface-container-lowest rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer">
+<img alt="Pikachu EX" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Pokemon Card Pikachu EX Genetic Apex Electric Type" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2_YQE77Kb0JS7RT_5vZ9OMtnNB0fVW7ENrs61YVTXty5gTzMLCYIR2a-1cT5S9OTBq4Pra9V_0YXA3jvKlRk2KU8HQVAmbgCAUdJOHAAdj2nRm76KZoGKeaoFde7cLJxIku6Xwbhfn8iSVtB5fvADGKLeN2lp6XFRGkuJuHFTOWDZjPyuxvOb0HHvYw-GdPU47MwxbDSyGH9RY81rkU_0VKcQvdGx_Z_LvFXEZKDW2j5yOZcpZHh1P_bZmn0OLQ2_iI36NGOm8Zy8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex flex-col justify-end">
+<span class="text-[10px] font-headline text-primary tracking-widest uppercase">Lightning</span>
+<div class="font-headline font-bold text-white leading-tight">Pikachu EX</div>
+<div class="flex justify-between items-end mt-2">
+<span class="text-[10px] text-gray-400 font-mono">#036/226</span>
+<span class="bg-primary/20 text-primary text-[8px] px-2 py-0.5 rounded border border-primary/30">EX_ASSET</span>
+</div>
+</div>
+<div class="absolute inset-0 border border-primary/0 group-hover:border-primary/40 transition-all rounded-xl"></div>
+</div>
+<!-- Card Slot 3 -->
+<div class="group relative aspect-[3/4] bg-surface-container-lowest rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer">
+<img alt="Charizard EX" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Pokemon Card Charizard EX Genetic Apex Fire Type" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOR2NJ4V4EUQUadsnyCRUgD7xef1qpl9S9CcLVgssjoExJrjv_VEdKLJC5iNQFpnm1QcLuaEwqEThhz-q8Jt-0UtWq1emsadKbQfb2FqapIFk-aop4_RSRzA8_JyCua5_h5lBslSaf6fW7z98zHEcpr-o5OH-2CJagM_kqJ6H5rwOjY-ypDDGDVfl2kaDymO-o_nEXVehkzoTypWVbRiFjPSi3mIWbsGhnYidcJl4uRsjm4P4vGkq9foFJwCm80-v8CSvgqv1ykv0S"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex flex-col justify-end">
+<span class="text-[10px] font-headline text-error tracking-widest uppercase">Fire</span>
+<div class="font-headline font-bold text-white leading-tight">Charizard EX</div>
+<div class="flex justify-between items-end mt-2">
+<span class="text-[10px] text-gray-400 font-mono">#011/226</span>
+<span class="bg-error/20 text-error text-[8px] px-2 py-0.5 rounded border border-error/30">STRIKE</span>
+</div>
+</div>
+<div class="absolute inset-0 border border-error/0 group-hover:border-error/40 transition-all rounded-xl"></div>
+</div>
+<!-- Card Slot 4 -->
+<div class="group relative aspect-[3/4] bg-surface-container-lowest rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer">
+<img alt="Articuno EX" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Pokemon Card Articuno EX Genetic Apex Water Type" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9Zf0GDweu78AaJcwKbj1MEnH18skM8sQ_NPrRC61ylAs6vgK6pi7oRJ4D-iQwHARoGPFHyojFGsWVC9dlWSNsY0cHoa9iSZqpiTQJm164JZ5tIroFT1Xyy3PbZ3NO7zdApUgsSjrnynG3jmeRdSLNndNW4CObOM5QqFaEqE8lmhzjWf19owlELtY7K1yHoTpR55CfaoABXIRT-ROEluL6DwK1MBhdxxltMcRzHGHnl4hP1WS81jH1YPGUIUQXcaxgrgZX1Dewj_1z"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex flex-col justify-end">
+<span class="text-[10px] font-headline text-secondary tracking-widest uppercase">Water</span>
+<div class="font-headline font-bold text-white leading-tight">Articuno EX</div>
+<div class="flex justify-between items-end mt-2">
+<span class="text-[10px] text-gray-400 font-mono">#048/226</span>
+<span class="bg-secondary/20 text-secondary text-[8px] px-2 py-0.5 rounded border border-secondary/30">LEGEND</span>
+</div>
+</div>
+<div class="absolute inset-0 border border-secondary/0 group-hover:border-secondary/40 transition-all rounded-xl"></div>
+</div>
+<!-- Card Slot 5 (Placeholder Add) -->
+<div class="group relative aspect-[3/4] border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-low hover:border-primary/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-gray-600 group-hover:text-primary text-3xl transition-colors">add</span>
+<span class="text-[10px] font-headline text-gray-600 group-hover:text-primary tracking-[0.2em] uppercase transition-colors">Awaiting_Input</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>
