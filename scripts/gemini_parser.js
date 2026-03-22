@@ -215,7 +215,11 @@ async function runGeminiDeckBuild({ ownedCards, cardDb, ownedCardIds, playstyle,
 
     const data1 = await res1.json();
     if (!data1.candidates?.length) throw new Error(`Gemini blocked (Call 1): ${data1.promptFeedback?.blockReason || 'Unknown'}`);
-    const reasoningText = data1.candidates[0].content.parts[0].text;
+    const candidate1 = data1.candidates[0];
+    if (!candidate1?.content?.parts?.[0]?.text) {
+        throw new Error(`Gemini Call 1 returned no content. Finish reason: ${candidate1?.finishReason || 'unknown'}`);
+    }
+    const reasoningText = candidate1.content.parts[0].text;
 
     // CALL 2: JSON Extraction
     const validNames = [...new Set(ownedCards.map(o => o.card.name))];
@@ -245,7 +249,11 @@ async function runGeminiDeckBuild({ ownedCards, cardDb, ownedCardIds, playstyle,
     const data2 = await res2.json();
     if (!data2.candidates?.length) throw new Error(`Gemini blocked (Call 2): ${data2.promptFeedback?.blockReason || 'Unknown'}`);
     
-    const jsonText = data2.candidates[0].content.parts[0].text;
+    const candidate2 = data2.candidates[0];
+    if (!candidate2?.content?.parts?.[0]?.text) {
+        throw new Error(`Gemini Call 2 returned no content. Finish reason: ${candidate2?.finishReason || 'unknown'}`);
+    }
+    const jsonText = candidate2.content.parts[0].text;
     const { nameList, parseMethod, error: parseError } = parseGeminiResponse(jsonText);
 
     if (!nameList.length) throw new Error(parseError || 'Failed to extract deck from Gemini response');
