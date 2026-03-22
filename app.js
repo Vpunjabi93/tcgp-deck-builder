@@ -644,6 +644,13 @@ window.renderCollectionGrid = function (searchQuery = '') {
                 <div class="card-name">${card.name}</div>
                 <div class="card-meta">${card.id} • ${card.rarity}</div>
             </div>
+            ${isOwned ? `
+            <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 8px;">
+                <button class="qty-btn" onclick="updateCardQuantity('${card.id}', -1)">−</button>
+                <span style="font-weight: bold; width: 24px; text-align: center;">${qty}</span>
+                <button class="qty-btn" onclick="updateCardQuantity('${card.id}', 1)">+</button>
+            </div>
+            ` : ''}
         `;
         grid.appendChild(cardEl);
     });
