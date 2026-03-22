@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TACTICAL HUD V1.0 - LIVE MATCH TRACKER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#edc624",
+                        "on-primary-container": "#403300",
+                        "inverse-primary": "#725d00",
+                        "surface-variant": "#25252a",
+                        "on-tertiary": "#470600",
+                        "on-primary-fixed-variant": "#655300",
+                        "surface-container-high": "#1f1f23",
+                        "on-tertiary-container": "#000000",
+                        "surface-container-lowest": "#000000",
+                        "secondary": "#6a9cff",
+                        "on-surface": "#f0edf1",
+                        "surface-container": "#19191d",
+                        "secondary-container": "#005ac5",
+                        "inverse-on-surface": "#555458",
+                        "on-primary": "#5a4900",
+                        "secondary-fixed-dim": "#aac3ff",
+                        "surface": "#0e0e11",
+                        "tertiary": "#ff7256",
+                        "background": "#0e0e11",
+                        "tertiary-fixed-dim": "#ff7c62",
+                        "error-container": "#a70138",
+                        "secondary-dim": "#6a9cff",
+                        "primary-dim": "#edc624",
+                        "outline-variant": "#48474b",
+                        "surface-dim": "#0e0e11",
+                        "surface-container-low": "#131316",
+                        "on-primary-fixed": "#443700",
+                        "tertiary-dim": "#ff7256",
+                        "on-surface-variant": "#acaaae",
+                        "primary-container": "#d8b300",
+                        "on-background": "#f0edf1",
+                        "on-tertiary-fixed-variant": "#750f00",
+                        "surface-container-highest": "#25252a",
+                        "surface-bright": "#2c2c30",
+                        "outline": "#767579",
+                        "on-error-container": "#ffb2b9",
+                        "on-error": "#490013",
+                        "on-secondary-container": "#f7f7ff",
+                        "on-secondary-fixed-variant": "#004caa",
+                        "error-dim": "#d73357",
+                        "tertiary-fixed": "#ff937d",
+                        "tertiary-container": "#fd4221",
+                        "on-secondary": "#001e4b",
+                        "primary": "#fcd434",
+                        "error": "#ff6e84",
+                        "on-secondary-fixed": "#003173",
+                        "on-tertiary-fixed": "#380300",
+                        "surface-tint": "#fcd434",
+                        "secondary-fixed": "#bfd1ff",
+                        "primary-fixed": "#fcd434",
+                        "inverse-surface": "#fcf8fd"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e0e11;
+            background-image: radial-gradient(#1f1f23 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(25, 25, 29, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(252, 212, 52, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(252, 212, 52, 0.15);
+        }
+        .neon-text-primary {
+            text-shadow: 0 0 8px rgba(252, 212, 52, 0.5);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #25252a; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-body text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e11]/60 backdrop-blur-xl border-b border-[#fcd434]/15 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+<div class="flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tighter text-[#fcd434] drop-shadow-[0_0_8px_rgba(252,212,52,0.5)] font-headline">TACTICAL HUD V1.0</span>
+<nav class="hidden md:flex items-center gap-6 font-['Space_Grotesk'] uppercase tracking-widest text-sm">
+<a class="text-[#fcd434] border-b-2 border-[#fcd434] pb-1" href="#">LIVE</a>
+<a class="text-slate-500 hover:text-slate-200 transition-colors" href="#">DECK</a>
+<a class="text-slate-500 hover:text-slate-200 transition-colors" href="#">HISTORY</a>
+<a class="text-slate-500 hover:text-slate-200 transition-colors" href="#">INTEL</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#fcd434] p-2 hover:bg-[#fcd434]/10 transition-all duration-300 rounded-full">notifications</button>
+<button class="material-symbols-outlined text-[#fcd434] p-2 hover:bg-[#fcd434]/10 transition-all duration-300 rounded-full">settings</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-[#fcd434]/30">
+<img class="w-full h-full object-cover" data-alt="Elite Trainer Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXJ1Pz8X2FmZ0F0mz_YmWLsKstQ987KPVA8AMWy6L_SI9Aq5iDfVuB35_HWdXjxakCO98yx1K5iYHXadIJg_Hq4KbbABgd2vmPaoBgqyHrfKGT7MsWdW-sOMlm1UkbmJpmm_tVO7ui7zb8BxfWcjQmxEaidsGa80KnyYLj_z7TT6xZ0RW-w2cX6fiVo9nNqKygcVoDEiPFMlkv3ngZz-Gw6OrZQ2mftSHGkngK0KK-3w8CKrz-SizTDes1uT9O-zKHJsrhyDZcrWWi"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#131316]/80 backdrop-blur-2xl border-r border-white/5 shadow-[10px_0_30px_rgba(0,0,0,0.8)] hidden lg:block">
+<div class="flex flex-col h-full py-20">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 flex items-center justify-center bg-[#fcd434]/20 rounded-lg">
+<span class="material-symbols-outlined text-[#fcd434] text-xl" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+<div>
+<div class="text-[#fcd434] font-black italic font-headline">PHASE_01</div>
+<div class="text-[10px] text-primary tracking-widest uppercase opacity-70">MATCH_ACTIVE</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1 font-['Space_Grotesk'] font-medium">
+<a class="flex items-center gap-4 bg-[#fcd434]/10 text-[#fcd434] border-l-4 border-[#fcd434] px-6 py-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">swords</span>
+<span>BATTLE</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-white/5 hover:text-white transition-all hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span>PROBABILITY</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-white/5 hover:text-white transition-all hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span>ENERGY</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-white/5 hover:text-white transition-all hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>LOGS</span>
+</a>
+<a class="flex items-center gap-4 text-slate-500 px-6 py-4 hover:bg-white/5 hover:text-white transition-all hover:translate-x-1 transition-transform duration-200 mt-auto" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>QUIT</span>
+</a>
+</nav>
+<div class="px-6 mt-6">
+<button class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold uppercase tracking-wider text-xs rounded-lg active:scale-95 transition-transform shadow-[0_0_15px_rgba(252,212,52,0.3)]">
+                    ANALYZE BOARD
+                </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 pt-24 pb-12 px-6">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Header HUD Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div>
+<h1 class="text-4xl font-headline font-bold tracking-tighter neon-text-primary text-primary">LIVE MATCH TRACKER</h1>
+<p class="text-on-surface-variant font-medium tracking-[0.2em] text-xs mt-1">SESSION_ID: 99x-ALPHA-442</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-low px-4 py-2 rounded-lg border-l-2 border-primary">
+<span class="block text-[10px] text-on-surface-variant font-label uppercase">Match Timer</span>
+<span class="text-xl font-headline font-medium">14:22.05</span>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-lg border-l-2 border-secondary">
+<span class="block text-[10px] text-on-surface-variant font-label uppercase">Connection</span>
+<span class="text-xl font-headline font-medium text-secondary">STABLE_32MS</span>
+</div>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Opponent Radar -->
+<div class="lg:col-span-8 space-y-6">
+<!-- Opponent Radar Card -->
+<section class="glass-panel p-6 rounded-xl border-l-4 border-primary neon-glow-primary">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">radar</span>
+                                OPPONENT RADAR
+                            </h2>
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded font-label font-bold uppercase tracking-widest">Awaiting Input</span>
+</div>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-2 border-primary/30 focus:border-primary focus:ring-0 text-on-surface font-headline p-4 rounded-lg placeholder:text-on-surface-variant/40 transition-all" placeholder="LOG CARD (E.G. MEWTWO EX, OAK, ETC...)" type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+<kbd class="bg-surface-container-high px-2 py-1 text-[10px] text-on-surface-variant border border-outline-variant rounded">ESC</kbd>
+<kbd class="bg-primary/20 px-2 py-1 text-[10px] text-primary border border-primary/50 rounded">ENTER</kbd>
+</div>
+</div>
+<!-- Autocomplete Suggestion -->
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="text-xs text-on-surface-variant font-label px-2">SUGGESTED:</span>
+<button class="text-xs bg-surface-container px-3 py-1.5 rounded-full text-on-surface border border-outline-variant hover:border-primary transition-all">Pikachu ex</button>
+<button class="text-xs bg-surface-container px-3 py-1.5 rounded-full text-on-surface border border-outline-variant hover:border-primary transition-all">Sabrina</button>
+<button class="text-xs bg-surface-container px-3 py-1.5 rounded-full text-on-surface border border-outline-variant hover:border-primary transition-all">Giovanni</button>
+</div>
+</section>
+<!-- Revealed Cards Grid -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">visibility</span>
+                                REVEALED CARDS
+                            </h2>
+<span class="text-xs text-on-surface-variant font-label">COUNT: 08/60</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-5 gap-3">
+<!-- Card Slot -->
+<div class="group relative aspect-[2/3] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/30 hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Psychic Energy Mewtwo Card Art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoNnCQPz2dHFhE7gf9eCNCbhiosBs-VJvN8N4ZwmManFUaymNpwk5pg9u9H24MWU72zAuCyexREOXIiQloMw2aRha0WQFk6_RwlstjEn0BkZLYz8E-fHXTyjZ1Slz5BYGZAAsQNn04j6gLZMMfZ1MWKr6BRJauX-PWt04YhosBDagihx4O4Q36GNolpVbVOxzyaFmbrZ9blIezNhCBsgRnrQG9YXbMuqY-ayO5EEIPzmr7V9Z6AtyCwrPNNQsHXc77HL5M4mswUSbF"/>
+<div class="absolute bottom-0 w-full p-2 bg-gradient-to-t from-black to-transparent">
+<div class="text-[10px] font-bold text-primary truncate uppercase">Mewtwo ex</div>
+<div class="text-[8px] text-on-surface-variant">ACTIVE_PKMN</div>
+</div>
+<div class="absolute top-2 right-2 flex flex-col gap-1">
+<span class="w-4 h-4 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"></span>
+</div>
+</div>
+<!-- Card Slot -->
+<div class="group relative aspect-[2/3] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/30 hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Evolution Line Psychic Card Art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrWsNsJ_vmY4n8m4PH7Bs6d4iivJ6nN6Nlnv6p2AbVsRERptcZEm0TtSgN5IjzC95buHCSIwd7_DycS9BPHPMPSl6cET_cvUjruhedCFW-3IOyUKam5E-ujF6WFtHlL6c5HGak7ea8ihtFA4cM0YFRKL1XTbl29iU6hXu16ugZujuwuu1CpoVIFhdvoKPmax4L_pikqXVP3ZJNvhYNn_AUhj-f_6dvSR3qsCSX8G6hjl4dQ0QGNjXVxfaBWz2Mh02OaMGrLeWNTF5E"/>
+<div class="absolute bottom-0 w-full p-2 bg-gradient-to-t from-black to-transparent">
+<div class="text-[10px] font-bold text-primary truncate uppercase">Gardevoir</div>
+<div class="text-[8px] text-on-surface-variant">BENCHED</div>
+</div>
+</div>
+<!-- Repeatable Slots (Simulation) -->
+<div class="group relative aspect-[2/3] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/30 hover:scale-105 transition-transform duration-300">
+<div class="w-full h-full flex items-center justify-center bg-surface-container-lowest">
+<span class="material-symbols-outlined text-outline-variant text-4xl">inventory_2</span>
+</div>
+<div class="absolute bottom-0 w-full p-2 bg-gradient-to-t from-black to-transparent">
+<div class="text-[10px] font-bold text-slate-400 truncate uppercase">X2 ITEM: OAK</div>
+</div>
+</div>
+<div class="group relative aspect-[2/3] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/30 hover:scale-105 transition-transform duration-300">
+<div class="w-full h-full flex items-center justify-center bg-surface-container-lowest">
+<span class="material-symbols-outlined text-outline-variant text-4xl">inventory_2</span>
+</div>
+<div class="absolute bottom-0 w-full p-2 bg-gradient-to-t from-black to-transparent">
+<div class="text-[10px] font-bold text-slate-400 truncate uppercase">X1 TRAINER: SABRINA</div>
+</div>
+</div>
+<div class="group relative aspect-[2/3] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/30 hover:scale-105 transition-transform duration-300">
+<div class="w-full h-full flex items-center justify-center bg-surface-container-lowest">
+<span class="material-symbols-outlined text-outline-variant text-4xl">bolt</span>
+</div>
+<div class="absolute bottom-0 w-full p-2 bg-gradient-to-t from-black to-transparent">
+<div class="text-[10px] font-bold text-violet-400 truncate uppercase">X4 PSYCHIC ENERGY</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Prediction & Meta -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Prediction Panel -->
+<section class="glass-panel rounded-xl overflow-hidden border-t-0">
+<div class="bg-tertiary-container/20 p-4 border-b border-tertiary-container/30">
+<h2 class="font-headline font-bold text-tertiary flex items-center gap-2 text-sm uppercase tracking-tighter">
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">warning</span>
+                                NEXT TURN PREDICTION
+                            </h2>
+</div>
+<div class="p-6 space-y-6">
+<div>
+<label class="text-[10px] text-on-surface-variant font-label uppercase block mb-1">Detected Archetype</label>
+<div class="text-2xl font-headline font-bold text-primary">MEWTWO EX / GARDEVOIR</div>
+<div class="flex items-center gap-2 mt-2">
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92%] shadow-[0_0_8px_rgba(252,212,52,1)]"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">92% MATCH</span>
+</div>
+</div>
+<div class="space-y-3">
+<label class="text-[10px] text-on-surface-variant font-label uppercase block">Threat Assessment</label>
+<div class="bg-surface-container rounded-lg p-3 flex justify-between items-center group cursor-help border border-transparent hover:border-error transition-all">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-error/10 rounded-lg text-error">
+<span class="material-symbols-outlined text-sm">skull</span>
+</div>
+<span class="text-sm font-medium">Psy-Burst Lethal Range</span>
+</div>
+<span class="text-xs text-error font-bold">CRITICAL</span>
+</div>
+<div class="bg-surface-container rounded-lg p-3 flex justify-between items-center border border-transparent hover:border-secondary transition-all">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined text-sm">cycle</span>
+</div>
+<span class="text-sm font-medium">Energy Acceleration</span>
+</div>
+<span class="text-xs text-secondary font-bold">ACTIVE</span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/20">
+<div class="flex justify-between items-center mb-4">
+<span class="text-xs font-bold font-headline uppercase">Probability Meter</span>
+<span class="text-xs text-secondary font-bold">64.5% WIN RATE</span>
+</div>
+<!-- Asymmetric Gauge -->
+<div class="relative h-24 flex items-end gap-1">
+<div class="w-full bg-primary/20 h-[30%] rounded-sm"></div>
+<div class="w-full bg-primary/40 h-[45%] rounded-sm"></div>
+<div class="w-full bg-primary/60 h-[65%] rounded-sm"></div>
+<div class="w-full bg-primary h-[85%] rounded-sm shadow-[0_0_10px_rgba(252,212,52,0.4)]"></div>
+<div class="w-full bg-primary/30 h-[40%] rounded-sm"></div>
+<div class="w-full bg-primary/10 h-[20%] rounded-sm"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="text-3xl font-headline font-bold neon-text-primary text-primary opacity-20">DATA_SYNCED</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Tactical Log -->
+<section class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline font-bold text-xs uppercase tracking-widest text-on-surface-variant">Tactical Feed</h3>
+<div class="flex gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[8px] font-bold text-on-surface-variant">REAL-TIME</span>
+</div>
+</div>
+<div class="space-y-4 max-h-48 overflow-y-auto pr-2">
+<div class="flex gap-3 text-[11px] font-medium leading-relaxed">
+<span class="text-primary opacity-50 font-label">14:19</span>
+<span class="text-on-surface-variant"><span class="text-on-surface">OPPONENT</span> PLAYED [ITEM: PROF. OAK]</span>
+</div>
+<div class="flex gap-3 text-[11px] font-medium leading-relaxed">
+<span class="text-primary opacity-50 font-label">14:20</span>
+<span class="text-on-surface-variant"><span class="text-secondary">SYSTEM</span> UPDATED ARCHETYPE -&gt; MEWTWO_EX</span>
+</div>
+<div class="flex gap-3 text-[11px] font-medium leading-relaxed">
+<span class="text-primary opacity-50 font-label">14:21</span>
+<span class="text-on-surface-variant"><span class="text-on-surface">OPPONENT</span> ATTACHED [ENERGY: PSYCHIC] TO [MEWTWO EX]</span>
+</div>
+<div class="flex gap-3 text-[11px] font-medium leading-relaxed">
+<span class="text-primary opacity-50 font-label">14:22</span>
+<span class="text-on-surface-variant"><span class="text-on-surface">OPPONENT</span> REVEALED [BENCH: RALTS]</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="flex items-center gap-3 bg-surface-bright px-6 py-3 rounded-full border border-primary shadow-[0_0_30px_rgba(252,212,52,0.2)] hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<span class="font-headline font-bold text-sm tracking-tighter">SUGGEST COUNTER</span>
+</button>
+</div>
+</body></html>

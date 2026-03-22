@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TCG POCKET LAB - Deck Builder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#005ac5",
+              "primary-container": "#d8b300",
+              "surface-container-lowest": "#000000",
+              "on-surface": "#f0edf1",
+              "tertiary-dim": "#ff7256",
+              "secondary-dim": "#6a9cff",
+              "background": "#0e0e11",
+              "secondary": "#6a9cff",
+              "tertiary": "#ff7256",
+              "outline-variant": "#48474b",
+              "on-primary-fixed": "#443700",
+              "on-tertiary-fixed": "#380300",
+              "secondary-fixed": "#bfd1ff",
+              "inverse-surface": "#fcf8fd",
+              "on-tertiary": "#470600",
+              "on-secondary-fixed": "#003173",
+              "error-container": "#a70138",
+              "primary": "#fcd434",
+              "surface-bright": "#2c2c30",
+              "on-error": "#490013",
+              "surface": "#0e0e11",
+              "on-tertiary-container": "#000000",
+              "on-background": "#f0edf1",
+              "on-surface-variant": "#acaaae",
+              "inverse-on-surface": "#555458",
+              "on-primary-container": "#403300",
+              "on-primary-fixed-variant": "#655300",
+              "surface-dim": "#0e0e11",
+              "inverse-primary": "#725d00",
+              "primary-fixed-dim": "#edc624",
+              "surface-tint": "#fcd434",
+              "surface-variant": "#25252a",
+              "secondary-fixed-dim": "#aac3ff",
+              "primary-fixed": "#fcd434",
+              "on-tertiary-fixed-variant": "#750f00",
+              "surface-container": "#19191d",
+              "error-dim": "#d73357",
+              "tertiary-container": "#fd4221",
+              "outline": "#767579",
+              "tertiary-fixed-dim": "#ff7c62",
+              "tertiary-fixed": "#ff937d",
+              "primary-dim": "#edc624",
+              "on-secondary": "#001e4b",
+              "surface-container-highest": "#25252a",
+              "on-error-container": "#ffb2b9",
+              "surface-container-low": "#131316",
+              "surface-container-high": "#1f1f23",
+              "on-secondary-fixed-variant": "#004caa",
+              "on-secondary-container": "#f7f7ff",
+              "on-primary": "#5a4900",
+              "error": "#ff6e84",
+              "neon-accent": "#7038F8"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e0e11;
+            background-image: radial-gradient(#19191d 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #f0edf1;
+        }
+        .glass-panel {
+            background: rgba(25, 25, 29, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(112, 56, 248, 0.2);
+        }
+        .neon-glow-psychic {
+            box-shadow: 0 0 15px rgba(112, 56, 248, 0.3);
+        }
+        .neon-glow-fire {
+            box-shadow: 0 0 15px rgba(253, 66, 33, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2c2c30;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-neon-accent selection:text-white">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e11]/80 backdrop-blur-xl border-b border-[#7038F8]/15 shadow-[0_4px_20px_rgba(112,56,248,0.1)]">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-[1920px] mx-auto font-['Space_Grotesk'] tracking-tight">
+<div class="text-2xl font-bold tracking-tighter text-white uppercase">TCG POCKET LAB</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-gray-500 hover:text-gray-300 transition-colors" href="#">Collection</a>
+<a class="text-white border-b-2 border-[#7038F8] pb-1" href="#">Deck Builder</a>
+<a class="text-gray-500 hover:text-gray-300 transition-colors" href="#">AI Analysis</a>
+</nav>
+<div class="flex items-center space-x-4">
+<button class="p-2 hover:bg-[#19191d] hover:text-[#7038F8] transition-all rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="p-2 hover:bg-[#19191d] hover:text-[#7038F8] transition-all rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Contextual Hidden for focus but logic present) -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-20 bg-[#131316] flex flex-col h-full space-y-2 p-4 hidden lg:flex">
+<div class="mb-6 px-2">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-neon-accent/30 overflow-hidden">
+<img alt="Trainer Profile" class="w-full h-full object-cover" data-alt="Stylized trainer avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHkmasUckqD90vYNgD3kD-T_T57vOWdec3vUG2VLXpT3hiVFknA0j5qkLDvYcb1B-Uc6e4L3q-5Nm1hOU_kOADXe9HW2PoMRyzTpUG97se9p4YM21CuMG3ZIyee-BeVPZbwljHEmqOZD9ex8G1VfkbEcYmDjOdHORCF6shWghxOE26hOjxIfrNCgf1OrhRp5qeWR7LJFpnOJqa5HYVY2X20e3CxEtsbTeTAPMu6SmbgYCafBPt6XUKEJDlsaadAsoM2rl8R7HUU4Fb"/>
+</div>
+<div>
+<div class="font-headline text-sm uppercase font-bold text-white leading-none">ELITE TRAINER</div>
+<div class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Rank: Master</div>
+</div>
+</div>
+<button class="w-full py-3 bg-neon-accent text-white font-headline text-xs font-bold tracking-widest uppercase hover:brightness-110 active:opacity-80 transition-all">
+                NEW DECK
+            </button>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center space-x-3 p-3 text-gray-400 hover:bg-[#19191d] hover:translate-x-1 transition-transform font-headline text-sm uppercase font-bold" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Library</span>
+</a>
+<a class="flex items-center space-x-3 p-3 bg-[#2c2c30] text-[#7038F8] border-r-4 border-[#7038F8] font-headline text-sm uppercase font-bold" href="#">
+<span class="material-symbols-outlined">layers</span>
+<span>Decks</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-gray-400 hover:bg-[#19191d] hover:translate-x-1 transition-transform font-headline text-sm uppercase font-bold" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span>Analysis</span>
+</a>
+<a class="flex items-center space-x-3 p-3 text-gray-400 hover:bg-[#19191d] hover:translate-x-1 transition-transform font-headline text-sm uppercase font-bold" href="#">
+<span class="material-symbols-outlined">tune</span>
+<span>Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:pl-64 pt-20 min-h-screen flex flex-col xl:flex-row gap-6 p-6">
+<!-- Left Column: Lush Catalog -->
+<section class="flex-1 flex flex-col space-y-6">
+<div class="flex flex-wrap items-center justify-between gap-4">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-white">OWNED CARDS <span class="text-neon-accent font-light ml-2">/ 482</span></h2>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">search</span>
+<input class="bg-surface-container-low border-none focus:ring-1 focus:ring-neon-accent text-sm pl-9 pr-4 py-2 w-64 rounded-none font-body" placeholder="Search cards..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 bg-surface-container-high border-b-2 border-neon-accent text-[10px] font-bold uppercase tracking-wider text-white">Psychic</button>
+<button class="px-3 py-1.5 bg-surface-container-high border-b-2 border-tertiary-container text-[10px] font-bold uppercase tracking-wider text-white">Fire</button>
+<button class="px-3 py-1.5 bg-surface-container-high border-b-2 border-primary text-[10px] font-bold uppercase tracking-wider text-white">EX Only</button>
+</div>
+</div>
+</div>
+<!-- Card Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto pr-2 custom-scrollbar max-h-[calc(100vh-280px)]">
+<!-- Card Item 1 (Selected) -->
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer neon-glow-psychic transition-all hover:scale-[1.05] border border-neon-accent/30">
+<img alt="Mewtwo EX" class="w-full h-full object-cover" data-alt="Mewtwo EX Pokemon card holographic art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH5LZHtIKdr-oBlUwApIlvfjM1vFxMRzmrgOP5cNep8POY_IPdgHKlO0kuEAZg6tOC2-o-SFjW_3bPboPls-98I0EPgzoWwVPsW_DhPvlNzOznYuSat4dIOJZx5fzUI06omFJCOU6pCdzsdBzXDTTd2pZm0WFqFHMk81s9yqnBWI86B5C9aCD7_nbRP9xjApaFYLCvpAmdFUmFMHXZwojj4Ofup1bAKWTGfguwhxGacmnEHYfl-CY6YeKHJ7K3P_YtYZv9t4P9gb6q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+<span class="text-[10px] font-bold text-neon-accent uppercase">Mewtwo EX</span>
+<span class="text-[8px] text-white/60">Psychic • HP 190</span>
+</div>
+</div>
+<!-- Card Item 2 -->
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Charizard EX" class="w-full h-full object-cover" data-alt="Charizard EX Pokemon card aggressive fire art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAvS8w3LCDRulqCIUAKAPIIG0yJd5YJlbKc68CnhSkC0bLjsTlgZ2MisTkYGgOlybjt8xHajYa6IKQPQYtI1YyChqmYecCaIcQAenARs3lmW4r8wDSyIaLcpPrhBwJlvnftlQKs1SGsrTKSalC0sXR9-BwstLAw9Mx-kKnzefWOsv9ZhJo7lI5UVHrBPBnQp-fxfQMUvorf_716xstoPFmKJaXengIbGDwK6RNgGKIL7DXGuid3cLNAKfobNMPsHlicAN-rUzrkkMP"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+<span class="text-[10px] font-bold text-tertiary-container uppercase">Charizard EX</span>
+<span class="text-[8px] text-white/60">Fire • HP 330</span>
+</div>
+</div>
+<!-- Card Item 3 -->
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Pikachu" class="w-full h-full object-cover" data-alt="Pikachu Pokemon card vintage lightning art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe8FfDB63WPQIqEYQdAeeTvvnA35CQwrVKI1R8jfcc_ij1ofV-AWYFFPZfbk-pdeWxKKiIFxJfWwadi2H48WFbLUk3VzaZLX7Aczfbx7SwjSDY7JX3xEt-BMyyd8rNnRRv4RBkF3rXlDE00XXBIq031af3yfyFURPXV1c86J0njgHZ7tzSur8d9Ps600zti9IUzvuIlm_LRb-h5X7IrXTyk6ETO8hoLAp6WE-HvNP7KdCxZH8qycigZKp6u-ww53YIRiLRWiq9gue0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+<span class="text-[10px] font-bold text-primary uppercase">Pikachu</span>
+<span class="text-[8px] text-white/60">Lightning • HP 60</span>
+</div>
+</div>
+<!-- Repeat Items -->
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Gardevoir" class="w-full h-full object-cover opacity-60" data-alt="Gardevoir Pokemon card elegant psychic pose" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM-ccPZXk3xJjgUGfPd-U7Y2jBMiUfUutWz7z2oIu8H5ElfkvwMeuVgCsJ0QRhBv98bFDlv52VRuMfPdrlwvVX2MxTiLQ2ErHpXf7Wz7A5aySDbUhEFsXDp-iDuM47HzefPnLmbh4751oW9nxzjSVPvkIJabR5z8DU18mjk2b9P4Qqd8gNlKAY01Z_FYs5ZeAto0m6_QxmZgyuqlYcuvMBGLKkkU2VjDEFg8G11FJKkpdY_UaU5aeS4M4oUtR0CBxg6My7_j3t9U5C"/>
+<div class="absolute top-2 right-2 bg-surface-container-high px-2 py-0.5 rounded text-[8px] font-bold text-white">x3</div>
+</div>
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Mew EX" class="w-full h-full object-cover" data-alt="Mew EX Pokemon card playful pink art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUvYaOOq5vK_DZBS2WtKX_eB_xoPeU9vibLrFNXdKgPCuNtf-H7TNnyWNuye17bWx7fCSvzdVcQ451SLxFhny-1QoUm1T99743j4H26fI2BJZdgqqirfZeEQT4Kq0nE34W3xl2taujHHXEn2GFIkvWZdnbPXFlDduCffryzLwAEUNcU8Oxje5p2wWhJVcGPB58LVD6KhCtt1gZ1mNZewdAI6D-o4t0RSAqYg2KtTMZaulVWM9xf1ou-h7kucTkP2sEqLp07z3lFzug"/>
+</div>
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Pikachu" class="w-full h-full object-cover opacity-60" data-alt="Classic Pikachu Pokemon card original artwork" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj_B002OUuJyskstHOX-CUOurh5ePRheFdZ_qLFeDaV92b6jB-C5vHWBrMQQ9vmuw4JTBTqGcksGkHiCVWv-5-IXHVuoSOIe4acin0vcKNals-T1LnHAc2Q_ZOnjQoS1zbKsoxRUC8hR34aIqX6u5bwwnSiNhD9atiqpm_jshsn8tHhZoDQApzbYOIC9HVhLFQ_B6TI60weJh3sCR7Qks3Ziq9Z8YGU3UnQGauIkbFsCz2GrjQ-vqD1iR2fBbzDCDNHV4G2uvRnOQQ"/>
+</div>
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Gardevoir EX" class="w-full h-full object-cover" data-alt="Gardevoir EX Pokemon card master art style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEBpW7WeZUB523sA4p5qcB8B7RpSneH3Z0vpuBBMUNqDwbEMbU3DH-vufXNNv2jH3C_2UYkZ1WzXG1Vor2j2-QIBh3dYl3JBarkYS6WGFm2CjaLt6vdeEIlDCIf-UtUSxMPejWhlh0ObiUEChQGNzMi_0MAZY4-vvp0cctRAuHH2Gyn1ldi8NV6Lq2c9j0llpQEK5Ln5IN1SKqSswH-X0Zh8wdS0vDBKYp1U_ldomBxNJJ6M9YX7hBLCVhKP-MrjTdnHKujGwB3aiw"/>
+</div>
+<div class="group relative aspect-[2.5/3.5] bg-surface-container-lowest rounded-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border border-white/5">
+<img alt="Lugia VSTAR" class="w-full h-full object-cover" data-alt="Lugia VSTAR Pokemon card grand legendary bird" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkui5ZYXYz6HOhzSAESkXEEGOUHCfGmpVli9twac2cYaF_mqOsZG8K-vXAA51aQKXM9tvzHkhHgCz89YTg-F2CxPF03xTYFPkBdT1VawHHJwig_qjkZI8COiC0bOSZ7Mj4i0YkgSqZYrb9PH6MldXdXbXvhkwqe1f-KDzp2bYDvZ6YjQEgjfJLN_eueHapnZVtqElYM7FouqdC4CzKxob7dCATujhceP-m_idH6OX_o7qRzavuW4rS1VJ7IDBnh3ju8Mf4E6yLHbAs"/>
+</div>
+</div>
+</section>
+<!-- Right Column: Active Deck & Analyzer -->
+<section class="w-full xl:w-[420px] flex flex-col gap-6">
+<!-- Deck Info -->
+<div class="glass-panel p-6 rounded-none border-l-4 border-neon-accent">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-xl font-extrabold text-white tracking-tight">Psychic_Turbo_v2</h3>
+<p class="text-xs text-gray-500 font-label uppercase mt-1">Status: Incomplete Deck</p>
+</div>
+<div class="text-right">
+<div class="text-3xl font-headline font-bold text-neon-accent leading-none">15<span class="text-white/20">/20</span></div>
+<div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Slots Filled</div>
+</div>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-neon-accent shadow-[0_0_8px_#7038F8]" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Deck List Slots -->
+<div class="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar max-h-[400px]">
+<!-- Slot Item -->
+<div class="flex items-center gap-3 p-2 bg-surface-container hover:bg-surface-bright group transition-all">
+<div class="w-12 h-16 bg-surface-container-lowest flex-shrink-0 overflow-hidden rounded">
+<img alt="Mewtwo" class="w-full h-full object-cover" data-alt="Close up of Mewtwo card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkyOjRzHMPehx3iTOOryUAHrNs5TvBYWLGXUSDYVfiIE3qaHUZ9EP_nvvR-0dK3UUAfhP8CZDh5RT5xy7w-2WFB46N05yfUPz_gl4zKdvBwmVHwdnXGgv1BRR9d9uor17eCxmkHUOPrLZ-mHsh0AKkN4f1rvaRZQor-tPtVgNzTw3Gsp1CZw57yWETOuiy0UT31OHTLtswzG014rxVmpo62hXk5mjpZdIpMMoZU2dpuOyjobNJw2ex6MFB1xVdreFhpU5HzkBoyEoT"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<span class="font-headline text-sm font-bold text-white uppercase">Mewtwo EX</span>
+<span class="text-neon-accent text-xs">x2</span>
+</div>
+<div class="text-[10px] text-gray-500">Stage: Basic • Psychic</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-error hover:bg-error/10 transition-all">
+<span class="material-symbols-outlined text-sm">remove_circle</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container hover:bg-surface-bright group transition-all">
+<div class="w-12 h-16 bg-surface-container-lowest flex-shrink-0 overflow-hidden rounded">
+<img alt="Charizard" class="w-full h-full object-cover" data-alt="Close up of Charizard card art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBImv2G2l8xWRGs4zcUeUMSpk7oD5TTGrlJk4FcY6pfyyE2340J22oV6W2KYxKrAFpVxoVjQC1dBY54XKqWSukN0Db6sj50bIeYI_qG94SVqIQZjqHWpQ3G7CCmKMCpL_qv6-LfSoaLCdcPXrE2fiJInQp4uMlhtMyh1awoXGPaFUDyuu95qy-3IU9kDtHe6Sf2YeKchHJUS4HrcWTDPgTrmMq8WIZp3PcpgfR2rEZAY9sBcwJ4FpkJf9ofOuu2nrlPDqsjnU21QXWj"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<span class="font-headline text-sm font-bold text-white uppercase">Charizard EX</span>
+<span class="text-neon-accent text-xs">x1</span>
+</div>
+<div class="text-[10px] text-gray-500">Stage: Stage 2 • Fire</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-error hover:bg-error/10 transition-all">
+<span class="material-symbols-outlined text-sm">remove_circle</span>
+</button>
+</div>
+<!-- Empty Slot -->
+<div class="flex items-center gap-3 p-2 border border-dashed border-white/10 opacity-30">
+<div class="w-12 h-16 bg-surface-container-high rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-500">add</span>
+</div>
+<div class="font-headline text-[10px] uppercase font-bold text-gray-500 tracking-widest">Empty Deck Slot</div>
+</div>
+<div class="flex items-center gap-3 p-2 border border-dashed border-white/10 opacity-30">
+<div class="w-12 h-16 bg-surface-container-high rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-500">add</span>
+</div>
+<div class="font-headline text-[10px] uppercase font-bold text-gray-500 tracking-widest">Empty Deck Slot</div>
+</div>
+</div>
+<!-- AI Analyzer Widget -->
+<div class="bg-surface-container-low border border-white/5 p-4 rounded-none space-y-4">
+<div class="flex items-center gap-2 border-b border-white/5 pb-2">
+<span class="material-symbols-outlined text-neon-accent" data-weight="fill">query_stats</span>
+<span class="font-headline text-xs font-black uppercase tracking-widest">AI TACTICAL ANALYSIS</span>
+</div>
+<div class="space-y-3">
+<div class="flex gap-3 items-start p-2 bg-error/5 border-l-2 border-error">
+<span class="material-symbols-outlined text-error text-lg">dangerous</span>
+<div>
+<div class="text-[10px] font-black text-error uppercase leading-tight tracking-tight">CRITICAL: Evolution Chain Broken</div>
+<div class="text-[10px] text-error/80 mt-1">Missing Charmeleon (Stage 1) for Charizard EX. Card will be unplayable.</div>
+</div>
+</div>
+<div class="flex gap-3 items-start p-2 bg-primary/5 border-l-2 border-primary">
+<span class="material-symbols-outlined text-primary text-lg">warning</span>
+<div>
+<div class="text-[10px] font-black text-primary uppercase leading-tight tracking-tight">WARNING: Energy Deficit</div>
+<div class="text-[10px] text-primary/80 mt-1">Low Energy Count (4). Recommended min: 8 for Psychic consistency.</div>
+</div>
+</div>
+<div class="flex gap-3 items-start p-2 bg-secondary/5 border-l-2 border-secondary">
+<span class="material-symbols-outlined text-secondary text-lg">info</span>
+<div>
+<div class="text-[10px] font-black text-secondary uppercase leading-tight tracking-tight">ANALYSIS: Synergy High</div>
+<div class="text-[10px] text-secondary/80 mt-1">Mewtwo / Gardevoir synergy at 88%. Strong mid-game potential.</div>
+</div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-container-high border border-white/10 text-[10px] font-bold text-white/50 uppercase tracking-widest hover:text-white hover:bg-surface-bright transition-all">
+                    GENERATE OPTIMIZED BUILD
+                </button>
+</div>
+</section>
+</main>
+<!-- Floating Save Action -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-neon-accent rounded-full shadow-[0_0_20px_#7038F8] flex items-center justify-center hover:scale-110 active:scale-90 transition-all group z-50">
+<span class="material-symbols-outlined text-white text-3xl group-hover:rotate-12 transition-transform">save</span>
+</button>
+</body></html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCAN_LAB_v1.0 | REVERSE AI SCAN</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#acaaae",
+              "surface-bright": "#2c2c30",
+              "secondary-dim": "#6a9cff",
+              "surface-container-high": "#1f1f23",
+              "on-error-container": "#ffb2b9",
+              "surface-dim": "#0e0e11",
+              "surface": "#0e0e11",
+              "error-dim": "#d73357",
+              "primary-dim": "#edc624",
+              "tertiary-container": "#fd4221",
+              "secondary-fixed-dim": "#aac3ff",
+              "secondary-fixed": "#bfd1ff",
+              "on-background": "#f0edf1",
+              "primary-fixed-dim": "#edc624",
+              "tertiary": "#ff7256",
+              "tertiary-fixed": "#ff937d",
+              "on-tertiary-container": "#000000",
+              "on-surface": "#f0edf1",
+              "on-primary-fixed-variant": "#655300",
+              "primary": "#fcd434",
+              "on-secondary-fixed-variant": "#004caa",
+              "on-tertiary": "#470600",
+              "surface-variant": "#25252a",
+              "error": "#ff6e84",
+              "surface-container": "#19191d",
+              "secondary": "#6a9cff",
+              "inverse-primary": "#725d00",
+              "error-container": "#a70138",
+              "on-secondary": "#001e4b",
+              "surface-tint": "#fcd434",
+              "surface-container-highest": "#25252a",
+              "on-secondary-container": "#f7f7ff",
+              "on-primary-fixed": "#443700",
+              "primary-fixed": "#fcd434",
+              "surface-container-lowest": "#000000",
+              "tertiary-fixed-dim": "#ff7c62",
+              "on-primary-container": "#403300",
+              "inverse-on-surface": "#555458",
+              "inverse-surface": "#fcf8fd",
+              "on-tertiary-fixed-variant": "#750f00",
+              "on-tertiary-fixed": "#380300",
+              "on-secondary-fixed": "#003173",
+              "secondary-container": "#005ac5",
+              "on-primary": "#5a4900",
+              "primary-container": "#d8b300",
+              "background": "#0e0e11",
+              "outline-variant": "#48474b",
+              "outline": "#767579",
+              "tertiary-dim": "#ff7256",
+              "surface-container-low": "#131316",
+              "on-error": "#490013"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanning-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #6a9cff, #6a9cff, transparent);
+            box-shadow: 0 0 15px 2px #6a9cff;
+            position: absolute;
+            width: 100%;
+            top: 40%;
+            z-index: 20;
+        }
+        .tonal-shift { background-color: #19191d; }
+        .glass-panel {
+            background: rgba(37, 37, 42, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(252, 212, 52, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e11]/80 backdrop-blur-xl border-b border-[#7038F8]/15 shadow-[0px_-2px_10px_rgba(112,56,248,0.1)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#7038F8] tracking-widest font-['Space_Grotesk'] uppercase tracking-tighter">SCAN_LAB_v1.0</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-slate-500 hover:text-white transition-colors cursor-pointer active:scale-95 duration-200" data-icon="sensors">sensors</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-white transition-colors cursor-pointer active:scale-95 duration-200" data-icon="settings">settings</span>
+</div>
+</header>
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-64 border-r border-[#7038F8]/10 bg-[#131316] flex flex-col pt-20 z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-[#7038F8]/30 flex items-center justify-center overflow-hidden">
+<img alt="User profile hologram" class="w-full h-full object-cover" data-alt="Futuristic user avatar hologram blue glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD09xqToFFcH8hOFWgx0_yt2uiX7FLbgFOi8pUQO1YY1HG43yaI5e0XWAmWys-fS_jp2QjoHKXqhYWvNJ3_2CtrUL7LQVXPX1_TMVKtAVoZgRQKMP9ocZ_sQddFAc4BbwWp6TFZFWrPyi7KD9cz93rfo7aFej5U_lZQvz0QSwoCJonZUODo-rfAvrDN7lTSN218XM6cngfRqZ7PsSvt0aABcqk0WUVjCc-D1OXMvcyIx4rVU4XyFobYpRrTlHv6OOe3XkcEvPXJPwWZ"/>
+</div>
+<div>
+<p class="text-[#7038F8] font-black italic font-['Space_Grotesk'] text-sm tracking-widest uppercase">ELITE_TRAINER</p>
+<p class="text-slate-500 text-[10px] font-bold tracking-widest uppercase">RANK: MASTER</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 font-['Space_Grotesk'] text-xs font-bold tracking-widest hover:bg-[#1f1f23] hover:text-white transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span> DASHBOARD
+            </a>
+<a class="flex items-center gap-4 bg-[#2c2c30] text-[#7038F8] border-r-4 border-[#7038F8] py-4 px-6 font-['Space_Grotesk'] text-xs font-bold tracking-widest transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span> SCANNER
+            </a>
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 font-['Space_Grotesk'] text-xs font-bold tracking-widest hover:bg-[#1f1f23] hover:text-white transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span> COLLECTION
+            </a>
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 font-['Space_Grotesk'] text-xs font-bold tracking-widest hover:bg-[#1f1f23] hover:text-white transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span> ANALYTICS
+            </a>
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 font-['Space_Grotesk'] text-xs font-bold tracking-widest hover:bg-[#1f1f23] hover:text-white transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span> DECK_SYNC
+            </a>
+</div>
+<div class="p-6">
+<button class="w-full bg-[#7038F8]/10 border border-[#7038F8]/30 text-[#7038F8] py-3 font-['Space_Grotesk'] text-[10px] font-black tracking-[0.2em] hover:bg-[#7038F8]/20 transition-all">UPGRADE_PERMIT</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-6 md:pl-72 md:pr-12 min-h-screen">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left: Tactical Scanner (Dropzone) -->
+<div class="lg:col-span-8 space-y-6">
+<div class="flex items-end justify-between">
+<div>
+<h1 class="font-headline text-4xl font-bold tracking-tighter text-on-surface">REVERSE_AI_SCAN</h1>
+<p class="text-on-surface-variant font-label text-xs tracking-widest mt-1">MODULE: DECK_GAP_ANALYSIS_V4</p>
+</div>
+<div class="text-right">
+<span class="text-primary font-headline text-xs tracking-[0.3em] animate-pulse">ANALYZING...</span>
+</div>
+</div>
+<!-- Main Dropzone / Scanner Area -->
+<div class="relative aspect-video rounded-xl bg-surface-container-low overflow-hidden group">
+<!-- Laser Line -->
+<div class="scanning-line"></div>
+<!-- Content Mockup -->
+<div class="absolute inset-0 z-0 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
+<img alt="Collection Preview" class="w-full h-full object-cover" data-alt="Collection of trading cards on a dark interface grid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByKUFIP7N_VIsRmnhPfcksiTh2UUMj-HN1v4_meW0phrA7uFkqIq6ft0cyHAPNqtuTWjRknyUROogmstQiBJwDFxwFAx4kYXI2cNUuGJPRx0XJcZSvG9WQXn_X1atu6aoZQuwdmfBDbyPcHwUKRFRSCIIN8KcqYjJiV-4G1rCNsFVkb6JtFiHqjyQqUmZCFDjxcww312VqjlE5xrDAhLK27D0s6zw8AlSly_4mfoIm0mQFK7O6RWQ3j_4cdQE7M9oMEBvJtan_4aVE"/>
+</div>
+<!-- Overlay UI (Reticle & Brackets) -->
+<div class="absolute inset-0 z-10 flex items-center justify-center">
+<!-- Brackets -->
+<div class="absolute top-12 left-12 w-24 h-24 border-t-2 border-l-2 border-secondary/60"></div>
+<div class="absolute top-12 right-12 w-24 h-24 border-t-2 border-r-2 border-secondary/60"></div>
+<div class="absolute bottom-12 left-12 w-24 h-24 border-b-2 border-l-2 border-secondary/60"></div>
+<div class="absolute bottom-12 right-12 w-24 h-24 border-b-2 border-r-2 border-secondary/60"></div>
+<!-- Target Reticle -->
+<div class="relative w-48 h-48 border border-secondary/20 rounded-full flex items-center justify-center">
+<div class="w-40 h-40 border border-secondary/40 rounded-full flex items-center justify-center animate-spin" style="animation-duration: 10s;">
+<div class="absolute top-0 w-2 h-2 bg-secondary rounded-full shadow-[0_0_10px_#6a9cff]"></div>
+</div>
+<div class="absolute w-1 bg-secondary h-full opacity-10"></div>
+<div class="absolute h-1 bg-secondary w-full opacity-10"></div>
+<span class="material-symbols-outlined text-secondary text-5xl opacity-80" data-icon="filter_center_focus">filter_center_focus</span>
+</div>
+</div>
+<!-- Status Badges -->
+<div class="absolute bottom-6 left-6 z-30 flex gap-4">
+<div class="bg-surface-container-highest/80 backdrop-blur px-4 py-2 rounded-lg border border-outline-variant/30">
+<p class="text-[10px] font-headline text-secondary tracking-widest mb-1 uppercase">SOURCE_STRENGTH</p>
+<p class="font-headline text-lg font-bold">98.4<span class="text-xs ml-1">%</span></p>
+</div>
+<div class="bg-surface-container-highest/80 backdrop-blur px-4 py-2 rounded-lg border border-outline-variant/30">
+<p class="text-[10px] font-headline text-secondary tracking-widest mb-1 uppercase">SYNC_LATENCY</p>
+<p class="font-headline text-lg font-bold">12<span class="text-xs ml-1">MS</span></p>
+</div>
+</div>
+</div>
+<!-- Analysis Progress -->
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-headline text-xs font-bold tracking-widest">NEURAL_NET_PROCESSING</span>
+<span class="font-headline text-xs font-bold text-primary">82% COMPLETE</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="absolute top-0 left-0 h-full bg-gradient-to-right from-primary to-secondary transition-all" style="width: 82%">
+<div class="absolute right-0 top-0 h-full w-2 bg-white blur-[4px] opacity-70"></div>
+</div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant font-label tracking-tighter italic">
+<span>EXTRACTING DATA_METRICS...</span>
+<span>[██████████████▒▒▒]</span>
+</div>
+</div>
+</div>
+<!-- Right: Results Sidebar -->
+<div class="lg:col-span-4 space-y-6">
+<div class="glass-panel p-6 rounded-xl border border-[#7038F8]/10 shadow-2xl min-h-[600px] flex flex-col">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-xl font-bold tracking-tighter">SCAN_RESULTS</h2>
+<span class="bg-error/10 text-error text-[10px] px-2 py-1 rounded font-bold tracking-widest uppercase">CRITICAL_MISSING</span>
+</div>
+<div class="mb-8">
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-black text-primary italic">14</span>
+<span class="font-label text-on-surface-variant text-sm uppercase tracking-widest">Detected Missing Cards</span>
+</div>
+</div>
+<!-- Missing Cards List -->
+<div class="flex-grow space-y-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+<!-- Item -->
+<div class="flex items-center gap-4 p-3 bg-surface-container-high/40 rounded-lg hover:bg-surface-bright transition-colors cursor-crosshair">
+<div class="w-12 h-16 bg-surface-container-highest rounded border border-outline-variant/20 flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-slate-500" data-icon="style">style</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-headline font-bold text-on-surface tracking-wider">MEWTWO_EX_102</p>
+<p class="text-[10px] text-slate-500 font-label tracking-tight mt-1 uppercase">MISSING_FROM: PSYCHIC_ELITE</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="priority_high">priority_high</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 p-3 bg-surface-container-high/40 rounded-lg hover:bg-surface-bright transition-colors cursor-crosshair">
+<div class="w-12 h-16 bg-surface-container-highest rounded border border-outline-variant/20 flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-slate-500" data-icon="style">style</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-headline font-bold text-on-surface tracking-wider">PIKACHU_EX_FULLART</p>
+<p class="text-[10px] text-slate-500 font-label tracking-tight mt-1 uppercase">MISSING_FROM: LIGHTNING_DECK</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="insights">insights</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 p-3 bg-surface-container-high/40 rounded-lg hover:bg-surface-bright transition-colors cursor-crosshair">
+<div class="w-12 h-16 bg-surface-container-highest rounded border border-outline-variant/20 flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-slate-500" data-icon="style">style</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-headline font-bold text-on-surface tracking-wider">CHARIZARD_GX_210</p>
+<p class="text-[10px] text-slate-500 font-label tracking-tight mt-1 uppercase">MISSING_FROM: FIRE_REIGN</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="priority_high">priority_high</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center gap-4 p-3 bg-surface-container-high/40 rounded-lg hover:bg-surface-bright transition-colors cursor-crosshair">
+<div class="w-12 h-16 bg-surface-container-highest rounded border border-outline-variant/20 flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-slate-500" data-icon="style">style</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-headline font-bold text-on-surface tracking-wider">TRAINER_PROF_OAK</p>
+<p class="text-[10px] text-slate-500 font-label tracking-tight mt-1 uppercase">MISSING_FROM: GLOBAL_LIST</p>
+</div>
+<div class="text-right">
+<span class="material-symbols-outlined text-slate-600 text-sm" data-icon="circle">circle</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/20">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary-container py-4 rounded font-headline text-sm font-bold tracking-[0.2em] uppercase shadow-[0_4px_20px_rgba(252,212,52,0.2)] hover:scale-[1.02] transition-transform">
+                            GENERATE_WISHLIST
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#131316]/95 backdrop-blur-md border-t border-[#7038F8]/10 flex justify-around items-center py-3 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[8px] font-headline font-bold">DASHBOARD</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#7038F8]" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="text-[8px] font-headline font-bold">SCANNER</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="text-[8px] font-headline font-bold">CARDS</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="text-[8px] font-headline font-bold">DECKS</span>
+</a>
+</nav>
+<!-- Ambient Glow Effects -->
+<div class="fixed top-1/4 -right-24 w-96 h-96 bg-[#7038F8]/5 blur-[120px] pointer-events-none rounded-full"></div>
+<div class="fixed bottom-1/4 -left-24 w-96 h-96 bg-primary/5 blur-[120px] pointer-events-none rounded-full"></div>
+</body></html>

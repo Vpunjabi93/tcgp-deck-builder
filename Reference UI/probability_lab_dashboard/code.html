@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#a70138",
+              "on-tertiary-container": "#000000",
+              "surface-container-highest": "#25252a",
+              "tertiary": "#ff7256",
+              "tertiary-container": "#fd4221",
+              "secondary-dim": "#6a9cff",
+              "error": "#ff6e84",
+              "tertiary-dim": "#ff7256",
+              "on-tertiary-fixed": "#380300",
+              "outline-variant": "#48474b",
+              "inverse-on-surface": "#555458",
+              "secondary": "#6a9cff",
+              "primary-dim": "#edc624",
+              "primary": "#fcd434",
+              "surface-tint": "#fcd434",
+              "primary-container": "#d8b300",
+              "on-secondary-fixed": "#003173",
+              "tertiary-fixed": "#ff937d",
+              "primary-fixed": "#fcd434",
+              "surface-container-lowest": "#000000",
+              "primary-fixed-dim": "#edc624",
+              "on-surface-variant": "#acaaae",
+              "on-primary": "#5a4900",
+              "inverse-surface": "#fcf8fd",
+              "on-error": "#490013",
+              "surface-container-low": "#131316",
+              "surface": "#0e0e11",
+              "on-secondary-container": "#f7f7ff",
+              "surface-container": "#19191d",
+              "tertiary-fixed-dim": "#ff7c62",
+              "background": "#0e0e11",
+              "secondary-container": "#005ac5",
+              "on-primary-fixed": "#443700",
+              "on-tertiary-fixed-variant": "#750f00",
+              "on-tertiary": "#470600",
+              "on-background": "#f0edf1",
+              "on-primary-container": "#403300",
+              "surface-container-high": "#1f1f23",
+              "on-error-container": "#ffb2b9",
+              "on-primary-fixed-variant": "#655300",
+              "secondary-fixed": "#bfd1ff",
+              "surface-bright": "#2c2c30",
+              "error-dim": "#d73357",
+              "on-secondary-fixed-variant": "#004caa",
+              "outline": "#767579",
+              "inverse-primary": "#725d00",
+              "secondary-fixed-dim": "#aac3ff",
+              "surface-variant": "#25252a",
+              "on-secondary": "#001e4b",
+              "surface-dim": "#0e0e11",
+              "on-surface": "#f0edf1"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(37, 37, 42, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(252, 212, 52, 0.2);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="bg-slate-950/60 backdrop-blur-xl fixed top-0 w-full z-50 sticky border-b border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]">
+<div class="flex justify-between items-center px-8 h-16 w-full max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-400 font-headline uppercase">POKÉMON LAB</span>
+<nav class="hidden md:flex gap-6">
+<a class="font-['Space_Grotesk'] uppercase tracking-widest text-sm text-slate-400 hover:bg-white/5 transition-colors px-3 py-2 rounded-lg" href="#">Home</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-widest text-sm text-violet-400 font-bold hover:bg-white/5 transition-colors px-3 py-2 rounded-lg" href="#">Probability Lab</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-widest text-sm text-slate-400 hover:bg-white/5 transition-colors px-3 py-2 rounded-lg" href="#">Decks</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-high rounded-full px-4 py-1.5 flex items-center gap-2 border border-white/5">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="search">search</span>
+<input class="bg-transparent border-none outline-none text-sm placeholder:text-on-surface-variant w-48" placeholder="Search Collection..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-colors active:scale-95 duration-200 rounded-full">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-colors active:scale-95 duration-200 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-white/5 transition-colors active:scale-95 duration-200 rounded-full">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#0e0e11] flex flex-col py-8 px-4 gap-8 pt-24">
+<div class="px-4">
+<h3 class="text-xs font-['Space_Grotesk'] font-bold text-slate-500 tracking-[0.2em] mb-1 uppercase">DASHBOARD</h3>
+<p class="text-[10px] font-medium text-violet-500 tracking-widest uppercase">MASTER RANK</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="font-medium text-sm tracking-wide uppercase">Deck Builder</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-medium text-sm tracking-wide uppercase">Collection</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-medium text-sm tracking-wide uppercase">AI Suggestions</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-violet-500 border-r-2 border-violet-500 bg-gradient-to-r from-violet-500/10 to-transparent translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-medium text-sm tracking-wide uppercase">Probability Lab</span>
+</a>
+</nav>
+<div class="mt-4 px-4">
+<button class="w-full py-3 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl text-white font-headline font-bold text-xs tracking-widest uppercase active:scale-95 transition-transform">
+                    NEW DECK
+                </button>
+</div>
+<div class="mt-auto flex flex-col gap-1 border-t border-white/5 pt-4">
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-sm tracking-wide uppercase">Settings</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+<span class="font-medium text-sm tracking-wide uppercase">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 w-full pt-8 px-10 pb-20">
+<div class="max-w-[1600px] mx-auto">
+<!-- Page Header -->
+<div class="mb-10 flex justify-between items-end">
+<div>
+<span class="text-primary font-headline text-sm tracking-[0.3em] font-bold uppercase block mb-2">Simulation Engine 0.9.4</span>
+<h1 class="text-5xl font-headline font-bold tracking-tighter text-white uppercase">Probability Lab</h1>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-low px-6 py-3 rounded-xl border-l-4 border-primary">
+<span class="block text-[10px] text-on-surface-variant font-headline uppercase tracking-widest">Active Deck</span>
+<span class="text-white font-bold tracking-wide">Mewtwo EX / Gardevoir</span>
+</div>
+<div class="bg-surface-container-low px-6 py-3 rounded-xl border-l-4 border-secondary">
+<span class="block text-[10px] text-on-surface-variant font-headline uppercase tracking-widest">Calculated Win Rate</span>
+<span class="text-secondary font-bold tracking-wide text-lg">64.2%</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Gauge & Featured Cards -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<!-- Next Draw Gauge -->
+<div class="bg-surface-container-low rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+<h3 class="font-headline text-sm font-bold tracking-widest text-on-surface-variant uppercase mb-8">Next Draw Probability</h3>
+<div class="flex flex-col items-center justify-center py-4 relative">
+<!-- Circular Gauge -->
+<div class="relative w-48 h-48">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-highest" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="380" stroke-linecap="round" stroke-width="8" style="filter: drop-shadow(0 0 8px rgba(252, 212, 52, 0.5));"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-5xl font-headline font-bold text-white tracking-tighter">31.2%</span>
+<span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Critical Target</span>
+</div>
+</div>
+<div class="mt-8 text-center">
+<p class="text-sm text-on-surface-variant leading-relaxed">High likelihood of pulling <span class="text-primary font-bold uppercase tracking-tight">Psychic Energy</span> within the next 2 turns.</p>
+</div>
+</div>
+</div>
+<!-- Card Image Slots (Vertical) -->
+<div class="bg-surface-container-low rounded-xl p-6">
+<h3 class="font-headline text-sm font-bold tracking-widest text-on-surface-variant uppercase mb-6">Target Cards</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="group relative aspect-[2/3] bg-surface-container rounded-xl overflow-hidden border border-white/5 transition-all hover:scale-105">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
+<img alt="Mewtwo EX Holographic Card" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" data-alt="Close up of a holographic purple psychic pokemon card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsGA87mq6NWekIckgZRsZ9cbezisa-izlfP0Dt51ovVFRYSRa2qHYUH8b3AL2MnL9sPzeh22Ks-ttHuG3KuKSiD-awcbC9i914ge9kN7QGDD5fhziL25_gA4eT0ter6bL2HUUZeX2-Tvq3SEjyxJ67QEBdQmw1Ww94r9yTrsdkoOvRoH0cK1XKvdAIsRnVtVNj8o6iR8ggukg20e7EdIXXkY9JRZJSkFdshVV9suyVonPvDClP8ZQ5EA6sko1tNbHWWnUgQLgXlDvJ"/>
+<div class="absolute bottom-3 left-3 right-3 z-20">
+<span class="text-[10px] text-primary font-bold uppercase tracking-tighter block">Mewtwo EX</span>
+<div class="flex items-center gap-1">
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[14%]" style="box-shadow: 0 0 10px rgba(252, 212, 52, 0.4);"></div>
+</div>
+<span class="text-[9px] text-white font-mono">14%</span>
+</div>
+</div>
+<div class="absolute inset-0 border-2 border-primary/0 group-hover:border-primary/40 rounded-xl transition-all z-30 pointer-events-none"></div>
+</div>
+<!-- Card 2 -->
+<div class="group relative aspect-[2/3] bg-surface-container rounded-xl overflow-hidden border border-white/5 transition-all hover:scale-105">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
+<img alt="Gardevoir Evolution Card" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" data-alt="Holographic trading card with abstract blue and green art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZi7wB8Cpgak3Dh3yByMsHhb1jGL3z7fRZzRmmMOg-VeFzczX_6Mzb7CuVQ3RVjUHW-b3aLP-lUXxB62ZAZXt5beaoAzXbiqjq7-RJTW-xaLyprULEuvPs1Rl2U233Lc5tTzb6KRAkfFmCKMRQx1_jXtOqET484OLI0uMUxezqLWDnP9q65teG2x5aIFJ6lXheWLIqHrt2t8JpjZqMUtu4b93aUmaxNFVGk5rA2ptNBtq_x1YvQ2fiPiZIEHhmc_TnEm9OAoiOMWnM"/>
+<div class="absolute bottom-3 left-3 right-3 z-20">
+<span class="text-[10px] text-secondary font-bold uppercase tracking-tighter block">Gardevoir</span>
+<div class="flex items-center gap-1">
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[8%]" style="box-shadow: 0 0 10px rgba(106, 156, 255, 0.4);"></div>
+</div>
+<span class="text-[9px] text-white font-mono">8%</span>
+</div>
+</div>
+<div class="absolute inset-0 border-2 border-secondary/0 group-hover:border-secondary/40 rounded-xl transition-all z-30 pointer-events-none"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center Column: Charts & Analysis -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-6">
+<!-- Probability Charts -->
+<div class="bg-surface-container-low rounded-xl p-8 flex-1">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h3 class="font-headline text-sm font-bold tracking-widest text-on-surface-variant uppercase">Draw Velocity</h3>
+<p class="text-[10px] text-on-surface-variant uppercase mt-1">Cumulative Probabilities over 5 Turns</p>
+</div>
+<div class="flex gap-2">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-[9px] text-white uppercase font-bold">EX Cards</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-[9px] text-white uppercase font-bold">Trainer</span>
+</div>
+</div>
+</div>
+<!-- Bar Chart Visual -->
+<div class="flex flex-col gap-8 h-[300px] justify-end relative">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between py-2 pointer-events-none">
+<div class="border-b border-white/5 w-full h-0"></div>
+<div class="border-b border-white/5 w-full h-0"></div>
+<div class="border-b border-white/5 w-full h-0"></div>
+<div class="border-b border-white/5 w-full h-0"></div>
+</div>
+<div class="flex justify-around items-end h-full gap-4 relative z-10">
+<!-- Turn 1 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[40px]">
+<div class="flex flex-col-reverse w-full gap-1">
+<div class="bg-primary/80 h-12 w-full rounded-t-sm" style="box-shadow: 0 0 15px rgba(252, 212, 52, 0.2);"></div>
+<div class="bg-secondary/80 h-16 w-full rounded-t-sm" style="box-shadow: 0 0 15px rgba(106, 156, 255, 0.2);"></div>
+</div>
+<span class="text-[10px] font-headline text-slate-500 font-bold">T1</span>
+</div>
+<!-- Turn 2 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[40px]">
+<div class="flex flex-col-reverse w-full gap-1">
+<div class="bg-primary/80 h-20 w-full rounded-t-sm"></div>
+<div class="bg-secondary/80 h-24 w-full rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-headline text-slate-500 font-bold">T2</span>
+</div>
+<!-- Turn 3 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[40px]">
+<div class="flex flex-col-reverse w-full gap-1">
+<div class="bg-primary/80 h-32 w-full rounded-t-sm shadow-[0_0_20px_rgba(252,212,52,0.3)]"></div>
+<div class="bg-secondary/80 h-36 w-full rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-headline text-slate-500 font-bold">T3</span>
+</div>
+<!-- Turn 4 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[40px]">
+<div class="flex flex-col-reverse w-full gap-1">
+<div class="bg-primary/80 h-44 w-full rounded-t-sm"></div>
+<div class="bg-secondary/80 h-40 w-full rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-headline text-slate-500 font-bold">T4</span>
+</div>
+<!-- Turn 5 -->
+<div class="flex flex-col items-center gap-2 w-full max-w-[40px]">
+<div class="flex flex-col-reverse w-full gap-1">
+<div class="bg-primary/80 h-56 w-full rounded-t-sm"></div>
+<div class="bg-secondary/80 h-48 w-full rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-headline text-slate-500 font-bold">T5</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Heatmap / Meta Analysis -->
+<div class="bg-surface-container-low rounded-xl p-6 glass-panel">
+<h3 class="font-headline text-sm font-bold tracking-widest text-on-surface-variant uppercase mb-4">Combo Sustainability</h3>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container rounded-lg p-4 flex-1">
+<span class="text-[10px] text-tertiary font-bold uppercase block mb-1">Risk Factor</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-headline font-bold text-white leading-none">Low</span>
+<span class="text-[10px] text-on-surface-variant font-mono mb-1">12% ERROR</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-4 flex-1">
+<span class="text-[10px] text-secondary font-bold uppercase block mb-1">Energy Flow</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-headline font-bold text-white leading-none">High</span>
+<span class="text-[10px] text-on-surface-variant font-mono mb-1">0.86 P/T</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Live Tracker -->
+<div class="col-span-12 lg:col-span-3 flex flex-col">
+<div class="bg-surface-container-low rounded-xl flex-1 flex flex-col overflow-hidden">
+<div class="p-6 border-b border-white/5">
+<h3 class="font-headline text-sm font-bold tracking-widest text-on-surface-variant uppercase">Live Deck Tracker</h3>
+<div class="flex justify-between items-center mt-4">
+<span class="text-2xl font-headline font-bold text-white">14<span class="text-slate-500 text-lg">/20</span></span>
+<span class="text-[10px] px-2 py-0.5 rounded bg-surface-bright text-white font-mono">REMAINING</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 group hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Mewtwo EX</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-primary font-bold">1x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">In Deck</span>
+</div>
+</div>
+<div class="shrink-0">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+</div>
+</div>
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 opacity-50">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="electric_bolt">electric_bolt</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Professor Oak</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-secondary font-bold">2x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">Played</span>
+</div>
+</div>
+<div class="shrink-0">
+<span class="material-symbols-outlined text-xs text-on-surface-variant" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 group hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl" data-icon="psychology">psychology</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Gardevoir</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-tertiary font-bold">1x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">In Hand</span>
+</div>
+</div>
+<div class="shrink-0">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+</div>
+</div>
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 group hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-slate-400 text-xl" data-icon="shield">shield</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Energy Search</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-slate-300 font-bold">1x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">In Deck</span>
+</div>
+</div>
+<div class="shrink-0">
+<div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+</div>
+</div>
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 opacity-50">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="swords">swords</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Giovanni</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-primary font-bold">1x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">Discarded</span>
+</div>
+</div>
+<div class="shrink-0">
+<span class="material-symbols-outlined text-xs text-error" data-icon="delete">delete</span>
+</div>
+</div>
+<!-- Card Item -->
+<div class="bg-surface-container p-3 rounded-lg flex items-center gap-3 border border-white/5 group hover:bg-surface-bright transition-colors">
+<div class="w-10 h-10 rounded bg-background flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl" data-icon="water_drop">water_drop</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-[11px] font-bold text-white uppercase truncate">Psychic Energy</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[9px] text-secondary font-bold">6x</span>
+<span class="text-[9px] text-on-surface-variant uppercase tracking-wider">In Deck</span>
+</div>
+</div>
+<div class="shrink-0">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-high border-t border-white/5">
+<button class="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:text-white transition-colors">
+                                    View Full Deck List
+                                    <span class="material-symbols-outlined text-sm" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Stats Overlay -->
+<div class="mt-10 flex gap-6">
+<div class="flex-1 bg-surface-container-low rounded-xl p-6 border-b-2 border-primary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="speed">speed</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-headline uppercase tracking-[0.2em] font-bold">Setup Speed</span>
+<p class="text-xl font-headline font-bold text-white">4.2 Turns (Optimal)</p>
+</div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-xl p-6 border-b-2 border-secondary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="insights">insights</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-headline uppercase tracking-[0.2em] font-bold">Luck Factor</span>
+<p class="text-xl font-headline font-bold text-white">± 1.4% Deviation</p>
+</div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-xl p-6 border-b-2 border-tertiary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="verified">verified</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant font-headline uppercase tracking-[0.2em] font-bold">Simulation Stability</span>
+<p class="text-xl font-headline font-bold text-white">Stable (99.2%)</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Background Decoration -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+<div class="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-violet-600/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-primary/5 blur-[100px] rounded-full"></div>
+<div class="absolute inset-0 bg-[radial-gradient(#1f1f23_1px,transparent_1px)] [background-size:40px_40px] opacity-20"></div>
+</div>
+</body></html>

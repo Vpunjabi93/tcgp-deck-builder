@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PKMN-LAB // Deck Builder &amp; Collection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#000000",
+                        "surface-dim": "#0e0e11",
+                        "on-primary-fixed": "#443700",
+                        "inverse-surface": "#fcf8fd",
+                        "secondary-fixed-dim": "#aac3ff",
+                        "primary-dim": "#edc624",
+                        "on-secondary-fixed": "#003173",
+                        "on-secondary-fixed-variant": "#004caa",
+                        "error-container": "#a70138",
+                        "primary": "#fcd434",
+                        "on-tertiary-fixed": "#380300",
+                        "tertiary-container": "#fd4221",
+                        "surface-tint": "#fcd434",
+                        "error": "#ff6e84",
+                        "tertiary": "#ff7256",
+                        "primary-fixed": "#fcd434",
+                        "on-tertiary-container": "#000000",
+                        "inverse-primary": "#725d00",
+                        "on-background": "#f0edf1",
+                        "tertiary-dim": "#ff7256",
+                        "on-primary": "#5a4900",
+                        "surface": "#0e0e11",
+                        "outline": "#767579",
+                        "on-surface-variant": "#acaaae",
+                        "on-surface": "#f0edf1",
+                        "secondary-container": "#005ac5",
+                        "secondary-dim": "#6a9cff",
+                        "on-secondary-container": "#f7f7ff",
+                        "outline-variant": "#48474b",
+                        "surface-container-highest": "#25252a",
+                        "error-dim": "#d73357",
+                        "on-primary-fixed-variant": "#655300",
+                        "surface-variant": "#25252a",
+                        "surface-container": "#19191d",
+                        "on-tertiary": "#470600",
+                        "tertiary-fixed-dim": "#ff7c62",
+                        "surface-container-low": "#131316",
+                        "on-tertiary-fixed-variant": "#750f00",
+                        "secondary": "#6a9cff",
+                        "secondary-fixed": "#bfd1ff",
+                        "tertiary-fixed": "#ff937d",
+                        "primary-container": "#d8b300",
+                        "background": "#0e0e11",
+                        "inverse-on-surface": "#555458",
+                        "surface-container-high": "#1f1f23",
+                        "surface-bright": "#2c2c30",
+                        "on-secondary": "#001e4b",
+                        "on-error": "#490013",
+                        "on-primary-container": "#403300",
+                        "primary-fixed-dim": "#edc624",
+                        "on-error-container": "#ffb2b9"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(31, 31, 35, 0.6);
+            backdrop-filter: blur(24px);
+            border-top: 0.5px solid rgba(252, 212, 52, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0e0e11;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #25252a;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #fcd434;
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 20px rgba(252, 212, 52, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 border-b border-[#7038F8]/10 bg-[#0e0e11]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#7038F8] italic font-headline">PKMN-LAB</div>
+<div class="hidden md:flex items-center gap-8 font-headline tracking-tight uppercase text-sm">
+<a class="text-gray-400 hover:text-white transition-colors" href="#">My Collection</a>
+<a class="text-[#fcd434] border-b-2 border-[#fcd434] pb-1" href="#">Deck Builder</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">AI Analysis</a>
+<a class="text-gray-400 hover:text-white transition-colors" href="#">Market</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-gray-400 hover:bg-[#1f1f23] transition-all rounded-full scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-gray-400" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="fixed left-0 top-0 h-screen w-64 flex flex-col py-8 bg-[#131316] border-r border-[#7038F8]/15 hidden xl:flex pt-24">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div>
+<div class="text-xs font-headline font-bold text-gray-500 tracking-widest uppercase">TRAINER_01</div>
+<div class="text-[10px] text-primary font-headline font-medium">Rank: Grandmaster</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-gray-500 flex items-center gap-3 px-6 py-3 hover:text-gray-200 transition-all font-headline font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span> Pokedex
+            </a>
+<a class="bg-[#7038F8]/20 text-[#7038F8] border-r-4 border-[#7038F8] flex items-center gap-3 px-6 py-3 font-headline font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="layers" style="font-variation-settings: 'FILL' 1;">layers</span> Decks
+            </a>
+<a class="text-gray-500 flex items-center gap-3 px-6 py-3 hover:text-gray-200 transition-all font-headline font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span> Strategy
+            </a>
+<a class="text-gray-500 flex items-center gap-3 px-6 py-3 hover:text-gray-200 transition-all font-headline font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="Auto_awesome">auto_awesome</span> Booster
+            </a>
+<a class="text-gray-500 flex items-center gap-3 px-6 py-3 hover:text-gray-200 transition-all font-headline font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+            </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-surface-container-high border border-outline-variant text-primary font-headline font-bold text-xs uppercase tracking-tighter hover:bg-surface-bright transition-all">
+                Analyze Meta
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="xl:pl-64 pt-20 h-screen flex flex-col overflow-hidden">
+<!-- Dashboard Header & Current Deck (Compact) -->
+<header class="bg-surface-container-low px-6 py-4 flex flex-col md:flex-row gap-6 items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="h-12 w-1 shadow-2xl bg-primary"></div>
+<div>
+<h1 class="text-2xl font-headline font-black uppercase tracking-tighter leading-none">Mewtwo-EX Prototype</h1>
+<p class="text-[10px] font-headline text-gray-500 mt-1 uppercase tracking-widest">Psychic / Tech Hybrid • V.2.0.4</p>
+</div>
+</div>
+<!-- Compact Deck Slots (20/20) -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 max-w-2xl custom-scrollbar">
+<div class="flex -space-x-3 hover:space-x-1 transition-all">
+<!-- Deck Card Instances -->
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer" title="Mewtwo EX">
+<img class="w-full h-full object-cover opacity-80" data-alt="Pokemon card of Mewtwo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEWGEMZlZDlyCkilVTmztgDnfnb13C7uYQiDahid4CbdLHG7nQgHS2YUIMBIGFSJm2udEh0x1sMK2O_j6tb9gMCbLdHI52wLsd-T8gg2_Mfo4Ye9ToZD6ZqUHghJ6RbSoCTC1gG4rrHRmU8NlhrqkjEe9cGzFp6DgOFruUKsaiIIMeiLuvKHq1T_ZSPR7i67DcKEOPBPFm3weoyaxTDY9q31zG_M7x2TWqFzmCnjYNgfq2PIcONWate1uGNOtsLGh6tA-dOFp5iHP4"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer" title="Gardevoir">
+<img class="w-full h-full object-cover opacity-80" data-alt="Pokemon card of Gardevoir" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBv1NIUU817VgAI7qyAe29ypHH58mFC96gkGFWAobjBcQHJR9ufo0mewZ5hKyCPjsxfuH4_6sXSovLtR8iDyX-Nm5a5-l3paFj4tMdGcl7CAXEKxm7U24NyDENhHHp3B3LEsKC2b3VSbtgs6QGFrFNwrkOkXNrhUxOQaw4eJ9NoqJFV4IPt2ThtcWRp5HXl1qQGgUPXyXCZ974xBJ7cjLxnoA_scX70W5ic3NSl0w6e-199w8RO156tAkQq0lcBYBejR__7yVFn1uxG"/>
+</div>
+<!-- Repeated for visual effect -->
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+<div class="w-10 h-14 bg-surface-container-highest rounded border border-outline-variant flex-shrink-0 relative group cursor-pointer"></div>
+</div>
+<div class="ml-4 px-3 py-1 bg-surface-container-high rounded-full border border-primary/20">
+<span class="text-primary font-headline font-bold text-xs uppercase tracking-tighter">20/20</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="bg-primary hover:bg-primary-container text-on-primary px-4 py-2 font-headline font-black text-xs uppercase transition-all tracking-wider shadow-lg shadow-primary/10">Save Deck</button>
+<button class="bg-surface-container-high border border-outline-variant px-4 py-2 font-headline font-black text-xs uppercase tracking-wider text-gray-300">Test</button>
+</div>
+</header>
+<div class="flex-1 flex overflow-hidden">
+<!-- Main Inventory Grid -->
+<section class="flex-1 flex flex-col p-6 overflow-hidden">
+<!-- Filters Bar -->
+<div class="flex gap-4 mb-6 items-center">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary text-xs font-headline tracking-widest pl-10 py-3 rounded-none placeholder:text-gray-600" placeholder="SEARCH COLLECTION..." type="text"/>
+</div>
+<div class="flex gap-1 h-10">
+<button class="px-3 bg-surface-container-high border border-outline-variant text-[10px] font-headline font-bold uppercase tracking-tighter text-primary">TYPE</button>
+<button class="px-3 bg-surface-container-high border border-outline-variant text-[10px] font-headline font-bold uppercase tracking-tighter text-gray-400 hover:text-white">RARITY</button>
+<button class="px-3 bg-surface-container-high border border-outline-variant text-[10px] font-headline font-bold uppercase tracking-tighter text-gray-400 hover:text-white">HP</button>
+<button class="px-3 bg-surface-container-high border border-outline-variant text-[10px] font-headline font-bold uppercase tracking-tighter text-gray-400 hover:text-white">ENERGY</button>
+</div>
+</div>
+<!-- Scrollable Grid -->
+<div class="flex-1 overflow-y-auto pr-4 custom-scrollbar">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+<!-- Card Slot 1 -->
+<div class="group relative bg-surface-container aspect-[3/4] rounded-xl overflow-hidden border border-outline-variant/10 transition-all hover:scale-[1.02] hover:z-10 cursor-pointer card-glow">
+<img class="w-full h-full object-cover brightness-90 group-hover:brightness-110 transition-all" data-alt="Mewtwo Pokemon Card High Contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBChoEA5KQF_2w5y5O4FywEgLMLeH9wBw_xkaHvCRAWf5lGaqISYU-ubkLUSnf-7X4hotNQnI9pFbi5zTxYVWzSpPXnsaRavjtGF7h2p5atJcUHRTC0TPwXUZkRB8LvRybmvTyoOGAaMosJ4TaYEeU94RcCu4upiVv_nVFP9Zp7eGhngyv3989e9m16WzMzIMq9zZ0TSQxqj-jH_Z2GWrq5J-SkG257EsXS8etb75DHfZLEZymvZXWx12cHOWjbPRmC61ZPzO95QT0D"/>
+<div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+<div class="flex justify-between items-end">
+<div>
+<div class="text-[10px] font-headline font-black text-primary uppercase leading-tight">Mewtwo EX</div>
+<div class="text-[8px] text-gray-400 uppercase tracking-widest font-headline">Psychic • 150HP</div>
+</div>
+<div class="w-5 h-5 bg-surface-container-high rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-gray-400" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Slot 2 -->
+<div class="group relative bg-surface-container aspect-[3/4] rounded-xl overflow-hidden border border-outline-variant/10 transition-all hover:scale-[1.02] hover:z-10 cursor-pointer">
+<img class="w-full h-full object-cover brightness-75 grayscale-[0.2]" data-alt="Pikachu Pokemon Card Dark Aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC14Wn3zzcT1kVjvlajnzruXfR8jB6n4CoMKhLg_IUv_035IlWa0DLFwwQjRkuina0vCfZf_rQWX4bWjj1PQG4NddslBMAZBmFMR_IqJkaRd15vC7-loUHU-PSaYsO9SXAxfexHlMocRaN5GyDqFZds2ZUUntCSAJqj0d8lSHS-4socppy8erogX0_gcH2hVzwP58ci1OVrkRCPTl_bpbeShLWE64nGlnhol0d16dJd4qBFWHJBBcB_pF6Te7999RGZng_RabsPHt6h"/>
+<div class="absolute inset-0 bg-surface-dim/40"></div>
+<div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+<div class="flex justify-between items-end">
+<div>
+<div class="text-[10px] font-headline font-black text-[#6a9cff] uppercase leading-tight">Pikachu</div>
+<div class="text-[8px] text-gray-400 uppercase tracking-widest font-headline">Electric • 60HP</div>
+</div>
+<div class="w-5 h-5 bg-surface-container-high rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-gray-400" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Slot 3 -->
+<div class="group relative bg-surface-container aspect-[3/4] rounded-xl overflow-hidden border border-outline-variant/10 transition-all hover:scale-[1.02] hover:z-10 cursor-pointer card-glow">
+<img class="w-full h-full object-cover brightness-90" data-alt="Pokemon Card Art Charizard Red" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx2F6aaoPMuW29Gfw2icB9qsupPaZcJHa4hjwc-GJm4HO61IAMmZvEUVKE_uBQCyBe_h_G_UZKUIrLHujEp64vHpQ7PU65xcs2alLn-qruwKNSYnTNCIiSbQ66vWWaUBC8a4ue9k9HammnzGZsGZQaji9uhhU4HAFCvRNvn6eq3QuGiQpc4CDze3hq6AXtGlLQvD1SVUF64XWbaVDzNWfsG5m4SfyYA8LY7V-BRPX7gQOs0mavnZ1bZrvSTSeuhI6Ki7tLwmSeattG"/>
+<div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+<div class="flex justify-between items-end">
+<div>
+<div class="text-[10px] font-headline font-black text-tertiary uppercase leading-tight">Charizard</div>
+<div class="text-[8px] text-gray-400 uppercase tracking-widest font-headline">Fire • 170HP</div>
+</div>
+<div class="w-5 h-5 bg-surface-container-high rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-gray-400" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Slots Repeat for layout demo -->
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+<div class="bg-surface-container-low aspect-[3/4] rounded-xl border border-outline-variant/5"></div>
+</div>
+</div>
+</section>
+<!-- AI Analytics Sidebar (Glassmorphic) -->
+<aside class="w-[320px] glass-panel border-l border-outline-variant/20 p-6 flex flex-col gap-8 hidden lg:flex">
+<!-- Archetype Synergy -->
+<div>
+<h3 class="text-xs font-headline font-black uppercase tracking-[0.2em] mb-4 text-primary">Archetype Synergy</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-headline font-bold text-gray-400">PSYCHIC / ELECTRIC</span>
+<span class="text-xs font-headline font-black text-secondary">94%</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[94%] shadow-[0_0_8px_#6a9cff]"></div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-headline font-bold text-gray-400">ENERGY SPEED</span>
+<span class="text-xs font-headline font-black text-primary">82%</span>
+</div>
+<div class="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[82%] shadow-[0_0_8px_#fcd434]"></div>
+</div>
+</div>
+</div>
+<!-- Energy Curve -->
+<div>
+<h3 class="text-xs font-headline font-black uppercase tracking-[0.2em] mb-4 text-primary">Energy Curve</h3>
+<div class="flex items-end gap-2 h-24">
+<div class="flex-1 bg-surface-container-highest group relative">
+<div class="absolute bottom-0 w-full bg-primary/40 h-[30%] group-hover:bg-primary transition-all"></div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-headline text-gray-500">1</div>
+</div>
+<div class="flex-1 bg-surface-container-highest group relative">
+<div class="absolute bottom-0 w-full bg-primary/40 h-[60%] group-hover:bg-primary transition-all"></div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-headline text-gray-500">2</div>
+</div>
+<div class="flex-1 bg-surface-container-highest group relative border-x border-primary/20">
+<div class="absolute bottom-0 w-full bg-primary h-[85%] shadow-[0_0_10px_rgba(252,212,52,0.3)]"></div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-headline text-primary font-bold">3</div>
+</div>
+<div class="flex-1 bg-surface-container-highest group relative">
+<div class="absolute bottom-0 w-full bg-primary/40 h-[45%] group-hover:bg-primary transition-all"></div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-headline text-gray-500">4</div>
+</div>
+<div class="flex-1 bg-surface-container-highest group relative">
+<div class="absolute bottom-0 w-full bg-primary/40 h-[15%] group-hover:bg-primary transition-all"></div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[8px] font-headline text-gray-500">5+</div>
+</div>
+</div>
+</div>
+<!-- Meta Compatibility -->
+<div class="mt-4">
+<h3 class="text-xs font-headline font-black uppercase tracking-[0.2em] mb-4 text-primary">Meta Compatibility</h3>
+<div class="bg-surface-container-low/50 p-4 border-l-2 border-primary">
+<div class="flex justify-between items-start mb-2">
+<div class="text-[10px] font-headline font-bold text-gray-400">WIN RATE EST.</div>
+<div class="text-xl font-headline font-black text-on-surface">62.8%</div>
+</div>
+<div class="text-[9px] font-body text-gray-500 leading-relaxed uppercase tracking-tight">
+                            Current deck configuration is highly effective against <span class="text-tertiary">Charizard-EX</span> meta builds but shows vulnerability to <span class="text-secondary">Water-Rush</span> setups.
+                        </div>
+</div>
+</div>
+<!-- AI Suggestion Card -->
+<div class="mt-auto bg-[#7038F8]/10 p-4 border border-[#7038F8]/30 rounded-lg">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[#7038F8] text-sm" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-[10px] font-headline font-black text-white uppercase tracking-widest">AI Recommendation</span>
+</div>
+<p class="text-[9px] text-gray-400 font-body uppercase leading-tight mb-3">Add 'Giovanni' Supporter for +10 Damage threshold on turn 3.</p>
+<button class="w-full py-2 bg-[#7038F8] text-white font-headline font-black text-[10px] uppercase tracking-wider hover:bg-[#8247ff] transition-all">Quick Add</button>
+</div>
+</aside>
+</div>
+</main>
+<!-- Mobile Navigation (Bottom) -->
+<div class="md:hidden fixed bottom-0 w-full bg-[#131316] border-t border-outline-variant/10 flex justify-around items-center py-4 z-50">
+<button class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[8px] font-headline uppercase">Collection</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="layers" style="font-variation-settings: 'FILL' 1;">layers</span>
+<span class="text-[8px] font-headline uppercase">Builder</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="text-[8px] font-headline uppercase">Analyze</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[8px] font-headline uppercase">Menu</span>
+</button>
+</div>
+</body></html>
