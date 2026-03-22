@@ -800,6 +800,43 @@ window.renderDeckBuilderSidebar = function () {
     });
 };
 
+function renderEvolutionWarnings() {
+    let warningEl = document.getElementById('evo-warnings');
+    if (!warningEl) {
+        warningEl = document.createElement('div');
+        warningEl.id = 'evo-warnings';
+        warningEl.style.cssText = `
+            margin: 8px 0; padding: 8px 12px; border-radius: 8px;
+            font-size: 0.8rem; line-height: 1.6;
+            background: rgba(255, 100, 50, 0.12);
+            border: 1px solid rgba(255, 100, 50, 0.35);
+            color: #ffaa88;
+        `;
+        const deckSlots = document.getElementById('deck-slots');
+        if (deckSlots) deckSlots.after(warningEl);
+    }
+
+    const report = window.DeckRules
+        ? window.DeckRules.validateDeck(window.currentDeck.map(c => c.name), window.TCGP_CARDS)
+        : null;
+
+    if (!report || report.isLegal) {
+        warningEl.style.display = 'none';
+        return;
+    }
+
+    const issues = [];
+    const r = report.rules;
+    if (!r.evolutionIntegrity.pass) issues.push(...r.evolutionIntegrity.violations.map(v => `❌ ${v.card} missing pre-evo: ${v.missing}`));
+    if (!r.duplicates.pass) issues.push(...r.duplicates.violations.map(v => `❌ ${v.name} has ${v.count} copies (max 2)`));
+    if (!r.basicPokemon.pass) issues.push(`❌ ${r.basicPokemon.message}`);
+    if (!r.energyTypes.pass) issues.push(`❌ ${r.energyTypes.message}`);
+    if (!r.trainerSynergy.pass) issues.push(...r.trainerSynergy.warnings.map(w => `⚠️ ${w.trainer}: ${w.issue}`));
+
+    warningEl.style.display = 'block';
+    warningEl.innerHTML = issues.join('<br>');
+}
+
 function renderDeckSlots() {
     const grid = document.getElementById('deck-slots');
     if (!grid) return;
@@ -825,16 +862,25 @@ function renderDeckSlots() {
 
     document.getElementById('deck-current-count').innerText = window.currentDeck.length;
     document.getElementById('btn-save-deck').disabled = window.currentDeck.length !== 20;
+
+    renderEvolutionWarnings();
 }
 
 window.addToDeck = function (id) {
     if (window.currentDeck.length >= 20) return;
     const card = TCGP_CARDS.find(c => c.id === id);
-    if (card) {
-        window.currentDeck.push(card);
-        renderDeckSlots();
-        renderDeckBuilderSidebar();
+    if (!card) return;
+
+    if (card.evolveFrom) {
+        const deckNames = window.currentDeck.map(c => c.name);
+        if (!deckNames.includes(card.evolveFrom)) {
+            showToast(`⚠️ Add ${card.evolveFrom} first — ${card.name} evolves from it`, 'error');
+        }
     }
+
+    window.currentDeck.push(card);
+    renderDeckSlots();
+    renderDeckBuilderSidebar();
 };
 
 window.removeFromDeck = function (index) {
