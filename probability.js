@@ -180,7 +180,6 @@ window.prerequisiteVulnerabilityScore = prerequisiteVulnerabilityScore;
         const allCards = window.TCGP_CARDS || [];
         const deckCards = (deck.cards || []).map(id => allCards.find(c => c.id === id)).filter(Boolean);
 
-        // Group by name + count
         const grouped = {};
         deckCards.forEach(c => {
             if (!grouped[c.name]) grouped[c.name] = { card: c, count: 0 };
@@ -188,24 +187,41 @@ window.prerequisiteVulnerabilityScore = prerequisiteVulnerabilityScore;
         });
 
         listEl.innerHTML = '';
+        // Track selected state for multi-card chart
+        listEl._selectedNames = new Set();
+
         Object.values(grouped).forEach(({ card, count }) => {
             const btn = document.createElement('button');
             btn.className = 'prob-card-btn';
+            btn.dataset.cardName = card.name;
             btn.style.cssText = `
-                display:flex; align-items:center; gap:8px; width:100%;
+                display:flex; align-items:center; gap:10px; width:100%;
                 background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
-                border-radius:6px; padding:8px 10px; cursor:pointer; margin-bottom:6px;
+                border-radius:8px; padding:8px 10px; cursor:pointer; margin-bottom:6px;
                 color:var(--text-main); font-size:0.85rem; text-align:left;
-                transition: border-color 0.2s;
+                transition: border-color 0.2s, background 0.2s;
             `;
-            btn.innerHTML = `<span style="flex:1">${card.name}</span><span style="color:var(--text-muted)">×${count}</span>`;
+            const imgHTML = typeof window.generateCardHTML === 'function'
+                ? window.generateCardHTML(card, 'prob-card-thumb')
+                : '';
+            btn.innerHTML = `
+                ${imgHTML}
+                <span style="flex:1; font-weight:500;">${card.name}</span>
+                <span style="color:var(--text-muted); font-size:0.8rem;">×${count}</span>
+            `;
             btn.addEventListener('click', () => {
                 _selectedProbCard = { card, count };
-                document.querySelectorAll('.prob-card-btn').forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
+                document.querySelectorAll('.prob-card-btn').forEach(b => {
+                    b.style.borderColor = 'rgba(255,255,255,0.1)';
+                    b.style.background = 'rgba(255,255,255,0.04)';
+                });
                 btn.style.borderColor = 'var(--accent-gold)';
+                btn.style.background = 'rgba(245,197,24,0.08)';
                 document.getElementById('slider-target-copies').max = count;
                 document.getElementById('slider-target-copies').value = count;
                 document.getElementById('val-target-copies').textContent = count;
+                // Update chart to show selected card + 2 others
+                renderProbChartForSelected(deckCards, card.name);
             });
             listEl.appendChild(btn);
         });
@@ -278,6 +294,58 @@ window.prerequisiteVulnerabilityScore = prerequisiteVulnerabilityScore;
         });
     }
 
+    function renderProbChartForSelected(deckCards, selectedName) {
+        const canvas = document.getElementById('prob-chart');
+        if (!canvas) return;
+        if (_probChart) { _probChart.destroy(); _probChart = null; }
+
+        const DECK_SIZE = 20;
+        const labels = ['Turn 1', 'Turn 2', 'Turn 3', 'Turn 4', 'Turn 5'];
+        const drawsPerTurn = [5, 6, 7, 8, 9];
+
+        const grouped = {};
+        deckCards.forEach(c => {
+            if (!grouped[c.name]) grouped[c.name] = { name: c.name, count: 0 };
+            grouped[c.name].count++;
+        });
+
+        // Selected card always first, then fill with 2 highest-count others
+        const others = Object.values(grouped)
+            .filter(e => e.name !== selectedName)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 2);
+        const entries = [grouped[selectedName], ...others].filter(Boolean);
+
+        const colors = ['#f5c518', '#78c850', '#6890f0'];
+        const datasets = entries.map((entry, i) => ({
+            label: entry.name + (i === 0 ? ' ★' : ''),
+            data: drawsPerTurn.map(n => parseFloat((probAtLeastOne(DECK_SIZE, entry.count, n) * 100).toFixed(1))),
+            borderColor: colors[i],
+            backgroundColor: colors[i] + '22',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 4,
+            borderWidth: i === 0 ? 3 : 1.5
+        }));
+
+        _probChart = new Chart(canvas, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#e6edf3' } } },
+                scales: {
+                    x: { ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: {
+                        min: 0, max: 100,
+                        ticks: { color: '#8b949e', callback: v => v + '%' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+    }
+
     function renderMulliganRisk(deckCards) {
         const basics = deckCards.filter(c => c.stage === 'Basic');
         const basicCopies = basics.length;
@@ -315,25 +383,92 @@ window.prerequisiteVulnerabilityScore = prerequisiteVulnerabilityScore;
         const allCards = window.TCGP_CARDS || [];
         const deckCards = (deck.cards || []).map(id => allCards.find(c => c.id === id)).filter(Boolean);
 
+        // Build live state: total copies and drawn count per card
         const grouped = {};
         deckCards.forEach(c => {
             if (!grouped[c.name]) grouped[c.name] = { card: c, total: 0, drawn: 0 };
             grouped[c.name].total++;
         });
 
-        statsEl.innerHTML = `
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
-                Tracking: <strong style="color:var(--text-main)">${deck.name}</strong>
-                — ${deckCards.length} cards
-            </div>
-            <div style="display:flex; flex-direction:column; gap:6px;">
-                ${Object.values(grouped).map(({ card, total }) => `
-                    <div style="display:flex; justify-content:space-between; align-items:center;
-                        background:rgba(255,255,255,0.04); border-radius:6px; padding:6px 10px;">
-                        <span style="font-size:0.85rem">${card.name}</span>
-                        <span style="font-size:0.8rem; color:var(--accent-gold)">×${total} in deck</span>
+        // Store state on element so rerender preserves drawn counts
+        if (!statsEl._liveState || statsEl._liveDeckId !== deckId) {
+            statsEl._liveState = grouped;
+            statsEl._liveDeckId = deckId;
+            statsEl._cardsDrawnTotal = 0;
+        } else {
+            // Preserve drawn counts across rerenders
+            Object.keys(statsEl._liveState).forEach(name => {
+                if (grouped[name]) grouped[name].drawn = statsEl._liveState[name].drawn;
+            });
+            statsEl._liveState = grouped;
+        }
+
+        function rerender() {
+            const state = statsEl._liveState;
+            const totalDrawn = statsEl._cardsDrawnTotal;
+            const deckRemaining = 20 - totalDrawn;
+
+            statsEl.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                    <div style="font-size:0.8rem; color:var(--text-muted);">
+                        Tracking: <strong style="color:var(--text-main)">${deck.name}</strong>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span style="font-size:0.82rem; color:var(--accent-gold);">${deckRemaining} cards left in deck</span>
+                        <button onclick="this.closest('#live-tracker-stats')._cardsDrawnTotal=0; Object.values(this.closest('#live-tracker-stats')._liveState).forEach(s=>s.drawn=0); renderLiveTrackerStatsById('${deckId}');"
+                            style="font-size:0.75rem; padding:3px 8px; background:rgba(255,68,68,0.15); border:1px solid rgba(255,68,68,0.3); border-radius:6px; color:#ff8888; cursor:pointer;">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    ${Object.values(state).map(({ card, total, drawn }) => {
+                        const remaining = total - drawn;
+                        const prob = remaining > 0 && deckRemaining > 0
+                            ? (probAtLeastOne(deckRemaining, remaining, 1) * 100).toFixed(1)
+                            : '0.0';
+                        const barPct = parseFloat(prob);
+                        const barColor = barPct >= 15 ? '#f5c518' : barPct >= 8 ? '#78c850' : '#8b949e';
+                        const imgHTML = typeof window.generateCardHTML === 'function'
+                            ? window.generateCardHTML(card, 'live-track-thumb')
+                            : '';
+                        return `
+                            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+                                border-radius:8px; padding:8px 10px;">
+                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                                    ${imgHTML}
+                                    <div style="flex:1;">
+                                        <div style="font-size:0.85rem; font-weight:500;">${card.name}</div>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);">${remaining}/${total} remaining</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-size:1rem; font-weight:700; color:${barColor}">${prob}%</div>
+                                        <div style="font-size:0.7rem; color:var(--text-muted);">next draw</div>
+                                    </div>
+                                    <button
+                                        onclick="(function(){
+                                            var s=document.getElementById('live-tracker-stats');
+                                            var entry=s._liveState['${card.name}'];
+                                            if(entry && entry.drawn < entry.total){ entry.drawn++; s._cardsDrawnTotal++; renderLiveTrackerStatsById('${deckId}'); }
+                                        })()"
+                                        style="padding:4px 10px; background:${remaining > 0 ? 'rgba(74,158,255,0.15)' : 'rgba(255,255,255,0.05)'}; border:1px solid ${remaining > 0 ? 'rgba(74,158,255,0.4)' : 'rgba(255,255,255,0.1)'}; border-radius:6px; color:${remaining > 0 ? '#4a9eff' : '#555'}; font-size:0.8rem; cursor:${remaining > 0 ? 'pointer' : 'default'};">
+                                        ${remaining > 0 ? 'Drawn' : '✓ Used'}
+                                    </button>
+                                </div>
+                                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
+                                    <div style="height:100%; width:${Math.min(barPct * 5, 100)}%; background:${barColor}; border-radius:4px; transition:width 0.3s;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        rerender();
     }
+
+    // Helper so inline onclick can call rerender
+    window.renderLiveTrackerStatsById = function(deckId) {
+        renderLiveTrackerStats(deckId);
+    };

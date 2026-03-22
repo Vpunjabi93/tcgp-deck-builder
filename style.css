@@ -34,6 +34,18 @@
 .user-status { display: flex; align-items: center; gap: 10px; }
 #user-email { font-size: 0.8rem; color: var(--text-muted); }
 
+.prob-card-thumb, .live-track-thumb {
+    width: 36px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.prob-card-thumb .card-3d-wrap, .live-track-thumb .card-3d-wrap {
+    width: 36px;
+    height: 50px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
