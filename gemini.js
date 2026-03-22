@@ -107,6 +107,15 @@ window.confirmUpload = function() {
 
 // --- Core Gemini Scan ---
 async function processMediaWithGemini(files) {
+    const targetSetSelect = document.getElementById('reverse-scan-set-select');
+    if (targetSetSelect && targetSetSelect.value === 'A1') {
+        const confirmA1 = confirm("You have selected 'Genetic Apex (A1)'. Is this correct?\n\nTip: You must select the exact set your screenshots are from before scanning.");
+        if (!confirmA1) {
+            if (typeof cancelUpload === 'function') cancelUpload();
+            return;
+        }
+    }
+
     const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
     if (!apiKey) {
         alert("Please set your Gemini API key first!");
@@ -309,7 +318,9 @@ function showReviewModalReverse(scannedCards, targetSetCode) {
         totalCardsAdded++;
     });
 
-    document.getElementById('modal-review').querySelector('h2').innerText = `Adding ${totalCardsAdded} Cards`;
+    const setSelect = document.getElementById('reverse-scan-set-select');
+    const setName = setSelect && setSelect.options.length ? setSelect.options[setSelect.selectedIndex].text : targetSetCode;
+    document.getElementById('modal-review').querySelector('h2').innerText = `Adding ${totalCardsAdded} Cards from ${setName}`;
     document.getElementById('modal-review').querySelector('p').innerText = `Gemini calculated your owned cards based on missing numbers for ${targetSetCode}. Add them now?`;
 
     renderReviewList();
