@@ -534,9 +534,27 @@ window.generateCardHTML = function (card, imgClass = '') {
         })(this)
     `.replace(/\n\s*/g, ' ');
 
-    return `<img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" 
-        onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){ ${finalFallback} };">`;
+    const rarityClass = getRarityClass(card.rarity);
+    
+    return `
+        <div class="card-3d-wrap ${rarityClass}" 
+             data-rarity="${card.rarity || ''}"
+             data-type="${(card.type || 'colorless').toLowerCase()}">
+            <img src="${card.img}" class="${imgClass}" loading="lazy" alt="${card.name}" 
+                onerror="this.onerror=null; this.src='${fallbackB_URL}'; this.onerror=function(){ ${finalFallback} };">
+        </div>
+    `;
 };
+
+function getRarityClass(rarity) {
+    if (!rarity) return '';
+    if (rarity.includes('👑')) return 'rarity-crown';
+    if (rarity === '☆☆☆') return 'rarity-rainbow';
+    if (rarity === '☆☆') return 'rarity-fullart';
+    if (rarity === '☆') return 'rarity-ex';
+    if (rarity === '◇◇◇◇') return 'rarity-rare';
+    return 'rarity-common';
+}
 
 // --- Collection Manager ---
 window.renderVisualSelectionGrid = function (searchQuery = '') {
@@ -637,6 +655,7 @@ window.renderCollectionGrid = function (searchQuery = '') {
 
         cardEl.innerHTML = `
             <div class="card-img-placeholder">
+                ${isOwned ? `<button class="card-remove-btn" onclick="updateCardQuantity('${card.id}', -${qty})">×</button>` : ''}
                 ${generateCardHTML(card, 'card-real-img')}
                 ${isOwned ? `<div class="card-qty-badge">${qty}</div>` : ''}
             </div>
@@ -1100,3 +1119,31 @@ window.fetchAISuggestion = async function(playstyle) {
     }
 };
 
+// Global 3D tilt handler — attach once
+document.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.card-3d-wrap');
+    if (!card) return;
+    
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -12; // max 12deg
+    const rotateY = ((x - centerX) / centerX) * 12;
+    
+    // Shimmer position for CSS custom properties
+    const shimmerX = (x / rect.width) * 100;
+    const shimmerY = (y / rect.height) * 100;
+    
+    card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.04,1.04,1.04)`;
+    card.style.setProperty('--shimmer-x', `${shimmerX}%`);
+    card.style.setProperty('--shimmer-y', `${shimmerY}%`);
+});
+
+document.addEventListener('mouseleave', (e) => {
+    const card = e.target.closest('.card-3d-wrap');
+    if (!card) return;
+    card.style.transform = '';
+}, true);

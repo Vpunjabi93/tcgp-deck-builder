@@ -1287,3 +1287,117 @@ input[type="range"] {
 .deck-slot .fallback-name {
     font-size: 0.7rem;
 }
+
+/* ── Holographic Card Effects ── */
+.card-3d-wrap {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+    border-radius: 8px;
+    overflow: hidden;
+    --shimmer-x: 50%;
+    --shimmer-y: 50%;
+}
+
+/* Shimmer overlay — pseudo element, pointer-events none */
+.card-3d-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    background: radial-gradient(
+        circle at var(--shimmer-x) var(--shimmer-y),
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.06) 40%,
+        transparent 70%
+    );
+}
+.card-3d-wrap:hover::after { opacity: 1; }
+
+/* Rarity-specific shimmer colours */
+.rarity-ex::after {
+    background: radial-gradient(
+        circle at var(--shimmer-x) var(--shimmer-y),
+        rgba(255, 210, 80, 0.35) 0%,
+        rgba(255, 180, 0, 0.1) 40%,
+        transparent 70%
+    );
+}
+
+.rarity-fullart::after {
+    background: radial-gradient(
+        circle at var(--shimmer-x) var(--shimmer-y),
+        rgba(120, 200, 255, 0.4) 0%,
+        rgba(180, 120, 255, 0.15) 40%,
+        transparent 70%
+    );
+}
+
+.rarity-rainbow::after {
+    background: conic-gradient(
+        from calc(var(--shimmer-x) * 3.6deg),
+        rgba(255,80,80,0.2),
+        rgba(255,200,0,0.2),
+        rgba(80,255,80,0.2),
+        rgba(80,200,255,0.2),
+        rgba(180,80,255,0.2),
+        rgba(255,80,80,0.2)
+    );
+    opacity: 0;
+    mix-blend-mode: screen;
+}
+.rarity-rainbow:hover::after { opacity: 0.8; }
+
+.rarity-crown::after {
+    background: radial-gradient(
+        circle at var(--shimmer-x) var(--shimmer-y),
+        rgba(255, 230, 100, 0.5) 0%,
+        rgba(255, 200, 0, 0.25) 30%,
+        rgba(255, 160, 0, 0.1) 60%,
+        transparent 80%
+    );
+}
+
+/* Unowned cards — no holo effect, keep grayscale only */
+.tcgp-card:not(.owned) .card-3d-wrap {
+    pointer-events: none;
+}
+.tcgp-card:not(.owned) .card-3d-wrap::after {
+    display: none;
+}
+
+/* Mobile — disable tilt on touch devices, keep shimmer tap feedback */
+@media (hover: none) {
+    .card-3d-wrap:active::after { opacity: 1; }
+    .card-3d-wrap { transition: none; }
+}
+
+.card-remove-btn {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: rgba(255, 68, 68, 0.85);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.tcgp-card:hover .card-remove-btn { opacity: 1; }
+
+/* Always visible on touch devices */
+@media (hover: none) {
+    .card-remove-btn { opacity: 1; }
+}

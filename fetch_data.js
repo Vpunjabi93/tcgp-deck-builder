@@ -165,7 +165,7 @@ async function main() {
     }
 
     const outPath = path.join(dataDir, 'all_cards.json');
-    fs.writeFileSync(outPath, JSON.stringify(allCards, null, 2));
+    fs.writeFileSync(outPath, JSON.stringify(allCards, null, 2), { encoding: 'utf8' });
     console.log(`\n✅ Done! ${allCards.length} cards saved to ${outPath}`);
 }
 
