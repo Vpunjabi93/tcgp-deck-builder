@@ -116,95 +116,143 @@ ${'─'.repeat(60)}
 
 OUTPUT FORMAT:
 Write PHASE 1 reasoning, then PHASE 2 answers, then the final deck.
-Final deck = JSON array of EXACTLY 20 card name strings.
-The JSON array MUST be the last thing in your response.
-Format: ["Card Name", "Card Name", ...]
-No markdown fences. No objects. Plain strings only. No text after ].
+Final deck = A plain text list of EXACTLY 20 card names, one per line.
+Do NOT output JSON.
 `;
 }
 
 function parseGeminiResponse(responseText) {
     if (!responseText) return { nameList: [], reasoning: '', parseMethod: 'none', error: 'Empty response' };
 
-    const lastBracket = responseText.lastIndexOf('[');
-    const reasoning   = lastBracket > 0 ? responseText.slice(0, lastBracket).trim() : '';
+    let cleanText = responseText.replace(/```json?/gi, '').replace(/```/g, '').replace(/`/g, '').trim();
+
     let nameList = [], parseMethod = 'none', error = null;
+    const arrayBlocks = [];
+    let depth = 0;
+    let startIdx = -1;
 
-    // Strategy 1: scan all [...] blocks, pick last valid string array ≥ 10
-    const arrayMatches = [...responseText.matchAll(/\[[\s\S]*?\]/g)];
-    for (let i = arrayMatches.length - 1; i >= 0; i--) {
-        try {
-            const raw = arrayMatches[i][0].replace(/```json?/gi, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length >= 10 && parsed.every(s => typeof s === 'string')) {
-                nameList = parsed; parseMethod = 'regex-scan'; break;
+    for (let i = 0; i < cleanText.length; i++) {
+        if (cleanText[i] === '[') {
+            if (depth === 0) startIdx = i;
+            depth++;
+        } else if (cleanText[i] === ']') {
+            depth--;
+            if (depth === 0 && startIdx !== -1) {
+                arrayBlocks.push({
+                    text: cleanText.substring(startIdx, i + 1),
+                    lastIdx: i,
+                    length: i - startIdx + 1
+                });
+                startIdx = -1;
             }
-        } catch (_) { continue; }
-    }
-
-    // Strategy 2: lastIndexOf with bracket depth tracking
-    if (nameList.length === 0 && lastBracket !== -1) {
-        try {
-            let slice = responseText.slice(lastBracket).replace(/```json?/gi, '').replace(/```/g, '').trim();
-            let depth = 0, closingIdx = -1;
-            for (let i = 0; i < slice.length; i++) {
-                if (slice[i] === '[') depth++;
-                else if (slice[i] === ']') { depth--; if (depth === 0) { closingIdx = i; break; } }
-            }
-            if (closingIdx !== -1) {
-                const parsed = JSON.parse(slice.slice(0, closingIdx + 1));
-                if (Array.isArray(parsed) && parsed.every(s => typeof s === 'string')) {
-                    nameList = parsed; parseMethod = 'lastIndexOf';
-                }
-            }
-        } catch (e) { error = `JSON parse failed: ${e.message}`; }
-    }
-
-    // Strategy 3: extract quoted title-case strings as last resort
-    if (nameList.length === 0) {
-        const likelyCards = [...responseText.matchAll(/"([^"]+)"/g)]
-            .map(m => m[1])
-            .filter(s => s.length >= 3 && s.length <= 40 && /^[A-Z]/.test(s) && !/http|Error|Phase|Rule|Step/i.test(s));
-        if (likelyCards.length >= 10) {
-            nameList = likelyCards.slice(0, 20);
-            parseMethod = 'quoted-string-fallback';
-            error = 'Used fallback string extraction — verify deck manually';
         }
     }
 
-    if (nameList.length === 0) error = error || 'Could not extract deck list from Gemini response';
-    return { nameList, reasoning, parseMethod, error };
+    if (arrayBlocks.length === 0) {
+        // Fallback: try raw JSON.parse of everything, just in case
+        try {
+            const parsed = JSON.parse(cleanText);
+            if (Array.isArray(parsed)) arrayBlocks.push({ text: cleanText, lastIdx: 0, length: cleanText.length });
+        } catch (e) {}
+    }
+
+    const validateArray = (arr) => Array.isArray(arr) && arr.length >= 10 && arr.length <= 25 && arr.every(s => typeof s === 'string' && s.length >= 2 && s.length <= 50);
+
+    // Strategy 1: longest first
+    const byLength = [...arrayBlocks].sort((a, b) => b.length - a.length);
+    for (const block of byLength) {
+        try {
+            const parsed = JSON.parse(block.text);
+            if (validateArray(parsed)) {
+                nameList = parsed;
+                parseMethod = 'longest-block';
+                break;
+            }
+        } catch (e) { continue; }
+    }
+
+    // Strategy 2: last occurrence first
+    if (nameList.length === 0) {
+        const byPos = [...arrayBlocks].sort((a, b) => b.lastIdx - a.lastIdx);
+        for (const block of byPos) {
+            try {
+                const parsed = JSON.parse(block.text);
+                if (validateArray(parsed) || (Array.isArray(parsed) && parsed.length >= 10 && parsed.every(s => typeof s === 'string'))) {
+                    nameList = parsed;
+                    parseMethod = 'last-block';
+                    break;
+                }
+            } catch (e) { continue; }
+        }
+    }
+
+    if (nameList.length === 0) {
+        console.error("Failed to parse Gemini JSON output. Raw response:", responseText);
+        error = 'Could not extract deck list from Gemini response. Ensure it returned a valid JSON array.';
+    }
+
+    return { nameList, reasoning: '', parseMethod, error };
 }
 
 async function runGeminiDeckBuild({ ownedCards, cardDb, ownedCardIds, playstyle, apiKey, modelName, simSignals = {} }) {
-    const prompt = buildGeminiPrompt(ownedCards, simSignals, playstyle);
-
-    const response = await fetch(
+    const prompt1 = buildGeminiPrompt(ownedCards, simSignals, playstyle);
+    
+    // CALL 1: Reasoning
+    const res1 = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } })
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt1 }] }], generationConfig: { temperature: 0.4 } })
         }
     );
 
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || 'Gemini API error');
+    if (!res1.ok) {
+        const err = await res1.json();
+        throw new Error(err.error?.message || 'Gemini API error (Call 1)');
     }
 
-    const data = await response.json();
-    if (!data.candidates?.length) throw new Error(`Gemini blocked: ${data.promptFeedback?.blockReason || 'Unknown'}`);
+    const data1 = await res1.json();
+    if (!data1.candidates?.length) throw new Error(`Gemini blocked (Call 1): ${data1.promptFeedback?.blockReason || 'Unknown'}`);
+    const reasoningText = data1.candidates[0].content.parts[0].text;
 
-    const rawText = data.candidates[0].content.parts[0].text;
-    const { nameList, reasoning, parseMethod, error: parseError } = parseGeminiResponse(rawText);
+    // CALL 2: JSON Extraction
+    const validNames = [...new Set(ownedCards.map(o => o.card.name))];
+    const prompt2 = `From the deck plan above, output ONLY a JSON array of exactly 20 strings. Each string must exactly match one name from this list: ${JSON.stringify(validNames)}. No other text.`;
+
+    const res2 = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                contents: [
+                    { role: 'user', parts: [{ text: prompt1 }] },
+                    { role: 'model', parts: [{ text: reasoningText }] },
+                    { role: 'user', parts: [{ text: prompt2 }] }
+                ], 
+                generationConfig: { temperature: 0.0 } 
+            })
+        }
+    );
+
+    if (!res2.ok) {
+        const err = await res2.json();
+        throw new Error(err.error?.message || 'Gemini API error (Call 2)');
+    }
+
+    const data2 = await res2.json();
+    if (!data2.candidates?.length) throw new Error(`Gemini blocked (Call 2): ${data2.promptFeedback?.blockReason || 'Unknown'}`);
+    
+    const jsonText = data2.candidates[0].content.parts[0].text;
+    const { nameList, parseMethod, error: parseError } = parseGeminiResponse(jsonText);
 
     if (!nameList.length) throw new Error(parseError || 'Failed to extract deck from Gemini response');
 
     const DeckRules = typeof window !== 'undefined' ? window.DeckRules : require('./deck_rules.js');
     const { deck, nameList: fixedNames, log: fixLog, report } = DeckRules.autoFixDeck(nameList, cardDb, ownedCardIds);
 
-    return { rawText, reasoning, parseMethod, parseError, originalNames: nameList, fixedNames, fixLog, deck, report };
+    return { rawText: reasoningText + '\n\n' + jsonText, reasoning: reasoningText, parseMethod, parseError, originalNames: nameList, fixedNames, fixLog, deck, report };
 }
 
 const GeminiParser = { buildGeminiPrompt, parseGeminiResponse, runGeminiDeckBuild };
