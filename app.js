@@ -12,10 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('data/all_cards.json');
         if (!response.ok) throw new Error("Failed to load card database");
         const rawCards = await response.json();
-        // Normalize stages to match strategy.js expectations
         window.TCGP_CARDS = rawCards.map(c => ({
-            ...c,
-            stage: c.stage === 'Stage1' ? 'Stage 1' : c.stage === 'Stage2' ? 'Stage 2' : c.stage
+            ...c
         }));
         console.log(`Loaded ${window.TCGP_CARDS.length} cards from database.`);
         initApp();
@@ -957,289 +955,139 @@ async function updateOpponentPrediction() {
 }
 
 // --- AI Strategy Bridge ---
-window.fetchAISuggestion = async function (playstyle) {
+window.fetchAISuggestion = async function(playstyle) {
     const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     const allCards = window.TCGP_CARDS || [];
 
-    // Step 1: Build a richer collection summary using available data
+    // Step 1: Build owned cards as before
     const allOwnedCards = Object.entries(myCollection)
         .filter(([id, qty]) => qty > 0)
         .map(([id, qty]) => {
             const card = window.TCGP_CARDS.find(c => c.id === id);
             if (!card) return null;
             return { card, qty };
-        })
-        .filter(Boolean);
+        }).filter(Boolean);
 
     const ownedCardObjects = allOwnedCards.map(o => o.card);
 
-    // Step 2: Run ensemble simulation for card-level signals
-    let simSignals = {};
-    if (typeof window.runEnsembleSimulation === 'function' && ownedCardObjects.length >= 4) {
-        try {
-            const rawSim = window.runEnsembleSimulation(ownedCardObjects, 600);
-            simSignals = rawSim || {};
-        } catch (e) {
-            console.warn('Simulation skipped:', e.message);
-        }
-    }
+    // ─── PRE-FILTER: enforce 2 energy type cap IN JAVASCRIPT before sending to Gemini ───
+    const pokemonCards = allOwnedCards.filter(({ card }) =>
+        card.type && !['Supporter', 'Item', 'Colorless'].includes(card.type)
+    );
+    const nonPokemonCards = allOwnedCards.filter(({ card }) =>
+        !card.type || ['Supporter', 'Item', 'Colorless'].includes(card.type)
+    );
 
-    const collectionSummary = allOwnedCards
-        .map(({ card, qty }) => {
-            const score = typeof window.scorePokemon === 'function'
-                ? window.scorePokemon(card, ownedCardObjects)
-                : 0;
-            return { card, qty, score };
-        })
-        .sort((a, b) => b.score - a.score)
-        .map(({ card, qty, score }) => {
-            const sig = simSignals[card.name];
-            const wf = sig ? `, WeightedFit:${sig.weightedScore.toFixed(3)}` : '';
-            const cr = sig ? `, Consistency:${sig.consistencyRating.toFixed(3)}` : '';
-            const pt = sig ? `, PeakTurn:${(() => {
-                    const scores = [sig.bestCase, sig.baseCase, sig.worstCase];
-                    const best = Math.max(...scores);
-                    return best > 0 ? (1 / best).toFixed(1) : '?';
-                })()
-                }` : '';
-            return `${card.name} (${card.type}, ${card.stage}, HP:${card.hp}, Retreat:${card.retreatCost}, Qty:${qty}, PowerScore:${score.toFixed(1)}${wf}${cr}${pt})`;
-        })
-        .join('\n');
+    const typeGroups = {};
+    pokemonCards.forEach(({ card, qty }) => {
+        if (!typeGroups[card.type]) typeGroups[card.type] = { cards: [], totalQty: 0, totalScore: 0 };
+        const score = typeof window.scorePokemon === 'function' ? window.scorePokemon(card, ownedCardObjects) : 0;
+        typeGroups[card.type].cards.push({ card, qty, score });
+        typeGroups[card.type].totalQty += qty;
+        typeGroups[card.type].totalScore += score;
+    });
 
+    const sortedTypes = Object.entries(typeGroups)
+        .sort((a, b) => b[1].totalScore - a[1].totalScore)
+        .map(([type]) => type);
+    const allowedTypes = new Set(sortedTypes.slice(0, 2));
 
-    // Step 3: Replace the prompt with this deep strategy version
-    const prompt = `You are a world-class Pokémon TCG Pocket competitive player and deck architect.
+    const filteredCollection = [
+        ...pokemonCards.filter(({ card }) => allowedTypes.has(card.type)),
+        ...allOwnedCards.filter(({ card }) =>
+            card.type === 'Colorless' || card.type === 'Supporter' || card.type === 'Item' || !card.type
+        )
+    ];
 
-I will give you my card collection with structural data.
-You already know every card's attacks, abilities, and effects from your training.
-Use that knowledge combined with the structural data I provide to build the optimal deck.
+    const fossilItems = ['Dome Fossil', 'Helix Fossil', 'Old Amber', 'Mysterious Fossil'];
+    const fossilPokemon = filteredCollection.filter(({ card }) => card.stage && card.stage.toLowerCase().includes('fossil'));
+    const filteredNoFossil = fossilPokemon.length >= 2 ? filteredCollection : filteredCollection.filter(({ card }) => !fossilItems.includes(card.name));
 
-═══════════════════════════════════
-PHASE 1 — DECK PLAN (think out loud)
-═══════════════════════════════════
-Before choosing cards, write a short DECK PLAN covering these points:
+    // Define each Gym Leader's required Pokémon names and minimum count
+    const gymLeaderRules = {
+        'Misty':    { requiredNames: null, requiredType: 'Water',     minCount: 2 },
+        'Blaine':   { requiredNames: ['Ninetales', 'Magmar', 'Rapidash', 'Ninetales EX', 'Magmar EX'], requiredType: 'Fire', minCount: 2 },
+        'Erika':    { requiredNames: null, requiredType: 'Grass',     minCount: 2 },
+        'Brock':    { requiredNames: ['Onix', 'Golem', 'Geodude', 'Graveler', 'Onix EX'], requiredType: null, minCount: 1 },
+        'Koga':     { requiredNames: ['Grimer', 'Weezing'],           requiredType: null, minCount: 1 },
+        'Lt. Surge':{ requiredNames: null, requiredType: 'Lightning', minCount: 2 },
+        'Giovanni': { requiredNames: null, requiredType: null,        minCount: 0 },
+        'Sabrina':  { requiredNames: null, requiredType: 'Psychic',   minCount: 2 },
+    };
 
-WIN CONDITION:
-- Name the single strongest win condition from my collection.
-- It must be the highest-HP EX or Stage 2 with the best attack-to-energy ratio.
-
-ENERGY ACCELERATION:
-- Name any card in my collection with a passive that generates or attaches energy.
-- If one exists, it is MANDATORY. State which card and which ability.
-- If none exists, confirm you will pick a win condition costing 2 energy or less.
-
-TRAINER SELECTIONS:
-- List every Gym Leader Trainer you plan to include.
-- For each one, explicitly name which Pokémon in THIS deck they target.
-- If no matching Pokémon exist for a Trainer, do NOT include that Trainer.
-- Misty requires multiple strong Water Pokémon (ideally including a Water EX). Do not include Misty if the only Water card is a single small Basic like Squirtle.
-- Blaine requires multiple Fire attackers, ideally a Fire EX line.
-- Erika requires multiple Grass Pokémon.
-- Koga requires Grimer or Weezing in the list.
-- Brock requires Onix, Golem, Geodude, or Graveler in the list.
-- Do not run 2 copies of any Gym Leader Trainer unless their target type/line is strongly represented (3+ matching Pokémon).
-
-EVOLUTION LINES:
-- List every evolution card you plan to include.
-- Confirm its Basic (and Stage 1 if Stage 2) is also in the list.
-- If the Basic is missing from my collection, remove the entire line.
-
-TYPE SUMMARY:
-- State the deck's 1 or 2 dominant Pokémon types.
-- Single-type decks are ideal. Two-type decks are acceptable if both types are clearly supported.
-- Do NOT build a deck where meaningful attackers are spread across 3 or more colored energy types.
-- Confirm every Gym Leader Trainer matches the deck's dominant type(s).
-
-ENERGY TYPE CONSTRAINT:
-- Count the distinct non-Colorless Pokémon energy types in your planned list (exclude Supporter, Item, and Colorless cards entirely).
-- You MUST use a maximum of 2 energy types. This is a hard rule.
-- If your list has 3 or more types, identify the least-represented type and remove ALL Pokémon of that type.
-- Replace removed cards with Pokémon of your top 1-2 types from my collection, OR with Supporters/Items.
-- Colorless Pokémon do NOT count as an energy type and are always permitted.
-
-═══════════════════════════════════
-PHASE 2 — SELF-CHECK (audit your plan)
-═══════════════════════════════════
-Before writing the final JSON, answer each question:
-
-1. TRAINER TYPE MATCH — Does every Gym Leader Trainer card match the deck's dominant type?
-   Brock = needs Onix/Golem/Geodude/Graveler in the list.
-   Misty = needs multiple Water Pokémon in the list, ideally a Water EX. A single small Water Basic is NOT enough.
-   Blaine = needs Ninetales/Magmar/Rapidash or a Fire EX in the list.
-   Erika = needs multiple Grass Pokémon in the list.
-   Koga = needs Grimer/Weezing in the list.
-   Lt. Surge = needs Lightning Pokémon in the list.
-   → If any Trainer fails this check, REMOVE them from the plan.
-   → If you have 2 copies of a Gym Leader Trainer but fewer than 3 matching Pokémon, reduce to 1 copy.
-
-2. EVOLUTION INTEGRITY — Does every Stage 1 have its Basic? Every Stage 2 have Stage 1 + Basic?
-   → If any evolution is orphaned, remove it or add the missing Basic from my collection.
-
-3. CARD NAME ACCURACY — Is every card name exactly as it appears in my collection data below?
-   → Correct any name that doesn't match exactly.
-
-4. COUNT CHECK — Does your list total exactly 20 cards?
-   → Add or remove cards until it is exactly 20.
-
-5. DUPLICATE CHECK — Does any single card name appear more than 2 times?
-   → Reduce to maximum 2 copies.
-
-6. POKÉMON MINIMUM — Does the list contain at least 4 Basic Pokémon?
-   → If not, replace Trainer/Item cards with Basic Pokémon from my collection.
-
-7. ENERGY TYPE CAP — List every distinct non-Colorless Pokémon type in your final 20 cards.
-   → If more than 2 distinct types appear, this deck FAILS. Remove all Pokémon of the least-represented type.
-   → Replace removed slots with same-type Pokémon from my collection, or Supporters/Items.
-   → Re-run checks 4, 5, and 6 after this change.
-   → Colorless type does NOT count. Supporter and Item cards do NOT count.
-
-═══════════════════════════════════
-PHASE 3 — FINAL OUTPUT
-═══════════════════════════════════
-PLAYSTYLE TARGET: ${playstyle}
-- Aggro: maximise early damage, low retreat costs, fast energy
-- Control: status conditions, retreat punishment, defensive bulk
-- Balanced: resilient engine with setup speed
-
-MY COLLECTION (name, type, stage, HP, retreat, qty, PowerScore, WeightedFit, Consistency, PeakTurn):
-Key: WeightedFit = simulation contribution score (higher = more impactful).
-     Consistency = stability under opponent disruption (1.0 = perfectly consistent).
-     PeakTurn    = estimated earliest turn this card reaches full impact (lower = faster).
-Use these signals to PREFER cards with high WeightedFit AND high Consistency.
-Deprioritise cards with PeakTurn > 5 unless they are the deck's primary win condition.
-${collectionSummary}
-
-Now output your DECK PLAN, then your SELF-CHECK answers.
-Then, as the VERY LAST thing in your response, output a JSON array of exactly 20 card name strings.
-Rules for the final array:
-- It must be a flat array of strings only. Example: ["Pikachu EX", "Pikachu", "Professor's Research"]
-- No objects, no {id}, no {name}, no {role} — plain strings only.
-- No markdown code fences (no \`\`\`json or \`\`\`).
-- No text, punctuation, or newline after the closing ].
-- The array must be the absolute last characters in your response.`;
-
-    const apiKey = _sessionApiKey;
-    console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
-    if (!apiKey) {
-        if (typeof window.showToast === 'function') {
-            window.showToast('Please enter your API Key in Settings.', 'error');
-        } else {
-            alert('Please enter your API Key in Settings.');
-        }
-        return;
-    }
-
-    const btn = document.getElementById('btn-ai-build');
-    if (btn) {
-        btn.innerHTML = `<span class='spinner'></span> Analyzing...`;
-        btn.classList.add('btn-loading');
-    }
-
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.2 }
-            })
+    const trainersToDrop = new Set();
+    Object.entries(gymLeaderRules).forEach(([trainerName, rule]) => {
+        if (rule.minCount === 0) return;
+        const matchingPokemon = filteredNoFossil.filter(({ card }) => {
+            const nameMatch = rule.requiredNames ? rule.requiredNames.some(n => card.name.toLowerCase().includes(n.toLowerCase())) : true;
+            const typeMatch = rule.requiredType ? card.type === rule.requiredType : true;
+            return nameMatch && typeMatch && card.type !== 'Supporter' && card.type !== 'Item';
         });
+        if (matchingPokemon.length < rule.minCount) trainersToDrop.add(trainerName);
+    });
 
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || "API Auth Error");
-        }
+    const filteredFinal = trainersToDrop.size > 0 ? filteredNoFossil.filter(({ card }) => !trainersToDrop.has(card.name)) : filteredNoFossil;
 
-        const data = await response.json();
+    // Run sim
+    let simSignals = {};
+    const filteredCardObjects = filteredFinal.map(o => o.card);
+    if (typeof window.runEnsembleSimulation === 'function' && filteredCardObjects.length >= 4) {
+        try { simSignals = window.runEnsembleSimulation(filteredCardObjects, 600) || {}; } catch(e) {}
+    }
 
-        // Guard: Gemini safety filter may return empty candidates
-        if (!data.candidates || data.candidates.length === 0) {
-            const blockReason = data.promptFeedback?.blockReason || 'Unknown';
-            throw new Error(`Gemini blocked this request (${blockReason}). Try a different playstyle or collection.`);
-        }
-
-        const responseText = data.candidates[0].content.parts[0].text;
-        console.log("Raw Gemini response:", responseText);
-
-        // Show Gemini's reasoning in the UI for debugging
-        const out = document.getElementById('recommender-output');
-        if (out) {
-            // Extract everything BEFORE the final JSON array
-            const lastBracket = responseText.lastIndexOf('[');
-            const reasoning = lastBracket > 0 ? responseText.slice(0, lastBracket).trim() : responseText;
-            out.innerHTML = `
-                <div style="background:var(--bg-dark); border:1px solid var(--accent-gold); border-radius:8px; padding:12px; margin-bottom:12px; max-height:300px; overflow-y:auto;">
-                    <div style="color:var(--accent-gold); font-size:0.8rem; margin-bottom:8px; font-weight:600;">🧠 Gemini Reasoning (Debug)</div>
-                    <pre style="white-space:pre-wrap; font-size:0.75rem; color:var(--text-muted); margin:0;">${reasoning.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-                </div>
-                <span class="empty-state">Applying deck...</span>
-            `;
-            out.classList.remove('hidden');
-        }
-
-        let suggestedCards = [];
-
-        // GUARD: empty collection
-        if (allOwnedCards.length === 0) {
-            showToast('Your collection is empty. Add cards first.', 'error');
+    // Call Gemini Parser
+    try {
+        const apiKey = _sessionApiKey;
+        if (!apiKey) {
+            if (typeof window.showToast === 'function') window.showToast('Please enter your API Key in Settings.', 'error');
+            else alert('Please enter your API Key in Settings.');
             return;
         }
-        if (allOwnedCards.length < 10) {
-            showToast('Small collection detected — AI will build the best deck possible.', 'success');
-        }
 
-        // ROBUST PARSER
-        // Strategy 1: scan ALL [...] blocks from last to first, pick first valid array ≥ 10 items
-        const arrayMatches = [...responseText.matchAll(/\[[\s\S]*\]/g)];
-        for (let i = arrayMatches.length - 1; i >= 0; i--) {
-            try {
-                const candidate = arrayMatches[i][0]
-                    .replace(/```json?/gi, '').replace(/```/g, '').trim();
-                const parsed = JSON.parse(candidate);
-                if (Array.isArray(parsed) && parsed.length >= 10) {
-                    suggestedCards = parsed;
-                    break;
-                }
-            } catch (e) { continue; }
-        }
-
-        // Strategy 2: lastIndexOf fallback if Strategy 1 found nothing
-        if (suggestedCards.length === 0) {
-            const lastBracket = responseText.lastIndexOf('[');
-            if (lastBracket === -1) throw new Error("AI returned invalid format.");
-            let slice = responseText.slice(lastBracket);
-            slice = slice.replace(/```json?/gi, '').replace(/```/g, '').trim();
-            // Find matching closing bracket by tracking nesting depth
-            let depth = 0;
-            let closingBracket = -1;
-            for (let i = 0; i < slice.length; i++) {
-                if (slice[i] === '[') depth++;
-                else if (slice[i] === ']') { depth--; if (depth === 0) { closingBracket = i; break; } }
-            }
-            if (closingBracket === -1) throw new Error("AI returned invalid format.");
-            slice = slice.slice(0, closingBracket + 1);
-            try {
-                suggestedCards = JSON.parse(slice);
-            } catch (e) {
-                console.error("JSON parse failed on:", slice);
-                throw new Error("Could not parse AI response: " + e.message);
-            }
-        }
-
-        if (!Array.isArray(suggestedCards) || suggestedCards.length === 0) {
-            throw new Error("AI returned an empty or invalid deck list.");
-        }
-
-        if (typeof window.validateAndApplyAIDeck === 'function') {
-            window.validateAndApplyAIDeck(suggestedCards);
-        }
-    } catch (e) {
-        console.error("Gemini Build Error:", e);
-        const out = document.getElementById('recommender-output');
-        if (out) out.innerHTML = `<span class="empty-state" style="color:var(--accent-red)">AI error: ${e.message}</span>`;
-    } finally {
+        const btn = document.getElementById('btn-ai-build');
         if (btn) {
-            btn.innerHTML = 'AI Build \u2728';
+            btn.innerHTML = `<span class='spinner'></span> Analyzing...`;
+            btn.classList.add('btn-loading');
+        }
+
+        const result = await window.GeminiParser.runGeminiDeckBuild({
+            ownedCards: filteredFinal.map(o => ({ ...o, _powerScore: typeof window.scorePokemon === 'function' ? window.scorePokemon(o.card, filteredCardObjects) : 0, _sim: simSignals[o.card.name] })),
+            cardDb: window.TCGP_CARDS,
+            ownedCardIds: Object.keys(myCollection).filter(id => myCollection[id] > 0),
+            playstyle,
+            apiKey: apiKey,
+            modelName: GEMINI_MODEL,
+            simSignals
+        });
+
+        // Show reasoning + validation report in UI
+        const out = document.getElementById('recommender-output');
+        const ruleColor = result.report.isValid ? '#78c850' : result.report.isLegal ? 'var(--accent-gold)' : '#ff4444';
+        out.innerHTML = `
+            <div style="border:1px solid var(--accent-gold); border-radius:8px; padding:12px; margin-bottom:12px;">
+                <div style="color:var(--accent-gold); font-size:0.8rem; font-weight:600; margin-bottom:6px;">🧠 Gemini Reasoning</div>
+                <pre style="white-space:pre-wrap; font-size:0.75rem; color:var(--text-muted); max-height:250px; overflow-y:auto;">${result.reasoning.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+            </div>
+            <div style="border:1px solid ${ruleColor}; border-radius:8px; padding:12px;">
+                <div style="color:${ruleColor}; font-weight:600;">${result.report.summary}</div>
+                ${result.fixLog.length ? `<div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Auto-fixes: ${result.fixLog.join(' • ')}</div>` : ''}
+            </div>
+        `;
+        out.classList.remove('hidden');
+
+        window.validateAndApplyAIDeck(result.fixedNames);
+
+    } catch (e) {
+        console.error(e);
+        const out = document.getElementById('recommender-output');
+        if (out) {
+            out.innerHTML = `<div style="color:var(--accent-red); font-weight:bold;">Error:</div><div style="color:var(--text-color);">${e.message}</div>`;
+            out.classList.remove('hidden');
+        }
+    } finally {
+        const btn = document.getElementById('btn-ai-build');
+        if (btn) {
+            btn.innerHTML = `AI Build ✨`;
             btn.classList.remove('btn-loading');
         }
     }
