@@ -17,15 +17,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('data/all_cards.json');
         if (!response.ok) throw new Error("Failed to load card database");
         const rawCards = await response.json();
-        window.TCGP_CARDS = rawCards.map(c => ({
-            ...c
-        }));
+        window.TCGP_CARDS = rawCards.map(c => ({ ...c }));
         console.log(`Loaded ${window.TCGP_CARDS.length} cards from database.`);
-        initApp();
     } catch (e) {
-        console.error(e);
-        alert("Critical Error: Core database could not be loaded. Please ensure you have run the scraper.");
+        console.warn('[DB] Card database not found. Running in empty-collection mode.');
+        window.TCGP_CARDS = [];
     }
+    initApp();
 });
 
 function initApp() {
@@ -37,7 +35,8 @@ function initApp() {
     checkApiKey();
 
     // Bind global buttons
-    document.getElementById('api-key-btn').addEventListener('click', showApiModal);
+    const apiKeyBtn = document.getElementById('api-key-btn');
+    if (apiKeyBtn) apiKeyBtn.addEventListener('click', showApiModal);
     document.getElementById('btn-save-key').addEventListener('click', saveApiKey);
 
     const authBtn = document.getElementById('auth-btn');
