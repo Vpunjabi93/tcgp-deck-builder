@@ -172,37 +172,26 @@ async function processMediaWithGemini(files) {
         const data = await response.json();
         const responseText = data.candidates[0].content.parts[0].text;
 
-        // Robust JSON extraction — non-greedy, try/catch protected
+        // Robust JSON extraction
         let scannedCards = null;
-
-        // Strategy 1: find all {...} blocks, pick the last valid one
-        const objectMatches = [...responseText.matchAll(/\{[\s\S]*?\}/g)];
-        for (let i = objectMatches.length - 1; i >= 0; i--) {
-            try {
-                const candidate = objectMatches[i][0]
-                    .replace(/```json?/gi, '').replace(/```/g, '').trim();
-                const parsed = JSON.parse(candidate);
-                if (parsed && (Array.isArray(parsed.missingNumbers) || Array.isArray(parsed))) {
+        try {
+            // Strip markdown code blocks if present
+            const cleaned = responseText
+                .replace(/```json?/gi, '')
+                .replace(/```/g, '')
+                .trim();
+            
+            // Find the outermost { } with a greedy match
+            const match = cleaned.match(/\{[\s\S]*\}/);
+            if (match) {
+                // Use match[0] to safely parse the matched string
+                const parsed = JSON.parse(match[0]);
+                if (parsed && Array.isArray(parsed.missingNumbers)) {
                     scannedCards = parsed;
-                    break;
                 }
-            } catch(e) { continue; }
-        }
-
-        // Strategy 2: array fallback
-        if (!scannedCards) {
-            const arrayMatches = [...responseText.matchAll(/\[[\s\S]*?\]/g)];
-            for (let i = arrayMatches.length - 1; i >= 0; i--) {
-                try {
-                    const candidate = arrayMatches[i][0]
-                        .replace(/```json?/gi, '').replace(/```/g, '').trim();
-                    const parsed = JSON.parse(candidate);
-                    if (Array.isArray(parsed)) {
-                        scannedCards = parsed;
-                        break;
-                    }
-                } catch(e) { continue; }
             }
+        } catch(e) {
+            console.error('JSON parse failed:', responseText);
         }
 
         if (!scannedCards) throw new Error("AI returned invalid data format. Try again.");
