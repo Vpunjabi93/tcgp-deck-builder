@@ -234,20 +234,19 @@ function getStandardPrompt(fileCount) {
 }
 
 function getReverseScanPrompt(fileCount, targetSet) {
-    return `
-    This is a set of ${fileCount} screenshot(s) of a Pokémon TCG Pocket card collection shown in "Edition View" — a grid organized by card number within a specific set.
-    The user is trying to catalog set code "${targetSet}".
-    
-    Each slot has a card number. Cards that are MISSING (not owned) are greyed out, dimmed, or show a silhouette/lock. Cards that are OWNED are in full bright color.
-    
-    Your job: Look ONLY at the greyed-out / dimmed slots. List all the integer NUMBERS of the cards that are MISSING. Ignore the colored/owned ones.
-    
-    Return a strict JSON object with this exact property:
-    - "missingNumbers": an array of integers representing the card numbers that are greyed out.
-    
-    Example: {"missingNumbers":[2, 4, 15, 66, 102]}
-    No markdown, no extra text. Only the JSON object.
-    `;
+    return `You are a JSON-only response bot. Do not write any explanation, greeting, markdown, or code blocks. Your entire response must be a single line of raw JSON and nothing else.
+
+You are given ${fileCount} screenshot(s) of a Pokémon TCG Pocket collection in Edition View for set "${targetSet}". Each screenshot shows a grid of cards. Cards that are OWNED appear in full color with a name and image. Cards that are MISSING appear as a grey empty slot showing only a number (e.g. 003, 017).
+
+Your task: scan ALL ${fileCount} images completely. Collect every grey slot number you see across ALL images. Return them as a single JSON object.
+
+Rules:
+- Only include numbers from grey/empty slots
+- Include ALL grey slots from ALL images without stopping early
+- Output must be one single line, no line breaks, no markdown
+- Do not add any text before or after the JSON
+
+Required output format (example only): {"missingNumbers":[1,3,4,5,8,9,11,13]}`;
 }
 
 // --- Edition View Processing ---
