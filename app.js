@@ -1161,6 +1161,22 @@ Rules for the final array:
         const responseText = data.candidates[0].content.parts[0].text;
         console.log("Raw Gemini response:", responseText);
 
+        // Show Gemini's reasoning in the UI for debugging
+        const out = document.getElementById('recommender-output');
+        if (out) {
+            // Extract everything BEFORE the final JSON array
+            const lastBracket = responseText.lastIndexOf('[');
+            const reasoning = lastBracket > 0 ? responseText.slice(0, lastBracket).trim() : responseText;
+            out.innerHTML = `
+                <div style="background:var(--bg-dark); border:1px solid var(--accent-gold); border-radius:8px; padding:12px; margin-bottom:12px; max-height:300px; overflow-y:auto;">
+                    <div style="color:var(--accent-gold); font-size:0.8rem; margin-bottom:8px; font-weight:600;">🧠 Gemini Reasoning (Debug)</div>
+                    <pre style="white-space:pre-wrap; font-size:0.75rem; color:var(--text-muted); margin:0;">${reasoning.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                </div>
+                <span class="empty-state">Applying deck...</span>
+            `;
+            out.classList.remove('hidden');
+        }
+
         let suggestedCards = [];
 
         // GUARD: empty collection
