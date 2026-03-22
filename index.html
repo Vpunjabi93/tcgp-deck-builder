@@ -297,12 +297,16 @@
                             <p class="empty-text" style="color: var(--text-muted); font-size: 0.85rem;">Select a deck to load interactive slots.</p>
                         </div>
                         
-                        <div class="slider-group" style="margin-top: 24px; display: none;">
-                            <!-- Hidden, handled by _labPlayState but kept for JS compatibility -->
-                            <input type="range" id="slider-deck-size" min="1" max="20" value="20">
-                            <input type="range" id="slider-target-copies" min="0" max="2" value="2">
-                            <span id="val-deck-size">20</span>
-                            <span id="val-target-copies">2</span>
+                        <div class="slider-group" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                Cards Remaining (N) <span id="val-deck-size" style="color: var(--neon-cyan); font-family: 'Space Grotesk', sans-serif;">20</span>
+                            </label>
+                            <input type="range" id="slider-deck-size" min="1" max="20" value="20" style="width: 100%; margin-bottom: 12px; accent-color: var(--neon-cyan);">
+                            
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                Target Copies (K) <span id="val-target-copies" style="color: var(--accent-gold); font-family: 'Space Grotesk', sans-serif;">2</span>
+                            </label>
+                            <input type="range" id="slider-target-copies" min="0" max="2" value="2" style="width: 100%; accent-color: var(--accent-gold);">
                         </div>
                     </div>
 
@@ -316,8 +320,8 @@
                                 <div style="position: absolute; top:0; left:50%; transform:translateX(-50%); width:40%; height:1px; background:var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan);"></div>
                                 <h4 style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Selected Target Draw</h4>
                                 <div class="big-percent" id="result-percent" style="font-size: 3rem; font-weight: 700; color: var(--neon-cyan); text-shadow: 0 0 20px rgba(106,156,255,0.4); margin: 8px 0;">--%</div>
-                                <p id="result-text" style="font-size: 0.75rem; color: var(--text-muted);">Awaiting manual target selection...</p>
-                                <button id="btn-calc-odds" style="display: none;">Trigger</button>
+                                <p id="result-text" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px;">Awaiting manual target selection...</p>
+                                <button id="btn-calc-odds" class="btn-primary" style="width: 100%; font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; padding: 10px;">Calculate True Odds</button>
                             </div>
 
                             <!-- Next Draw Radar (Tactical Bar) -->
