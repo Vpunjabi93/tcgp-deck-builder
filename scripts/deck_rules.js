@@ -91,20 +91,38 @@ function checkEnergyTypes(deck) {
 
 function checkEvolutionIntegrity(deck, cardDb) {
     const deckNames = new Set(deck.map(c => c.name));
+    const hasRareCandy = deck.some(c => c.name === 'Rare Candy');
     const violations = [];
+
     for (const card of deck) {
         if (card.category !== 'Pokemon' || card.stage === 'Basic') continue;
+
         let current = card;
         while (current.evolveFrom) {
             const prev = cardDb.find(c => c.name === current.evolveFrom && c.category === 'Pokemon');
             if (!prev) break;
-            if (!deckNames.has(prev.name)) {
-                violations.push({ card: card.name, missing: prev.name });
+
+            const missingLink = !deckNames.has(prev.name);
+            // Rare Candy can substitute a missing Stage 1 ONLY when:
+            // - the missing card is a Stage 1 (not a Basic)
+            // - the deck has the Basic for that line
+            // - the deck has Rare Candy
+            if (missingLink) {
+                const isMissingStage1 = prev.stage === 'Stage 1';
+                const basicName = prev.evolveFrom;
+                const hasBasic = basicName ? deckNames.has(basicName) : false;
+                if (isMissingStage1 && hasBasic && hasRareCandy) {
+                    // Valid — Rare Candy bridges Basic → Stage 2, skip violation
+                } else {
+                    violations.push({ card: card.name, missing: prev.name });
+                }
             }
+
             if (prev.stage === 'Basic') break;
             current = prev;
         }
     }
+
     return {
         pass: violations.length === 0,
         violations,
@@ -214,15 +232,29 @@ function autoFixDeck(nameList, cardDb, ownedCardIds) {
         return true;
     });
 
-    // Add missing pre-evolutions or remove orphaned evolutions
+    // Add missing pre-evolutions, strip orphans, or allow Rare Candy bridge
+    const hasRareCandy = deck.some(c => c.name === 'Rare Candy');
     const deckNames = () => new Set(deck.map(c => c.name));
+
     for (const card of [...deck]) {
         if (card.category !== 'Pokemon' || card.stage === 'Basic') continue;
         let current = card;
         while (current.evolveFrom) {
             const prev = cardDb.find(c => c.name === current.evolveFrom && c.category === 'Pokemon');
             if (!prev) break;
+
             if (!deckNames().has(prev.name)) {
+                const isMissingStage1 = prev.stage === 'Stage 1';
+                const basicName = prev.evolveFrom;
+                const hasBasic = basicName ? deckNames().has(basicName) : false;
+
+                // Rare Candy bridge: Basic + Stage 2 + Rare Candy = legal, no Stage 1 needed
+                if (isMissingStage1 && hasBasic && hasRareCandy) {
+                    log.push(`Rare Candy bridges "${basicName}" → "${card.name}" (skipping "${prev.name}")`);
+                    break;
+                }
+
+                // Try to add the missing link from owned cards
                 if (ownedCards.find(c => c.name === prev.name)) {
                     deck.push(prev);
                     log.push(`Added missing pre-evo "${prev.name}" for "${card.name}"`);
@@ -232,6 +264,7 @@ function autoFixDeck(nameList, cardDb, ownedCardIds) {
                     break;
                 }
             }
+
             if (prev.stage === 'Basic') break;
             current = prev;
         }
