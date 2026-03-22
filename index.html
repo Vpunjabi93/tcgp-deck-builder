@@ -7,7 +7,8 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -16,151 +17,284 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Background Grid Overlay -->
+    <div class="card-grid-overlay"></div>
+
     <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
+        <!-- Top Nav Bar -->
+        <header class="app-header" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 50; background: rgba(14, 14, 17, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(112, 56, 248, 0.1); height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px;">
             <div class="logo">
-                <span class="pokeball-icon"></span>
-                <h1>TCGP Analyzer</h1>
+                <h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-style: italic; color: #7038F8; font-size: 1.25rem; letter-spacing: 0.5px; margin: 0;">TCG POCKET LAB</h1>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" style="display: flex; gap: 16px; align-items: center;">
+                <button class="icon-btn" style="background: transparent; border: none; color: #7038F8; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='rgba(112,56,248,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+                </button>
                 <div id="user-status" class="user-status">
-                    <button id="auth-btn" class="btn-primary btn-sm">Sign In</button>
+                    <button id="auth-btn" class="icon-btn" style="background: transparent; border: none; color: #7038F8; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s;" onmouseover="this.style.background='rgba(112,56,248,0.1)'" onmouseout="this.style.background='transparent'">
+                        <span class="material-symbols-outlined" style="font-size: 24px;">account_circle</span>
+                    </button>
                     <span id="user-email" class="hidden"></span>
                 </div>
-                <button id="api-key-btn" class="btn-ghost">API Key</button>
             </div>
         </header>
 
-        <!-- Main Content Area -->
-        <main class="content-area">
-            
-            <!-- View: 1. Card Entry -->
-            <section id="view-entry" class="view-section active">
-                <div class="scan-container">
-                    <h2>Add Cards to Collection</h2>
-                    <p class="subtitle">Choose your preferred method to bulk add cards to your inventory.</p>
+        <div style="display: flex; flex: 1; height: 100%; width: 100%; position: relative; z-index: 10;">
+            <!-- Side Nav (Desktop) -->
+            <nav class="side-nav">
+                <div class="user-avatar-block" style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(112,56,248,0.2); background: var(--bg-surface-high); display: flex; align-items: center; justify-content: center; color: #7038F8;">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">OPERATOR_01</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Elite Analyst</span>
+                    </div>
+                </div>
 
-                    <!-- Entry Tabs -->
-                    <div class="entry-tabs">
-                        <button class="entry-tab-btn active" data-target="tab-manual">✍️ Manual Text</button>
-                        <button class="entry-tab-btn" data-target="tab-reverse">📸 Reverse AI Scan</button>
-                        <button class="entry-tab-btn" data-target="tab-visual">👁️ Visual Selection</button>
+                <div class="nav-links" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                    <button class="nav-item active" data-target="view-entry" style="text-align: left; padding: 12px 16px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; font-size: 10px; letter-spacing: 3px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.2s; background: rgba(112,56,248,0.2); border-right: 4px solid #7038F8; color: var(--text-main);">Card Selector</button>
+                    <button class="nav-item" data-target="view-builder" style="text-align: left; padding: 12px 16px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; font-size: 10px; letter-spacing: 3px; border-radius: 4px; border: none; cursor: pointer; background: transparent; color: var(--text-muted); border-right: 4px solid transparent; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">Deck Builder</button>
+                    <button class="nav-item" data-target="view-probability" style="text-align: left; padding: 12px 16px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; font-size: 10px; letter-spacing: 3px; border-radius: 4px; border: none; cursor: pointer; background: transparent; color: var(--text-muted); border-right: 4px solid transparent; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">Probabilities</button>
+                    <button class="nav-item" data-target="view-live-match" style="text-align: left; padding: 12px 16px; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; font-size: 10px; letter-spacing: 3px; border-radius: 4px; border: none; cursor: pointer; background: transparent; color: var(--text-muted); border-right: 4px solid transparent; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">Collection</button>
+                </div>
+
+                <button class="generate-report-btn" style="width: 100%; padding: 14px; background: #7038F8; color: white; border: none; border-radius: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; cursor: pointer; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(112,56,248,0.4);"><span class="material-symbols-outlined" style="font-size: 18px;">analytics</span> GENERATE REPORT</button>
+            </nav>
+
+            <!-- Bottom Nav (Mobile) -->
+            <nav class="bottom-nav">
+                <button class="mobile-nav-item active"><span class="material-symbols-outlined">style</span></button>
+                <button class="mobile-nav-item"><span class="material-symbols-outlined">view_carousel</span></button>
+                <button class="mobile-nav-item"><span class="material-symbols-outlined">science</span></button>
+                <button class="mobile-nav-item"><span class="material-symbols-outlined">person</span></button>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+            <!-- View: 1. Card Entry (Elite Shell) -->
+            <section id="view-entry" class="view-section active">
+                <div class="scan-container" style="max-width: 1400px; margin: 0 auto;">
+                    <!-- Tab Toggles -->
+                    <div style="display: flex; gap: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px;">
+                        <button class="entry-tab-btn active" data-target="tab-manual">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">terminal</span> Manual Input
+                        </button>
+                        <button class="entry-tab-btn" data-target="tab-visual">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">grid_view</span> Visual Selection
+                        </button>
                     </div>
 
-                    <!-- Tab 1: Manual Text Entry -->
+                    <!-- Tab 1: Manual Input -->
                     <div id="tab-manual" class="entry-tab-content active">
-                        <div class="quick-entry-panel">
-                            <h3>Text Entry</h3>
-                            <p class="entry-hint" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Supports ranges (1-20) and individual numbers (22, 45)</p>
-                            <div class="manual-controls">
-                                <select id="manual-set-select-entry" class="dropdown">
-                                    <option value="A1">Genetic Apex (A1)</option>
-                                    <option value="A1a">Mythical Island (A1a)</option>
-                                    <option value="A2">Space-Time Smackdown (A2)</option>
-                                    <option value="A2a">Triumphant Light (A2a)</option>
-                                    <option value="A2b">Shining Revelry (A2b)</option>
-                                    <option value="A3">Celestial Guardians (A3)</option>
-                                    <option value="A3a">Extradimensional Crisis (A3a)</option>
-                                    <option value="A3b">Eevee Grove (A3b)</option>
-                                    <option value="A4">Wisdom of Sea and Sky (A4)</option>
-                                    <option value="A4a">Secluded Springs (A4a)</option>
-                                    <option value="B1">Mega Rising (B1)</option>
-                                    <option value="B1a">Crimson Blaze (B1a)</option>
-                                    <option value="B2">Fantastical Parade (B2)</option>
-                                    <option value="B2a">Paldean Wonders (B2a)</option>
-                                    <option value="P-A">Promo-A (P-A)</option>
-                                </select>
-                                <input type="text" id="manual-numbers-entry" placeholder="e.g. 1-20, 22, 25">
-                                <button id="btn-manual-add-entry" class="btn-primary">Add</button>
+                        <!-- Page Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+                            <div>
+                                <h2 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 2.25rem; color: #fff; margin: 0 0 4px 0; display: flex; align-items: center; gap: 12px; letter-spacing: -1px;">
+                                    <span class="material-symbols-outlined" style="color: #7038F8; font-size: 32px;">terminal</span> MANUAL_INPUT_PROTOCOL
+                                </h2>
+                                <p style="color: #ACAaAE; font-size: 0.85rem; margin: 0;">Enter card identifiers to synchronize your local database.</p>
+                            </div>
+                            <div style="display: flex; gap: 12px;">
+                                <span style="border: 1px solid #6a9cff; color: #6a9cff; padding: 4px 12px; border-radius: 99px; font-size: 0.65rem; text-transform: uppercase; font-family: 'Space Grotesk', sans-serif; letter-spacing: 1px;">Status: Live</span>
+                                <span style="border: 1px solid #fcd434; color: #fcd434; padding: 4px 12px; border-radius: 99px; font-size: 0.65rem; text-transform: uppercase; font-family: 'Space Grotesk', sans-serif; letter-spacing: 1px;">Region: Genetic Apex</span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Tab 2: Reverse AI Scan -->
-                    <div id="tab-reverse" class="entry-tab-content hidden">
-                        <div class="upload-zone-wrapper">
-                            <h3>Reverse AI Scan</h3>
-                            <p class="scan-mode-hint" style="margin-bottom:16px;">
-                                Set the series below. Upload screenshots showing the <strong style="color:var(--text-color);">greyed-out (missing) numbers</strong> for that series.
-                            </p>
-                            
-                            <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-gold); margin-bottom: 8px;">1 — Select your set</div>
-                            <select id="reverse-scan-set-select" class="dropdown" style="margin-bottom: 24px; width: 100%; max-width: 300px;">
-                                <option value="A1">Genetic Apex (A1)</option>
-                                <option value="A1a">Mythical Island (A1a)</option>
-                                <option value="A2">Space-Time Smackdown (A2)</option>
-                                <option value="A2a">Triumphant Light (A2a)</option>
-                                <option value="A2b">Shining Revelry (A2b)</option>
-                                <option value="A3">Celestial Guardians (A3)</option>
-                                <option value="A3a">Extradimensional Crisis (A3a)</option>
-                                <option value="A3b">Eevee Grove (A3b)</option>
-                                <option value="A4">Wisdom of Sea and Sky (A4)</option>
-                                <option value="A4a">Secluded Springs (A4a)</option>
-                                <option value="B1">Mega Rising (B1)</option>
-                                <option value="B1a">Crimson Blaze (B1a)</option>
-                                <option value="B2">Fantastical Parade (B2)</option>
-                                <option value="B2a">Paldean Wonders (B2a)</option>
-                                <option value="P-A">Promo-A (P-A)</option>
-                            </select>
+                        <!-- 12-Column Grid -->
+                        <div class="elite-layout-grid">
+                            <!-- Left Panel (wider) -->
+                            <div class="glass-panel elite-panel-left">
+                                <label style="display: block; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; color: #ACAaAE; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Target Set Expansion</label>
+                                <select id="manual-set-select-entry" class="dropdown" style="width: 100%; background: #131316; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 6px; margin-bottom: 24px; font-family: 'Space Grotesk', sans-serif;">
+                                    <option value="A1">Genetic Apex (A1)</option>
+                                    <option value="P-A">Promotional Cards (P-A)</option>
+                                    <option value="A2">Mythical Discovery (A2)</option>
+                                </select>
 
-                            <div style="font-weight: 600; font-size: 0.9rem; color: var(--accent-gold); margin-bottom: 8px;">2 — Upload your screenshots</div>
-                            <div class="upload-zone" id="upload-zone">
-                                <div class="upload-icon">📸</div>
-                                <h3>Upload Screenshots</h3>
-                                <p>Tap to select images (multi-select supported)</p>
-                                <input type="file" id="video-upload" accept="image/png,image/jpeg,image/webp" multiple hidden>
+                                <label style="display: block; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; color: #ACAaAE; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Identifier String</label>
+                                <div style="position: relative; margin-bottom: 24px;">
+                                    <textarea id="manual-numbers-entry" rows="4" placeholder="e.g. 1-20, 22, 150-155" style="width: 100%; background: #0e0e11; border: 1px solid rgba(252, 212, 52, 0.3); color: #fcd434; font-family: monospace; font-size: 1rem; padding: 16px; border-radius: 6px; resize: vertical; box-sizing: border-box;"></textarea>
+                                </div>
+
+                                <button id="btn-manual-add-entry" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #fcd434, #d8b300); color: #131316; border: none; border-radius: 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;" class="hover-rotate-icon">
+                                    <span class="material-symbols-outlined transition-transform">add_circle</span> INITIALIZE CARD SYNC
+                                </button>
                             </div>
 
-                            <div id="upload-preview-container" class="upload-preview-container hidden">
-                                <h3>Selected Screenshots (<span id="preview-count">0</span>)</h3>
-                                <div id="upload-preview-grid" class="upload-preview-grid"></div>
-                                <div class="preview-actions">
-                                    <button id="btn-cancel-upload" class="btn-ghost" onclick="cancelUpload()">Cancel</button>
-                                    <button id="btn-confirm-upload" class="btn-primary" onclick="confirmUpload()">Scan Missing Cards</button>
+                            <!-- Right Panel (narrower) -->
+                            <div class="elite-panel-right">
+                                <div class="glass-panel" style="border-left: 3px solid #6a9cff; border-top: none; padding: 20px;">
+                                    <h4 style="color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0 0 12px 0; font-size: 0.9rem;">Input Intelligence</h4>
+                                    <ul style="color: #ACAaAE; font-size: 0.8rem; margin: 0; padding-left: 16px; line-height: 1.6;">
+                                        <li>Comma separation supported</li>
+                                        <li>Hyphenated ranges supported</li>
+                                        <li>Automatic duplicate merge protocol active</li>
+                                    </ul>
+                                </div>
+                                <div class="glass-panel" style="border-left: 3px solid #fcd434; border-top: none; padding: 20px;">
+                                    <h4 style="color: #fff; font-family: 'Space Grotesk', sans-serif; margin: 0 0 12px 0; font-size: 0.9rem;">Quick Tally</h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                                        <span style="color: #fcd434; font-size: 1.5rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif;"><span id="quick-tally-owned">124</span><span style="font-size: 0.9rem; color: #ACAaAE;">/226</span></span>
+                                    </div>
+                                    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 8px;">
+                                        <div id="quick-tally-progress" style="width: 55%; height: 100%; background: #fcd434; box-shadow: 0 0 8px #fcd434;"></div>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Genetic Apex Collection Completion</div>
                                 </div>
                             </div>
-                            
-                            <div id="scan-status" class="status-panel hidden">
-                                <div class="loader"></div>
-                                <p id="scan-status-text">Analyzing missing cards...</p>
+                        </div>
+
+                        <!-- Recently Synchronized Assets -->
+                        <div style="margin-top: 40px; margin-bottom: 40px;">
+                            <div style="display: flex; justify-content: space-between; align-items: bottom; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 16px;">
+                                <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; color: #fff; margin: 0;">Recently_Synchronized_Assets</h3>
+                                <a href="#" id="clear-recent-history" style="color: #6a9cff; font-size: 0.75rem; text-decoration: none;">Clear History</a>
+                            </div>
+                            <div class="recent-assets-grid" id="recent-assets-container">
+                                <!-- Placeholders for cards -->
+                                <div class="recent-asset-card" style="aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; position: relative; background: #131316; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'; this.style.borderColor='#fcd434'; this.querySelector('img').style.filter='none'" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255,255,255,0.05)'; this.querySelector('img').style.filter='grayscale(100%)'">
+                                    <img src="https://tcgpocket.club/images/cards/A1/A1_001.png" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: filter 0.3s;" alt="Card">
+                                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                        <div style="font-size: 0.6rem; color: #ACAaAE; text-transform: uppercase;">Grass Type</div>
+                                        <div style="font-size: 0.8rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bulbasaur</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                            <span style="font-size: 0.7rem; color: #ACAaAE;">A1 • 001</span>
+                                            <span style="font-size: 0.6rem; background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px;">◆</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 3 more sample cards to fill space -->
+                                <div class="recent-asset-card" style="aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; position: relative; background: #131316; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'; this.style.borderColor='#fcd434'; this.querySelector('img').style.filter='none'" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255,255,255,0.05)'; this.querySelector('img').style.filter='grayscale(100%)'">
+                                    <img src="https://tcgpocket.club/images/cards/A1/A1_004.png" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: filter 0.3s;" alt="Card">
+                                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                        <div style="font-size: 0.6rem; color: #ACAaAE; text-transform: uppercase;">Fire Type</div>
+                                        <div style="font-size: 0.8rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Charmander</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                            <span style="font-size: 0.7rem; color: #ACAaAE;">A1 • 004</span>
+                                            <span style="font-size: 0.6rem; background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px;">◆</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-asset-card" style="aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; position: relative; background: #131316; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'; this.style.borderColor='#fcd434'; this.querySelector('img').style.filter='none'" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255,255,255,0.05)'; this.querySelector('img').style.filter='grayscale(100%)'">
+                                    <img src="https://tcgpocket.club/images/cards/A1/A1_007.png" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: filter 0.3s;" alt="Card">
+                                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                        <div style="font-size: 0.6rem; color: #ACAaAE; text-transform: uppercase;">Water Type</div>
+                                        <div style="font-size: 0.8rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Squirtle</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                            <span style="font-size: 0.7rem; color: #ACAaAE;">A1 • 007</span>
+                                            <span style="font-size: 0.6rem; background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px;">◆</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-asset-card" style="aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; position: relative; background: #131316; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'; this.style.borderColor='#fcd434'; this.querySelector('img').style.filter='none'" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255,255,255,0.05)'; this.querySelector('img').style.filter='grayscale(100%)'">
+                                    <img src="https://tcgpocket.club/images/cards/A1/A1_010.png" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); transition: filter 0.3s;" alt="Card">
+                                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+                                        <div style="font-size: 0.6rem; color: #ACAaAE; text-transform: uppercase;">Water Type</div>
+                                        <div style="font-size: 0.8rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Starmie ex</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                            <span style="font-size: 0.7rem; color: #ACAaAE;">A1 • 010</span>
+                                            <span style="font-size: 0.6rem; background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 2px;">★★★</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="aspect-ratio: 3/4; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-direction: column; color: #64748b; gap: 8px;">
+                                    <span class="material-symbols-outlined">add</span>
+                                    <span style="font-size: 0.7rem; font-family: 'Space Grotesk', sans-serif;">Awaiting_Input</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Tab 3: Visual Selection -->
-                    <div id="tab-visual" class="entry-tab-content hidden">
-                        <div class="visual-selection-panel">
-                            <div class="visual-header-flex">
-                                <select id="visual-set-select" class="dropdown">
-                                    <option value="A1">Genetic Apex (A1)</option>
-                                    <option value="A1a">Mythical Island (A1a)</option>
-                                    <option value="A2">Space-Time Smackdown (A2)</option>
-                                    <option value="A2a">Triumphant Light (A2a)</option>
-                                    <option value="A2b">Shining Revelry (A2b)</option>
-                                    <option value="A3">Celestial Guardians (A3)</option>
-                                    <option value="A3a">Extradimensional Crisis (A3a)</option>
-                                    <option value="A3b">Eevee Grove (A3b)</option>
-                                    <option value="A4">Wisdom of Sea and Sky (A4)</option>
-                                    <option value="A4a">Secluded Springs (A4a)</option>
-                                    <option value="B1">Mega Rising (B1)</option>
-                                    <option value="B1a">Crimson Blaze (B1a)</option>
-                                    <option value="B2">Fantastical Parade (B2)</option>
-                                    <option value="B2a">Paldean Wonders (B2a)</option>
-                                    <option value="P-A">Promo-A (P-A)</option>
-                                </select>
-                                <input type="text" id="visual-search" class="search-input" placeholder="Search No., Type, Rarity...">
+                    <!-- Tab 2: Visual Selection -->
+                    <div id="tab-visual" class="entry-tab-content hidden" style="margin-bottom: 80px; position: relative;">
+                        <!-- Tactical Filter Bar -->
+                        <div style="background: #131316; border-radius: 12px; padding: 16px 24px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                            <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+                                <div style="color: #7038F8; display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">
+                                    <span class="material-symbols-outlined" style="font-size: 20px;">filter_list</span> Tactical Filters
+                                </div>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <div style="position: relative;">
+                                        <select id="visual-type-filter" class="filter-dropdown">
+                                            <option value="">Type: All</option>
+                                            <option value="Fire">Fire</option>
+                                            <option value="Water">Water</option>
+                                            <option value="Grass">Grass</option>
+                                            <option value="Lightning">Lightning</option>
+                                            <option value="Psychic">Psychic</option>
+                                            <option value="Fighting">Fighting</option>
+                                            <option value="Darkness">Darkness</option>
+                                            <option value="Colorless">Colorless</option>
+                                        </select>
+                                        <span class="material-symbols-outlined" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; color: #ACAaAE;">expand_more</span>
+                                    </div>
+                                    <div style="position: relative;">
+                                        <select id="visual-stage-filter" class="filter-dropdown">
+                                            <option value="">Stage: All</option>
+                                            <option value="Basic">Basic</option>
+                                            <option value="Stage 1">Stage 1</option>
+                                            <option value="Stage 2">Stage 2</option>
+                                        </select>
+                                        <span class="material-symbols-outlined" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; color: #ACAaAE;">expand_more</span>
+                                    </div>
+                                    <div style="position: relative;">
+                                        <select id="visual-set-select-visual" class="filter-dropdown">
+                                            <option value="A1">Exp: A1</option>
+                                            <option value="P-A">Exp: P-A</option>
+                                            <option value="A2">Exp: A2</option>
+                                        </select>
+                                        <span class="material-symbols-outlined" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; color: #ACAaAE;">expand_more</span>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- Grid for the cards to click -->
-                            <div id="visual-card-grid" class="visual-card-grid"></div>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div style="text-align: right;">
+                                    <div style="font-family: 'Space Grotesk', sans-serif; color: #fcd434; font-weight: 700; font-size: 1.1rem; line-height: 1;"><span id="visual-sync-count">142</span><span style="font-size: 0.75rem; color: #ACAaAE; margin-left: 2px;">/256</span></div>
+                                    <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Assets Owned</div>
+                                </div>
+                                <div style="width: 80px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div id="visual-sync-bar" style="width: 55%; height: 100%; background: #fcd434; box-shadow: 0 0 10px #fcd434;"></div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Massive Card Grid -->
+                        <div id="visual-card-grid" class="massive-card-grid">
+                            <!-- Example Owned Card -->
+                            <div class="card-cell owned owned-glow" style="position:relative; aspect-ratio: 2.5/3.5; border-radius: 12px; overflow: hidden; background: #131316; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.zIndex='20'; this.style.boxShadow='0 0 0 2px #fcd434, 0 8px 20px rgba(0,0,0,0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.zIndex='1'; this.style.boxShadow='none'">
+                                <img src="https://tcgpocket.club/images/cards/A1/A1_129.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Owned Card">
+                                <div style="position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; font-weight: bold;">check</span>
+                                </div>
+                                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: linear-gradient(transparent, rgba(0,0,0,0.85));">
+                                    <div style="font-size: 0.6rem; color: #7038F8; font-weight: 700; font-family: 'Space Grotesk', sans-serif;">129</div>
+                                    <div style="font-size: 0.7rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Inter', sans-serif;">Pikachu ex</div>
+                                </div>
+                            </div>
+
+                            <!-- Example Missing Card -->
+                            <div class="card-cell missing" style="position:relative; aspect-ratio: 2.5/3.5; border-radius: 12px; overflow: hidden; background: #131316; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.zIndex='20'; this.style.boxShadow='0 0 0 2px #fcd434, 0 8px 20px rgba(0,0,0,0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.zIndex='1'; this.style.boxShadow='none'">
+                                <img src="https://tcgpocket.club/images/cards/A1/A1_155.png" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); opacity: 0.35;" alt="Missing Card">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.4);">
+                                    <span class="material-symbols-outlined" style="font-size: 32px;">add</span>
+                                </div>
+                                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: linear-gradient(transparent, rgba(0,0,0,0.6));">
+                                    <div style="font-size: 0.6rem; color: #ACAaAE; font-weight: 700; font-family: 'Space Grotesk', sans-serif;">155</div>
+                                    <div style="font-size: 0.7rem; color: #ACAaAE; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Inter', sans-serif;">Mewtwo ex</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Floating Action Button -->
+                        <button id="btn-sync-collection-fab" style="position: fixed; bottom: 32px; right: 32px; z-index: 100; border-radius: 99px; padding: 2px; background: linear-gradient(135deg, #7038F8, #fcd434); border: none; cursor: pointer; box-shadow: 0 10px 40px rgba(112,56,248,0.5); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 50px rgba(112,56,248,0.7)'; this.querySelector('.material-symbols-outlined').style.transform='rotate(180deg)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 40px rgba(112,56,248,0.5)'; this.querySelector('.material-symbols-outlined').style.transform='rotate(0deg)'">
+                            <div style="background: #131316; border-radius: 99px; padding: 14px 32px; display: flex; align-items: center; gap: 10px; color: #fff; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 1.5px; text-transform: uppercase;">
+                                <span class="material-symbols-outlined" style="transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 22px;">sync</span> SYNC COLLECTION
+                            </div>
+                        </button>
                     </div>
 
-                    <!-- Mega Proceed Button -->
-                    <div class="proceed-container" style="margin-top: 32px; text-align: center;">
-                        <button id="btn-proceed-decks" class="btn-primary" style="padding: 16px 32px; font-size: 1.1rem; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(26,127,55,0.4);">Proceed to Decks ➡️</button>
-                    </div>
-
+                    <button id="btn-proceed-decks" style="display: none;">Proceed</button>
                 </div>
             </section>
 
