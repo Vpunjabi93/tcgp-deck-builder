@@ -1,6 +1,6 @@
 // app.js - Main Application Logic for TCGP Analyzer
 
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 let _sessionApiKey = null;
 
 window.TCGP_CARDS = []; // Global declaration
