@@ -1109,9 +1109,14 @@ Use these signals to PREFER cards with high WeightedFit AND high Consistency.
 Deprioritise cards with PeakTurn > 5 unless they are the deck's primary win condition.
 ${collectionSummary}
 
-Now output your DECK PLAN, then your SELF-CHECK answers, then FINALLY a JSON array of exactly 20 card name strings.
-The JSON must be the last thing in your response.
-No markdown fences around the JSON. No code blocks. Just the raw array at the end.`;
+Now output your DECK PLAN, then your SELF-CHECK answers.
+Then, as the VERY LAST thing in your response, output a JSON array of exactly 20 card name strings.
+Rules for the final array:
+- It must be a flat array of strings only. Example: ["Pikachu EX", "Pikachu", "Professor's Research"]
+- No objects, no {id}, no {name}, no {role} — plain strings only.
+- No markdown code fences (no \`\`\`json or \`\`\`).
+- No text, punctuation, or newline after the closing ].
+- The array must be the absolute last characters in your response.`;
 
     const apiKey = _sessionApiKey;
     console.log('Attempting AI Build with key:', apiKey ? 'Found' : 'Missing');
