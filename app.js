@@ -1032,6 +1032,12 @@ TRAINER SELECTIONS:
 - List every Gym Leader Trainer you plan to include.
 - For each one, explicitly name which Pokémon in THIS deck they target.
 - If no matching Pokémon exist for a Trainer, do NOT include that Trainer.
+- Misty requires multiple strong Water Pokémon (ideally including a Water EX). Do not include Misty if the only Water card is a single small Basic like Squirtle.
+- Blaine requires multiple Fire attackers, ideally a Fire EX line.
+- Erika requires multiple Grass Pokémon.
+- Koga requires Grimer or Weezing in the list.
+- Brock requires Onix, Golem, Geodude, or Graveler in the list.
+- Do not run 2 copies of any Gym Leader Trainer unless their target type/line is strongly represented (3+ matching Pokémon).
 
 EVOLUTION LINES:
 - List every evolution card you plan to include.
@@ -1039,12 +1045,14 @@ EVOLUTION LINES:
 - If the Basic is missing from my collection, remove the entire line.
 
 TYPE SUMMARY:
-- State the deck's dominant Pokémon type.
-- Confirm every Gym Leader Trainer matches that type.
+- State the deck's 1 or 2 dominant Pokémon types.
+- Single-type decks are ideal. Two-type decks are acceptable if both types are clearly supported.
+- Do NOT build a deck where meaningful attackers are spread across 3 or more colored energy types.
+- Confirm every Gym Leader Trainer matches the deck's dominant type(s).
 
 ENERGY TYPE CONSTRAINT:
 - Count the distinct non-Colorless Pokémon energy types in your planned list (exclude Supporter, Item, and Colorless cards entirely).
-- You MUST use a maximum of 2 energy types. This is a hard rule, not a suggestion.
+- You MUST use a maximum of 2 energy types. This is a hard rule.
 - If your list has 3 or more types, identify the least-represented type and remove ALL Pokémon of that type.
 - Replace removed cards with Pokémon of your top 1-2 types from my collection, OR with Supporters/Items.
 - Colorless Pokémon do NOT count as an energy type and are always permitted.
@@ -1056,12 +1064,13 @@ Before writing the final JSON, answer each question:
 
 1. TRAINER TYPE MATCH — Does every Gym Leader Trainer card match the deck's dominant type?
    Brock = needs Onix/Golem/Geodude/Graveler in the list.
-   Misty = needs Water Pokémon in the list.
-   Blaine = needs Ninetales/Magmar/Rapidash in the list.
-   Erika = needs Grass Pokémon in the list.
+   Misty = needs multiple Water Pokémon in the list, ideally a Water EX. A single small Water Basic is NOT enough.
+   Blaine = needs Ninetales/Magmar/Rapidash or a Fire EX in the list.
+   Erika = needs multiple Grass Pokémon in the list.
    Koga = needs Grimer/Weezing in the list.
    Lt. Surge = needs Lightning Pokémon in the list.
    → If any Trainer fails this check, REMOVE them from the plan.
+   → If you have 2 copies of a Gym Leader Trainer but fewer than 3 matching Pokémon, reduce to 1 copy.
 
 2. EVOLUTION INTEGRITY — Does every Stage 1 have its Basic? Every Stage 2 have Stage 1 + Basic?
    → If any evolution is orphaned, remove it or add the missing Basic from my collection.
