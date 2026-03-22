@@ -101,6 +101,22 @@ function initApp() {
     const saveFirebaseBtn = document.getElementById('btn-save-firebase');
     if (saveFirebaseBtn) saveFirebaseBtn.addEventListener('click', saveFirebaseConfig);
 
+    const clearBtn = document.getElementById('btn-clear-collection');
+    const clearToast = document.getElementById('toast-clear-warning');
+    const clearConfirmBtn = document.getElementById('btn-clear-confirm');
+    const clearCancelBtn = document.getElementById('btn-clear-cancel');
+
+    if (clearBtn) clearBtn.addEventListener('click', () => clearToast.style.display = 'block');
+    if (clearCancelBtn) clearCancelBtn.addEventListener('click', () => clearToast.style.display = 'none');
+    if (clearConfirmBtn) clearConfirmBtn.addEventListener('click', () => {
+        localStorage.removeItem('tcgp_collection');
+        clearToast.style.display = 'none';
+        renderCollectionGrid();
+        renderDeckBuilderSidebar();
+        syncCollectionToCloud();
+        showToast('Collection cleared.', 'error');
+    });
+
     // Initial renders
     renderCollectionGrid();
     renderDeckBuilderSidebar();
@@ -604,47 +620,71 @@ window.renderVisualSelectionGrid = function (searchQuery = '') {
 window.updateCardQuantity = function (cardId, change) {
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
     let currentQty = myCollection[cardId] || 0;
-
     let newQty = currentQty + change;
-    if (newQty <= 0) {
-        delete myCollection[cardId];
-    } else {
-        myCollection[cardId] = newQty;
-    }
+
+    if (newQty <= 0) delete myCollection[cardId];
+    else myCollection[cardId] = newQty;
 
     localStorage.setItem('tcgp_collection', JSON.stringify(myCollection));
-
-    // Update the visual grid without losing search context
-    const visualSearch = document.getElementById('visual-search');
-    renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
-
-    // Sync other background views
-    renderCollectionGrid();
-    renderDeckBuilderSidebar();
     syncCollectionToCloud();
+
+    // Only re-render the active view
+    const activeSection = document.querySelector('.view-section.active')?.id;
+    if (activeSection === 'view-collection') {
+        // Reset and re-render from page 0 to reflect qty changes
+        collectionPage = 0;
+        document.getElementById('collection-grid').innerHTML = '';
+        renderCollectionGrid(document.getElementById('search-cards')?.value || '');
+    } else if (activeSection === 'view-deck-builder') {
+        renderDeckBuilderSidebar();
+    }
+    
+    // Always keep visual grid in sync if it's visible
+    const visualTab = document.querySelector('#tab-visual');
+    if (visualTab && visualTab.style.display !== 'none') {
+        const visualSearch = document.getElementById('visual-search');
+        renderVisualSelectionGrid(visualSearch ? visualSearch.value : '');
+    }
 };
+
+// Pagination state
+let collectionPage = 0;
+const COLLECTION_PAGE_SIZE = 40;
+let collectionDisplayCards = [];
 
 window.renderCollectionGrid = function (searchQuery = '') {
     const grid = document.getElementById('collection-grid');
     if (!grid) return;
-    grid.innerHTML = '';
 
     const allCards = TCGP_CARDS;
     let myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
 
     let uniqueCount = 0;
     let totalCopies = 0;
+    allCards.forEach(c => {
+        const qty = myCollection[c.id] || 0;
+        if (qty > 0) { uniqueCount++; totalCopies += qty; }
+    });
 
-    let displayCards = allCards;
-    if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        displayCards = allCards.filter(c => c.name.toLowerCase().includes(q) || c.type?.toLowerCase().includes(q));
+    // Rebuild filtered list only when query changes
+    if (searchQuery !== undefined) {
+        collectionPage = 0;
+        grid.innerHTML = '';
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            collectionDisplayCards = allCards.filter(c =>
+                c.name.toLowerCase().includes(q) || c.type?.toLowerCase().includes(q)
+            );
+        } else {
+            collectionDisplayCards = allCards;
+        }
     }
 
-    displayCards.forEach(card => {
-        const qty = myCollection[card.id] || 0;
-        if (qty > 0) { uniqueCount++; totalCopies += qty; }
+    const start = collectionPage * COLLECTION_PAGE_SIZE;
+    const slice = collectionDisplayCards.slice(start, start + COLLECTION_PAGE_SIZE);
 
+    slice.forEach(card => {
+        const qty = myCollection[card.id] || 0;
         const isOwned = qty > 0;
         const cardEl = document.createElement('div');
         cardEl.className = `tcgp-card ${isOwned ? 'owned' : ''}`;
@@ -674,11 +714,37 @@ window.renderCollectionGrid = function (searchQuery = '') {
         grid.appendChild(cardEl);
     });
 
+    // Stats
     document.getElementById('stat-unique-cards').innerText = `${uniqueCount} Unique Cards`;
     document.getElementById('stat-total-copies').innerText = `${totalCopies} Total Copies`;
     const completion = ((uniqueCount / allCards.length) * 100).toFixed(1);
     document.getElementById('stat-completion').innerText = `${completion}% Complete`;
+
+    // Infinite scroll sentinel
+    setupCollectionScrollSentinel();
 };
+
+function setupCollectionScrollSentinel() {
+    const existing = document.getElementById('collection-scroll-sentinel');
+    if (existing) existing.remove();
+
+    if ((collectionPage + 1) * COLLECTION_PAGE_SIZE >= collectionDisplayCards.length) return;
+
+    const sentinel = document.createElement('div');
+    sentinel.id = 'collection-scroll-sentinel';
+    sentinel.style.height = '1px';
+    document.getElementById('collection-grid').appendChild(sentinel);
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            observer.disconnect();
+            collectionPage++;
+            renderCollectionGrid(undefined); // append next page, don't reset
+        }
+    }, { threshold: 0.1 });
+
+    observer.observe(sentinel);
+}
 
 // --- Deck Builder ---
 window.currentDeck = [];
