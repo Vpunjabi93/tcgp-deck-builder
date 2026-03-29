@@ -212,8 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const playstyle = document.getElementById('db-playstyle-select').value;
             const outputArea = document.getElementById('recommender-output');
             outputArea.classList.remove('hidden');
-            outputArea.innerHTML = '<span class="empty-state">Gemini AI is building your deck...</span>';
-            fetchAISuggestion(playstyle);
+            outputArea.innerHTML = '<span class="empty-state">🤖 Gemini is building your deck from your collection...</span>';
+            window.buildAIDeck(playstyle);
         });
     }
 });
@@ -876,10 +876,10 @@ window.addToDeck = function (id) {
     const card = TCGP_CARDS.find(c => c.id === id);
     if (!card) return;
 
-    if (card.evolveFrom) {
+    if (card.evolvesFrom) {
         const deckNames = window.currentDeck.map(c => c.name);
-        if (!deckNames.includes(card.evolveFrom)) {
-            showToast(`⚠️ Add ${card.evolveFrom} first — ${card.name} evolves from it`, 'error');
+        if (!deckNames.includes(card.evolvesFrom)) {
+            showToast(`⚠️ Add ${card.evolvesFrom} first — ${card.name} evolves from it`, 'error');
         }
     }
 
@@ -1097,152 +1097,7 @@ async function updateOpponentPrediction() {
     }).join('');
 }
 
-// --- AI Strategy Bridge ---
-window.fetchAISuggestion = async function(playstyle) {
-    const myCollection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
-    const allCards = window.TCGP_CARDS || [];
 
-    // Step 1: Build owned cards as before
-    const allOwnedCards = Object.entries(myCollection)
-        .filter(([id, qty]) => qty > 0)
-        .map(([id, qty]) => {
-            const card = window.TCGP_CARDS.find(c => c.id === id);
-            if (!card) return null;
-            return { card, qty };
-        }).filter(Boolean);
-
-    const ownedCardObjects = allOwnedCards.map(o => o.card);
-
-    // ─── PRE-FILTER: enforce 2 energy type cap IN JAVASCRIPT before sending to Gemini ───
-    const pokemonCards = allOwnedCards.filter(({ card }) =>
-        card.type && !['Supporter', 'Item', 'Colorless'].includes(card.type)
-    );
-    const nonPokemonCards = allOwnedCards.filter(({ card }) =>
-        !card.type || ['Supporter', 'Item', 'Colorless'].includes(card.type)
-    );
-
-    const typeGroups = {};
-    pokemonCards.forEach(({ card, qty }) => {
-        if (!typeGroups[card.type]) typeGroups[card.type] = { cards: [], totalQty: 0, totalScore: 0 };
-        const score = typeof window.scorePokemon === 'function' ? window.scorePokemon(card, ownedCardObjects) : 0;
-        typeGroups[card.type].cards.push({ card, qty, score });
-        typeGroups[card.type].totalQty += qty;
-        typeGroups[card.type].totalScore += score;
-    });
-
-    const sortedTypes = Object.entries(typeGroups)
-        .sort((a, b) => b[1].totalScore - a[1].totalScore)
-        .map(([type]) => type);
-    
-    const type1 = document.getElementById('db-type-select-1')?.value || 'Any';
-    const type2 = document.getElementById('db-type-select-2')?.value || 'None';
-
-    const allowedTypes = (type1 === 'Any')
-        ? new Set(sortedTypes.slice(0, 2)) // fallback to auto-pick if no preference
-        : new Set([type1, type2 !== 'None' ? type2 : null].filter(Boolean));
-
-    const filteredCollection = [
-        ...pokemonCards.filter(({ card }) => allowedTypes.has(card.type)),
-        ...allOwnedCards.filter(({ card }) =>
-            card.type === 'Colorless' || card.type === 'Supporter' || card.type === 'Item' || !card.type
-        )
-    ];
-
-    const fossilItems = ['Dome Fossil', 'Helix Fossil', 'Old Amber', 'Mysterious Fossil'];
-    const fossilPokemon = filteredCollection.filter(({ card }) => card.stage && card.stage.toLowerCase().includes('fossil'));
-    const filteredNoFossil = fossilPokemon.length >= 2 ? filteredCollection : filteredCollection.filter(({ card }) => !fossilItems.includes(card.name));
-
-    // Define each Gym Leader's required Pokémon names and minimum count
-    const gymLeaderRules = {
-        'Misty':    { requiredNames: null, requiredType: 'Water',     minCount: 2 },
-        'Blaine':   { requiredNames: ['Ninetales', 'Magmar', 'Rapidash', 'Ninetales EX', 'Magmar EX'], requiredType: 'Fire', minCount: 2 },
-        'Erika':    { requiredNames: null, requiredType: 'Grass',     minCount: 2 },
-        'Brock':    { requiredNames: ['Onix', 'Golem', 'Geodude', 'Graveler', 'Onix EX'], requiredType: null, minCount: 1 },
-        'Koga':     { requiredNames: ['Grimer', 'Weezing'],           requiredType: null, minCount: 1 },
-        'Lt. Surge':{ requiredNames: null, requiredType: 'Lightning', minCount: 2 },
-        'Giovanni': { requiredNames: null, requiredType: null,        minCount: 0 },
-        'Sabrina':  { requiredNames: null, requiredType: 'Psychic',   minCount: 2 },
-    };
-
-    const trainersToDrop = new Set();
-    Object.entries(gymLeaderRules).forEach(([trainerName, rule]) => {
-        if (rule.minCount === 0) return;
-        const matchingPokemon = filteredNoFossil.filter(({ card }) => {
-            const nameMatch = rule.requiredNames ? rule.requiredNames.some(n => card.name.toLowerCase().includes(n.toLowerCase())) : true;
-            const typeMatch = rule.requiredType ? card.type === rule.requiredType : true;
-            return nameMatch && typeMatch && card.type !== 'Supporter' && card.type !== 'Item';
-        });
-        if (matchingPokemon.length < rule.minCount) trainersToDrop.add(trainerName);
-    });
-
-    const filteredFinal = trainersToDrop.size > 0 ? filteredNoFossil.filter(({ card }) => !trainersToDrop.has(card.name)) : filteredNoFossil;
-
-    // Run sim
-    let simSignals = {};
-    const filteredCardObjects = filteredFinal.map(o => o.card);
-    if (typeof window.runEnsembleSimulation === 'function' && filteredCardObjects.length >= 4) {
-        try { simSignals = window.runEnsembleSimulation(filteredCardObjects, 600) || {}; } catch(e) {}
-    }
-
-    // Call Gemini Parser
-    try {
-        const apiKey = _sessionApiKey;
-        if (!apiKey) {
-            if (typeof window.showToast === 'function') window.showToast('Please enter your API Key in Settings.', 'error');
-            else alert('Please enter your API Key in Settings.');
-            return;
-        }
-
-        const btn = document.getElementById('btn-ai-build');
-        if (btn) {
-            btn.innerHTML = `<span class='spinner'></span> Analyzing...`;
-            btn.classList.add('btn-loading');
-        }
-
-        const result = await window.GeminiParser.runGeminiDeckBuild({
-            ownedCards: filteredFinal.map(o => ({ ...o, _powerScore: typeof window.scorePokemon === 'function' ? window.scorePokemon(o.card, filteredCardObjects) : 0, _sim: simSignals[o.card.name] })),
-            cardDb: window.TCGP_CARDS,
-            ownedCardIds: Object.keys(myCollection).filter(id => myCollection[id] > 0),
-            playstyle,
-            type1: document.getElementById('db-type-select-1')?.value || 'Any',
-            type2: document.getElementById('db-type-select-2')?.value || 'None',
-            apiKey: apiKey,
-            modelName: GEMINI_MODEL,
-            simSignals
-        });
-
-        // Show reasoning + validation report in UI
-        const out = document.getElementById('recommender-output');
-        const ruleColor = result.report.isValid ? '#78c850' : result.report.isLegal ? 'var(--accent-gold)' : '#ff4444';
-        out.innerHTML = `
-            <div style="border:1px solid var(--accent-gold); border-radius:8px; padding:12px; margin-bottom:12px;">
-                <div style="color:var(--accent-gold); font-size:0.8rem; font-weight:600; margin-bottom:6px;">🧠 Gemini Reasoning</div>
-                <pre style="white-space:pre-wrap; font-size:0.75rem; color:var(--text-muted); max-height:250px; overflow-y:auto;">${result.reasoning.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
-            </div>
-            <div style="border:1px solid ${ruleColor}; border-radius:8px; padding:12px;">
-                <div style="color:${ruleColor}; font-weight:600;">${result.report.summary}</div>
-                ${result.fixLog.length ? `<div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Auto-fixes: ${result.fixLog.join(' • ')}</div>` : ''}
-            </div>
-        `;
-        out.classList.remove('hidden');
-
-        window.validateAndApplyAIDeck(result.fixedNames);
-
-    } catch (e) {
-        console.error(e);
-        const out = document.getElementById('recommender-output');
-        if (out) {
-            out.innerHTML = `<div style="color:var(--accent-red); font-weight:bold;">Error:</div><div style="color:var(--text-color);">${e.message}</div>`;
-            out.classList.remove('hidden');
-        }
-    } finally {
-        const btn = document.getElementById('btn-ai-build');
-        if (btn) {
-            btn.innerHTML = `AI Build ✨`;
-            btn.classList.remove('btn-loading');
-        }
-    }
-};
 
 // Global 3D tilt handler — attach once
 document.addEventListener('mousemove', (e) => {

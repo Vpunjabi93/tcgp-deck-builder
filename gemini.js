@@ -443,8 +443,6 @@ function getCardByName(name) {
 // sends to Gemini, and hands the result to validateAndApplyAIDeck() in strategy.js
 // ─────────────────────────────────────────────────────────────────────────────
 
-const GEMINI_MODEL = typeof GEMINI_MODEL !== 'undefined' ? GEMINI_MODEL : 'gemini-2.0-flash-exp';
-
 // Entry point — called from the "Build My Deck" button in app.js
 window.buildAIDeck = async function(playstyle = 'Any') {
     const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
