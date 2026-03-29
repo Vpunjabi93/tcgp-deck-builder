@@ -476,14 +476,36 @@ window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
         })
         : ownedCards;
 
-    if (filteredCards.length < 10) {
+    // ─── PRE-FILTER: Strip out Pokémon with wrong energy type BEFORE sending to Gemini
+    // Gemini can only pick from what it sees. Never show it off-type Pokémon.
+    // Trainers and Energy cards are always included (type-agnostic).
+    let geminiPool;
+    if (energyType && energyType !== 'Any') {
+        const allowedTypes = new Set([energyType, 'Colorless']);
+        geminiPool = filteredCards.filter(card => {
+            if (card.category === 'Pokemon') {
+                return allowedTypes.has(card.type);
+            }
+            return true; // Trainers, Energy cards: always include
+        });
+
+        console.log(`[EnergyGuard Pre-filter] Pool reduced from ${filteredCards.length} → ${geminiPool.length} cards (${energyType} + Colorless Pokémon only)`);
+
+        if (geminiPool.filter(c => c.category === 'Pokemon').length < 8) {
+            console.warn(`[EnergyGuard] Warning: Only ${geminiPool.filter(c => c.category === 'Pokemon').length} valid Pokémon in pool. Deck may be weak.`);
+        }
+    } else {
+        geminiPool = filteredCards;
+    }
+
+    if (geminiPool.length < 10) {
         alert(`Not enough ${energyType} cards in your collection to build a deck. Try a different type or add more cards.`);
         const btn = document.getElementById('btn-ai-build-deck');
         if (btn) { btn.disabled = false; btn.innerText = 'AI Build ✨'; }
         return;
     }
 
-    const prompt = buildAIDeckPrompt(filteredCards, playstyle, energyType);
+    const prompt = buildAIDeckPrompt(geminiPool, playstyle, energyType);
 
     // Show loading state
     const btn = document.getElementById('btn-ai-build-deck');
@@ -537,7 +559,7 @@ window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
             throw new Error('Gemini returned an empty deck. Try again.');
         }
 
-        const enforcedDeckIds = enforceEnergyTypeConstraint(deckIds, energyType, filteredCards);
+        const enforcedDeckIds = enforceEnergyTypeConstraint(deckIds, energyType, geminiPool);
 
         // Resolve IDs → card names for validateAndApplyAIDeck
         const deckNames = enforcedDeckIds.map(item => {
@@ -607,6 +629,24 @@ function buildAIDeckPrompt(ownedCards, playstyle, energyType = 'Any') {
         ? `The player prefers a **${playstyle}** playstyle.`
         : 'Build the strongest, most consistent deck possible regardless of playstyle.';
 
+    const energyConstraintBlock = energyType && energyType !== 'Any'
+      ? `POKEMON TYPE CONSTRAINT — THIS IS MANDATORY, NOT A SUGGESTION:
+Each card object in the data I gave you has a "type" field.
+You may ONLY select Pokémon cards where the "type" field is exactly "${energyType}" or exactly "Colorless".
+Do NOT select any Pokémon card where type is "${energyType === 'Fire' ? 'Water, Grass, Lightning, Psychic, Fighting, Darkness, Metal, Dragon, Fairy' : 'any other type besides ' + energyType + ' and Colorless'}".
+
+To be clear about what "type" means in this context:
+- It is the field called "type" in each card's JSON object
+- It is NOT the card's attack cost, NOT the card's weakness, NOT a theme
+- It is a single word like "Fire", "Water", "Grass", "Lightning", etc.
+- Colorless Pokémon (type = "Colorless") are always allowed regardless of the energy type setting
+
+SELF-CHECK before outputting your JSON:
+Go through each card ID you are about to return. For every Pokémon card, confirm its "type" is "${energyType}" or "Colorless". 
+If you find any Pokémon with a different type, REMOVE it and replace it with a Pokémon from the list that has type "${energyType}" or "Colorless".
+Do not output a final answer until this check passes.`
+      : `You may use Pokémon of any type.`;
+
     return `You are an expert Pokémon TCG Pocket deck builder. Your job is to select exactly 20 cards from the player's collection to form the best possible deck.
 
 RULES:
@@ -616,12 +656,8 @@ RULES:
 - Include at least 2 Basic Pokémon so the player can always start a game
 - If you include a Stage 1 or Stage 2 Pokémon, you MUST also include its Basic pre-evolution from the list
 - Energy cards do NOT count toward Pokémon or Trainer limits — include only what's needed to power attacks
-- This deck is built around ${energyType !== 'Any' ? energyType : 'mixed'} energy. Prioritise ${energyType !== 'Any' ? energyType + ' and Colorless' : 'the strongest synergy available'} Pokémon
 
-CRITICAL ENERGY RULES:
-- Use a MAXIMUM of 2 energy types per deck unless a specific multi-energy strategy is explicitly required (e.g. Ho-Oh ex requires Fire+Water+Lightning, Lugia ex requires Colorless+other).
-- If no energy preference is specified, pick the single dominant type based on your main attacker.
-- Do NOT spread energy across 3+ types just to fill slots — it ruins consistency.
+${energyConstraintBlock}
 
 PLAYSTYLE: ${playstyleInstruction}
 
