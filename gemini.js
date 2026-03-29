@@ -443,6 +443,109 @@ function getCardByName(name) {
 // sends to Gemini, and hands the result to validateAndApplyAIDeck() in strategy.js
 // ─────────────────────────────────────────────────────────────────────────────
 
+async function callGeminiThink(geminiPool, energyType, deckStyle, apiKey) {
+    const allCards = window.TCGP_CARDS || [];
+
+    // Full card data for reasoning — this is where synergy comes from
+    function formatCardFull(card) {
+        let lines = [`${card.id} | ${card.name}`];
+        if (card.category === 'Pokemon') {
+            lines.push(`  Type: ${card.type} | Stage: ${card.stage || 'Basic'} | HP: ${card.hp || '?'}`);
+            if (card.evolvesFrom) lines.push(`  Evolves from: ${card.evolvesFrom}`);
+            if (card.abilities?.length) {
+                card.abilities.forEach(a => lines.push(`  Ability [${a.name}]: ${a.text}`));
+            }
+            if (card.attacks?.length) {
+                card.attacks.forEach(a => lines.push(`  Attack [${a.name}] ${a.damage || 0}dmg (${(a.cost||[]).join(',')}): ${a.text || ''}`));
+            }
+        } else {
+            lines.push(`  Category: ${card.category} ${card.trainerType ? '| '+card.trainerType : ''}`);
+            if (card.effect) lines.push(`  Effect: ${card.effect}`);
+        }
+        return lines.join('\n');
+    }
+
+    const cardListFull = geminiPool.map(formatCardFull).join('\n\n');
+    const typeRule = energyType && energyType !== 'Any'
+        ? `IMPORTANT: Only select Pokémon with type "${energyType}" or "Colorless". Other Pokémon types are not allowed.`
+        : 'No type restriction.';
+
+    const thinkPrompt = `You are a Pokémon TCG Pocket expert. Analyze the cards below and design the best 20-card deck.
+
+${typeRule}
+${deckStyle && deckStyle !== 'Any' ? `Preferred style: ${deckStyle}` : ''}
+
+RULES:
+- 20 cards total, max 2 copies of any card
+- Include complete evolution lines
+- Balance attackers with draw/search support
+
+CARD POOL:
+${cardListFull}
+
+Respond with ONLY this format — no other text:
+CHOSEN: CardName1(x2), CardName2(x2), CardName3(x1), ... [exactly 20 total]
+STRATEGY: Main Attacker - Name | Role - Name | Role - Name`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: thinkPrompt }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 512 }
+        })
+    });
+
+    if (!response.ok) throw new Error((await response.json()).error?.message || 'Gemini API Error');
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callGeminiFormat(thinkResult, geminiPool) {
+    // Build a name→id lookup — no Gemini needed for exact matches
+    const nameToIds = {};
+    geminiPool.forEach(card => {
+        const key = card.name.toLowerCase().trim();
+        if (!nameToIds[key]) nameToIds[key] = [];
+        nameToIds[key].push(card.id);
+    });
+
+    // Parse CHOSEN line from Call 1
+    const chosenMatch = thinkResult.match(/CHOSEN:\s*(.+)/i);
+    const stratMatch = thinkResult.match(/STRATEGY:\s*(.+)/i);
+
+    if (!chosenMatch) throw new Error('Call 1 did not return a CHOSEN line');
+
+    const strategy = stratMatch ? stratMatch[1].trim() : 'No strategy provided';
+
+    // Parse "CardName(x2), CardName2(x1)..." into ID list
+    const deckIds = [];
+    const entries = chosenMatch[1].split(',').map(s => s.trim());
+
+    for (const entry of entries) {
+        const countMatch = entry.match(/\(x(\d)\)$/i);
+        const count = countMatch ? parseInt(countMatch[1]) : 1;
+        const name = entry.replace(/\(x\d\)$/i, '').trim().toLowerCase();
+
+        // Fuzzy match: exact → starts-with → includes
+        let ids = nameToIds[name] ||
+            (Object.keys(nameToIds).find(k => k.startsWith(name)) && nameToIds[Object.keys(nameToIds).find(k => k.startsWith(name))]) ||
+            (Object.keys(nameToIds).find(k => k.includes(name)) && nameToIds[Object.keys(nameToIds).find(k => k.includes(name))]);
+
+        if (ids && ids.length > 0) {
+            const id = ids[0];
+            for (let i = 0; i < Math.min(count, 2); i++) {
+                deckIds.push({ id });
+            }
+        } else {
+            console.warn(`[Format] Could not resolve card name: "${name}"`);
+        }
+    }
+
+    console.log(`[Format] Resolved ${deckIds.length} card IDs from Call 1 plan`);
+    return { deckIds, strategy };
+}
+
 // Entry point — called from the "Build My Deck" button in app.js
 window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
     const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
@@ -505,58 +608,29 @@ window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
         return;
     }
 
-    const prompt = buildAIDeckPrompt(geminiPool, playstyle, energyType);
-
     // Show loading state
     const btn = document.getElementById('btn-ai-build-deck');
     const originalText = btn?.innerText;
     if (btn) { btn.disabled = true; btn.innerText = '🤖 Building...'; }
 
     try {
-        const requestBody = {
-            contents: [{
-                parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-                temperature: 0.4,   // low temp = more consistent, structured output
-                maxOutputTokens: 8192
+        // CALL 1: Full reasoning with complete card data
+        console.log('[AIDeck] Call 1: Synergy reasoning...');
+        const thinkResult = await callGeminiThink(geminiPool, energyType, playstyle, apiKey);
+        console.log('[AIDeck] Call 1 result:', thinkResult);
+
+        // CALL 2: Name → ID resolution (pure JS, no Gemini needed)
+        console.log('[AIDeck] Call 2: Resolving card IDs...');
+        let { deckIds, strategy } = await callGeminiFormat(thinkResult, geminiPool);
+
+        // Pad to 20 if needed
+        if (deckIds.length < 20) {
+            console.warn(`[Format] AI generated only ${deckIds.length} cards. Padding with Basic Energy.`);
+            let fallBackEnergy = geminiPool.find(c => c.category === 'Energy' && c.energyType === energyType) || 
+                                 geminiPool.find(c => c.category === 'Energy');
+            if (fallBackEnergy) {
+                while(deckIds.length < 20) deckIds.push({ id: fallBackEnergy.id });
             }
-        };
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Gemini API error');
-        }
-
-        const data = await response.json();
-        const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        const finishReason = data.candidates?.[0]?.finishReason;
-
-        // TEMP DEBUG — remove after fix confirmed
-        console.log('=== GEMINI RAW RESPONSE ===');
-        console.log('finishReason:', finishReason);
-        console.log('responseText:', responseText);
-        console.log('full candidates:', JSON.stringify(data.candidates, null, 2));
-        console.log('===========================');
-
-        if (!responseText && finishReason) {
-            throw new Error(`Gemini stopped early (${finishReason}). Try a different energy type or playstyle.`);
-        }
-
-        // Parse the JSON array Gemini returns
-        const cleaned = responseText.replace(/```json?/gi, '').replace(/```/g, '').trim();
-        const startIdx = cleaned.indexOf('[');
-        const endIdx = cleaned.lastIndexOf(']');
-        if (startIdx === -1 || endIdx === -1) throw new Error('Gemini returned unexpected format. Try again.');
-
-        const deckIds = JSON.parse(cleaned.slice(startIdx, endIdx + 1));
-        if (!Array.isArray(deckIds) || deckIds.length === 0) {
-            throw new Error('Gemini returned an empty deck. Try again.');
         }
 
         const enforcedDeckIds = enforceEnergyTypeConstraint(deckIds, energyType, geminiPool);
@@ -567,11 +641,11 @@ window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
             return card ? card.name : null;
         }).filter(Boolean);
 
-        if (deckNames.length === 0) throw new Error('Gemini returned no valid card IDs. Try again.');
+        if (deckNames.length === 0) throw new Error('AI returned no valid card names. Try again.');
 
         // Hand off to strategy.js guardrail system
         if (typeof window.validateAndApplyAIDeck === 'function') {
-            window.validateAndApplyAIDeck(deckNames);
+            window.validateAndApplyAIDeck(deckNames, strategy);
         } else {
             console.error('validateAndApplyAIDeck not found — is strategy.js loaded?');
         }
