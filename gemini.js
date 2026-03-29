@@ -499,13 +499,22 @@ window.buildAIDeck = async function(playstyle = 'Any') {
 
         // Parse the JSON array Gemini returns
         const cleaned = responseText.replace(/```json?/gi, '').replace(/```/g, '').trim();
-        const match   = cleaned.match(/\[[\s\S]*\]/);
-        if (!match) throw new Error('Gemini returned unexpected format. Try again.');
+        const startIdx = cleaned.indexOf('[');
+        const endIdx = cleaned.lastIndexOf(']');
+        if (startIdx === -1 || endIdx === -1) throw new Error('Gemini returned unexpected format. Try again.');
 
-        const deckNames = JSON.parse(match[0]);
-        if (!Array.isArray(deckNames) || deckNames.length === 0) {
+        const deckIds = JSON.parse(cleaned.slice(startIdx, endIdx + 1));
+        if (!Array.isArray(deckIds) || deckIds.length === 0) {
             throw new Error('Gemini returned an empty deck. Try again.');
         }
+
+        // Resolve IDs → card names for validateAndApplyAIDeck
+        const deckNames = deckIds.map(item => {
+            const card = (window.TCGP_CARDS || []).find(c => c.id === item.id);
+            return card ? card.name : null;
+        }).filter(Boolean);
+
+        if (deckNames.length === 0) throw new Error('Gemini returned no valid card IDs. Try again.');
 
         // Hand off to strategy.js guardrail system
         if (typeof window.validateAndApplyAIDeck === 'function') {
@@ -528,8 +537,7 @@ function buildAIDeckPrompt(ownedCards, playstyle) {
     const cardLines = ownedCards.map(card => {
         const parts = [];
 
-        // Core identity
-        parts.push(`- ${card.name} [${card.category}]`);
+        parts.push(`- ${card.name} [${card.category}] (id: ${card.id})`);
 
         if (card.category === 'Pokemon') {
             parts.push(`  Type: ${card.type}, Stage: ${card.stage}, HP: ${card.hp}`);
@@ -583,6 +591,6 @@ PLAYSTYLE: ${playstyleInstruction}
 PLAYER'S COLLECTION:
 ${cardLines}
 
-Respond with ONLY a raw JSON array of exactly 20 card name strings. No explanation, no markdown, no extra text.
-Example format: ["Charizard EX","Charmander","Charmander","Blaine","Blaine","Professor's Research","Professor's Research","Fire Energy","Fire Energy","Fire Energy","Fire Energy","Moltres EX","Pidgey","Pidgeot","Pidgeot","Arcanine EX","Growlithe","Growlithe","Giovanni","Giovanni"]`;
+Respond with ONLY a raw JSON array of exactly 20 objects, each with a single "id" field matching the card's id shown above. No explanation, no markdown, no extra text.
+Example format: [{"id":"A1-006"},{"id":"A1-006"},{"id":"A1-001"},{"id":"A1-001"},{"id":"A1-057"},{"id":"A1-057"},{"id":"A1-128"},{"id":"A1-128"},{"id":"A1-131"},{"id":"A1-131"},{"id":"A1-132"},{"id":"A1-132"},{"id":"A1-133"},{"id":"A1-133"},{"id":"A1-134"},{"id":"A1-134"},{"id":"A1-135"},{"id":"A1-135"},{"id":"A1-136"},{"id":"A1-136"}]`;
 }
