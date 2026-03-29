@@ -515,6 +515,13 @@ window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
         const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const finishReason = data.candidates?.[0]?.finishReason;
 
+        // TEMP DEBUG — remove after fix confirmed
+        console.log('=== GEMINI RAW RESPONSE ===');
+        console.log('finishReason:', finishReason);
+        console.log('responseText:', responseText);
+        console.log('full candidates:', JSON.stringify(data.candidates, null, 2));
+        console.log('===========================');
+
         if (!responseText && finishReason) {
             throw new Error(`Gemini stopped early (${finishReason}). Try a different energy type or playstyle.`);
         }
