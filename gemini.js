@@ -576,7 +576,7 @@ function buildAIDeckPrompt(ownedCards, playstyle, energyType = 'Any') {
             if (card.attacks && card.attacks.length > 0) {
                 card.attacks.forEach(atk => {
                     const cost = atk.cost?.join(', ') || 'None';
-                    const text = atk.text ? ` — ${atk.text.slice(0, 60)}` : '';
+                    const text = atk.text ? ` — ${atk.text.slice(0, 120)}` : '';
                     parts.push(`  Attack: ${atk.name} | Cost: ${cost} | Dmg: ${atk.damage}${text}`);
                 });
             }
@@ -584,18 +584,18 @@ function buildAIDeckPrompt(ownedCards, playstyle, energyType = 'Any') {
             // Abilities
             if (card.abilities && card.abilities.length > 0) {
                 card.abilities.forEach(ab => {
-                    const text = ab.text ? ` — ${ab.text.slice(0, 60)}` : '';
+                    const text = ab.text ? ` — ${ab.text.slice(0, 120)}` : '';
                     parts.push(`  ${ab.type}: ${ab.name}${text}`);
                 });
             }
 
         } else if (card.category === 'Trainer') {
             parts.push(`  Trainer Type: ${card.trainerType}`);
-            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 60)}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 120)}`);
 
         } else if (card.category === 'Energy') {
             parts.push(`  Energy Type: ${card.energyType}`);
-            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 60)}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 120)}`);
         }
 
         return parts.join('\n');
@@ -615,6 +615,11 @@ RULES:
 - If you include a Stage 1 or Stage 2 Pokémon, you MUST also include its Basic pre-evolution from the list
 - Energy cards do NOT count toward Pokémon or Trainer limits — include only what's needed to power attacks
 - This deck is built around ${energyType !== 'Any' ? energyType : 'mixed'} energy. Prioritise ${energyType !== 'Any' ? energyType + ' and Colorless' : 'the strongest synergy available'} Pokémon
+
+CRITICAL ENERGY RULES:
+- Use a MAXIMUM of 2 energy types per deck unless a specific multi-energy strategy is explicitly required (e.g. Ho-Oh ex requires Fire+Water+Lightning, Lugia ex requires Colorless+other).
+- If no energy preference is specified, pick the single dominant type based on your main attacker.
+- Do NOT spread energy across 3+ types just to fill slots — it ruins consistency.
 
 PLAYSTYLE: ${playstyleInstruction}
 
