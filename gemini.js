@@ -436,3 +436,155 @@ function getCardByName(name) {
         return dbName === lowerName || dbName.includes(lowerName) || lowerName.includes(dbName);
     });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI DECK BUILDER — Gemini Prompt Engine
+// Reads owned collection from localStorage, formats enriched card data,
+// sends to Gemini, and hands the result to validateAndApplyAIDeck() in strategy.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+const GEMINI_MODEL = typeof GEMINI_MODEL !== 'undefined' ? GEMINI_MODEL : 'gemini-2.0-flash-exp';
+
+// Entry point — called from the "Build My Deck" button in app.js
+window.buildAIDeck = async function(playstyle = 'Any') {
+    const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
+    if (!apiKey) {
+        alert('Please set your Gemini API key first!');
+        document.getElementById('api-key-btn')?.click();
+        return;
+    }
+
+    const allCards   = window.TCGP_CARDS || [];
+    const collection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
+    const ownedIds   = Object.keys(collection).filter(id => collection[id] > 0);
+
+    if (ownedIds.length < 10) {
+        alert('Add more cards to your collection first (need at least 10).');
+        return;
+    }
+
+    // Resolve owned IDs → full card objects
+    const ownedCards = ownedIds
+        .map(id => allCards.find(c => c.id === id))
+        .filter(Boolean);
+
+    const prompt = buildAIDeckPrompt(ownedCards, playstyle);
+
+    // Show loading state
+    const btn = document.getElementById('btn-ai-build-deck');
+    const originalText = btn?.innerText;
+    if (btn) { btn.disabled = true; btn.innerText = '🤖 Building...'; }
+
+    try {
+        const requestBody = {
+            contents: [{
+                parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+                temperature: 0.4,   // low temp = more consistent, structured output
+                maxOutputTokens: 512
+            }
+        };
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Gemini API error');
+        }
+
+        const data         = await response.json();
+        const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Parse the JSON array Gemini returns
+        const cleaned = responseText.replace(/```json?/gi, '').replace(/```/g, '').trim();
+        const match   = cleaned.match(/\[[\s\S]*\]/);
+        if (!match) throw new Error('Gemini returned unexpected format. Try again.');
+
+        const deckNames = JSON.parse(match[0]);
+        if (!Array.isArray(deckNames) || deckNames.length === 0) {
+            throw new Error('Gemini returned an empty deck. Try again.');
+        }
+
+        // Hand off to strategy.js guardrail system
+        if (typeof window.validateAndApplyAIDeck === 'function') {
+            window.validateAndApplyAIDeck(deckNames);
+        } else {
+            console.error('validateAndApplyAIDeck not found — is strategy.js loaded?');
+        }
+
+    } catch (err) {
+        console.error('AI Deck Build error:', err);
+        alert(`Deck build failed: ${err.message}`);
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerText = originalText; }
+    }
+};
+
+// Formats the owned collection into a structured prompt for Gemini
+function buildAIDeckPrompt(ownedCards, playstyle) {
+    // Format each card into a concise descriptor line Gemini can reason about
+    const cardLines = ownedCards.map(card => {
+        const parts = [];
+
+        // Core identity
+        parts.push(`- ${card.name} [${card.category}]`);
+
+        if (card.category === 'Pokemon') {
+            parts.push(`  Type: ${card.type}, Stage: ${card.stage}, HP: ${card.hp}`);
+            if (card.evolvesFrom) parts.push(`  Evolves from: ${card.evolvesFrom}`);
+
+            // Attacks with energy cost and damage
+            if (card.attacks && card.attacks.length > 0) {
+                card.attacks.forEach(atk => {
+                    const cost = atk.cost?.join(', ') || 'None';
+                    const text = atk.text ? ` — ${atk.text}` : '';
+                    parts.push(`  Attack: ${atk.name} (Cost: ${cost} | Dmg: ${atk.damage}${text})`);
+                });
+            }
+
+            // Abilities
+            if (card.abilities && card.abilities.length > 0) {
+                card.abilities.forEach(ab => {
+                    parts.push(`  ${ab.type}: ${ab.name} — ${ab.text}`);
+                });
+            }
+
+        } else if (card.category === 'Trainer') {
+            parts.push(`  Trainer Type: ${card.trainerType}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect}`);
+
+        } else if (card.category === 'Energy') {
+            parts.push(`  Energy Type: ${card.energyType}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect}`);
+        }
+
+        return parts.join('\n');
+    }).join('\n\n');
+
+    const playstyleInstruction = playstyle && playstyle !== 'Any'
+        ? `The player prefers a **${playstyle}** playstyle.`
+        : 'Build the strongest, most consistent deck possible regardless of playstyle.';
+
+    return `You are an expert Pokémon TCG Pocket deck builder. Your job is to select exactly 20 cards from the player's collection to form the best possible deck.
+
+RULES:
+- You MUST only use cards from the list below — no cards outside this list
+- The deck must contain exactly 20 cards total
+- Maximum 2 copies of any single card
+- Include at least 2 Basic Pokémon so the player can always start a game
+- If you include a Stage 1 or Stage 2 Pokémon, you MUST also include its Basic pre-evolution from the list
+- Energy cards do NOT count toward Pokémon or Trainer limits — include only what's needed to power attacks
+- Prefer cards with strong synergy based on their actual attack effects and abilities shown below
+
+PLAYSTYLE: ${playstyleInstruction}
+
+PLAYER'S COLLECTION:
+${cardLines}
+
+Respond with ONLY a raw JSON array of exactly 20 card name strings. No explanation, no markdown, no extra text.
+Example format: ["Charizard EX","Charmander","Charmander","Blaine","Blaine","Professor's Research","Professor's Research","Fire Energy","Fire Energy","Fire Energy","Fire Energy","Moltres EX","Pidgey","Pidgeot","Pidgeot","Arcanine EX","Growlithe","Growlithe","Giovanni","Giovanni"]`;
+}
