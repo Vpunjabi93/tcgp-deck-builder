@@ -89,7 +89,7 @@ function buildCard(cardDetail, setId, setName) {
 
     const abilities = (cardDetail.abilities || []).map(ab => ({
         name: ab.name || '',
-        text: ab.text || '',
+        text: ab.effect || ab.text || '',
         type: ab.type || 'Ability'
     }));
 

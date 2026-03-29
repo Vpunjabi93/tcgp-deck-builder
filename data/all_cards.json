@@ -263,7 +263,7 @@
     "abilities": [
       {
         "name": "Powder Heal",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from each of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -732,7 +732,7 @@
     "abilities": [
       {
         "name": "Fragrance Trap",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot, once during your turn, you may switch in 1 of your opponent's Benched Basic Pokémon to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -2241,7 +2241,7 @@
     "abilities": [
       {
         "name": "Counterattack",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -2463,7 +2463,7 @@
     "abilities": [
       {
         "name": "Shell Armor",
-        "text": "",
+        "text": "This Pokémon takes -10 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -3270,7 +3270,7 @@
     "abilities": [
       {
         "name": "Water Shuriken",
-        "text": "",
+        "text": "Once during your turn, you may do 20 damage to 1 of your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -3599,7 +3599,7 @@
     "abilities": [
       {
         "name": "Volt Charge",
-        "text": "",
+        "text": "Once during your turn, you may take a {L} Energy from your Energy Zone and attach it to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -4509,7 +4509,7 @@
     "abilities": [
       {
         "name": "Shadowy Spellbind",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, your opponent can't use any Supporter cards from their hand.",
         "type": "Ability"
       }
     ],
@@ -4588,7 +4588,7 @@
     "abilities": [
       {
         "name": "Sleep Pendulum",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, your opponent's Active Pokémon is now Asleep.",
         "type": "Ability"
       }
     ],
@@ -4860,7 +4860,7 @@
     "abilities": [
       {
         "name": "Psy Shadow",
-        "text": "",
+        "text": "Once during your turn, you may take 1 {P} Energy from your Energy Zone and attach it to the {P} Pokémon in the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -6478,7 +6478,7 @@
     "abilities": [
       {
         "name": "Gas Leak",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may make your opponent's Active Pokémon Poisoned.",
         "type": "Ability"
       }
     ],
@@ -6663,7 +6663,7 @@
     "abilities": [
       {
         "name": "Hard Coat",
-        "text": "",
+        "text": "This Pokémon takes -20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -6886,7 +6886,7 @@
     "abilities": [
       {
         "name": "Drive Off",
-        "text": "",
+        "text": "Once during your turn, you may switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)",
         "type": "Ability"
       }
     ],
@@ -7638,7 +7638,7 @@
     "abilities": [
       {
         "name": "Data Scan",
-        "text": "",
+        "text": "Once during your turn, you may look at the top card of your deck.",
         "type": "Ability"
       }
     ],
@@ -8725,7 +8725,7 @@
     "abilities": [
       {
         "name": "Gas Leak",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may make your opponent's Active Pokémon Poisoned.",
         "type": "Ability"
       }
     ],
@@ -8805,7 +8805,7 @@
     "abilities": [
       {
         "name": "Drive Off",
-        "text": "",
+        "text": "Once during your turn, you may switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)",
         "type": "Ability"
       }
     ],
@@ -8951,7 +8951,7 @@
     "abilities": [
       {
         "name": "Data Scan",
-        "text": "",
+        "text": "Once during your turn, you may look at the top card of your deck.",
         "type": "Ability"
       }
     ],
@@ -9451,7 +9451,7 @@
     "abilities": [
       {
         "name": "Shadowy Spellbind",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, your opponent can't use any Supporter cards from their hand.",
         "type": "Ability"
       }
     ],
@@ -9975,7 +9975,7 @@
     "abilities": [
       {
         "name": "Shadowy Spellbind",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, your opponent can't use any Supporter cards from their hand.",
         "type": "Ability"
       }
     ],
@@ -10575,7 +10575,7 @@
     "abilities": [
       {
         "name": "Jungle Totem",
-        "text": "",
+        "text": "Each {G} Energy attached to your {G} Pokémon provides 2 {G} Energy. This effect doesn't stack.",
         "type": "Ability"
       }
     ],
@@ -11047,7 +11047,7 @@
     "abilities": [
       {
         "name": "Wash Out",
-        "text": "",
+        "text": "As often as you like during your turn, you may move a {W} Energy from 1 of your Benched {W} Pokémon to your Active {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -12027,7 +12027,7 @@
     "abilities": [
       {
         "name": "Primeval Law",
-        "text": "",
+        "text": "Your opponent can't play any Pokémon from their hand to evolve their Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -12390,7 +12390,7 @@
     "abilities": [
       {
         "name": "Rough Skin",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -12826,7 +12826,7 @@
     "abilities": [
       {
         "name": "Jungle Totem",
-        "text": "",
+        "text": "Each {G} Energy attached to your {G} Pokémon provides 2 {G} Energy. This effect doesn't stack.",
         "type": "Ability"
       }
     ],
@@ -12904,7 +12904,7 @@
     "abilities": [
       {
         "name": "Wash Out",
-        "text": "",
+        "text": "As often as you like during your turn, you may move a {W} Energy from 1 of your Benched {W} Pokémon to your Active {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -13137,7 +13137,7 @@
     "abilities": [
       {
         "name": "Primeval Law",
-        "text": "",
+        "text": "Your opponent can't play any Pokémon from their hand to evolve their Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -13331,7 +13331,7 @@
     "abilities": [
       {
         "name": "Primeval Law",
-        "text": "",
+        "text": "Your opponent can't play any Pokémon from their hand to evolve their Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -14212,7 +14212,7 @@
     "abilities": [
       {
         "name": "Fragrant Flower Garden",
-        "text": "",
+        "text": "Once during your turn, you may heal 10 damage from each of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -14577,7 +14577,7 @@
     "abilities": [
       {
         "name": "Thick Fat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks from {R} or {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -14621,7 +14621,7 @@
     "abilities": [
       {
         "name": "Thick Fat",
-        "text": "",
+        "text": "This Pokémon takes −30 damage from attacks from {R} or {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -14663,7 +14663,7 @@
     "abilities": [
       {
         "name": "Crystal Body",
-        "text": "",
+        "text": "Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -16036,7 +16036,7 @@
     "abilities": [
       {
         "name": "Shadow Void",
-        "text": "",
+        "text": "As often as you like during your turn, you may choose 1 of your Pokémon that has damage on it, and move all of its damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -16257,7 +16257,7 @@
     "abilities": [
       {
         "name": "Levitate",
-        "text": "",
+        "text": "If this Pokémon has any Energy attached, it has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -16590,7 +16590,7 @@
     "abilities": [
       {
         "name": "Exoskeleton",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -16774,7 +16774,7 @@
     "abilities": [
       {
         "name": "Fighting Coach",
-        "text": "",
+        "text": "Attacks used by your {F} Pokémon do +20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -17428,7 +17428,7 @@
     "abilities": [
       {
         "name": "Nightmare Aura",
-        "text": "",
+        "text": "Whenever you attach a {D} Energy from your Energy Zone to this Pokémon, do 20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -17579,7 +17579,7 @@
     "abilities": [
       {
         "name": "Guarded Grill",
-        "text": "",
+        "text": "If any damage is done to this Pokémon by attacks, flip a coin. If heads, this Pokémon takes −100 damage from that attack.",
         "type": "Ability"
       }
     ],
@@ -17924,7 +17924,7 @@
     "abilities": [
       {
         "name": "Reckless Shearing",
-        "text": "",
+        "text": "You must discard a card from your hand in order to use this Ability. Once during your turn, you may draw a card.",
         "type": "Ability"
       }
     ],
@@ -19070,7 +19070,7 @@
     "abilities": [
       {
         "name": "Fragrant Flower Garden",
-        "text": "",
+        "text": "Once during your turn, you may heal 10 damage from each of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -19114,7 +19114,7 @@
     "abilities": [
       {
         "name": "Thick Fat",
-        "text": "",
+        "text": "This Pokémon takes −30 damage from attacks from {R} or {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -19371,7 +19371,7 @@
     "abilities": [
       {
         "name": "Levitate",
-        "text": "",
+        "text": "If this Pokémon has any Energy attached, it has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -19487,7 +19487,7 @@
     "abilities": [
       {
         "name": "Fighting Coach",
-        "text": "",
+        "text": "Attacks used by your {F} Pokémon do +20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -19674,7 +19674,7 @@
     "abilities": [
       {
         "name": "Reckless Shearing",
-        "text": "",
+        "text": "You must discard a card from your hand in order to use this Ability. Once during your turn, you may draw a card.",
         "type": "Ability"
       }
     ],
@@ -20126,7 +20126,7 @@
     "abilities": [
       {
         "name": "Nightmare Aura",
-        "text": "",
+        "text": "Whenever you attach a {D} Energy from your Energy Zone to this Pokémon, do 20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -20609,7 +20609,7 @@
     "abilities": [
       {
         "name": "Nightmare Aura",
-        "text": "",
+        "text": "Whenever you attach a {D} Energy from your Energy Zone to this Pokémon, do 20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -21164,7 +21164,7 @@
     "abilities": [
       {
         "name": "Power Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, attacks used by this Pokémon do +30 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -21207,7 +21207,7 @@
     "abilities": [
       {
         "name": "Forest Breath",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may take a {G} Energy from your Energy Zone and attach it to 1 of your {G} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -21320,7 +21320,7 @@
     "abilities": [
       {
         "name": "Speed Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -21615,7 +21615,7 @@
     "abilities": [
       {
         "name": "Vigor Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, attacks used by this Pokémon cost 1 less {C} Energy.",
         "type": "Ability"
       }
     ],
@@ -21658,7 +21658,7 @@
     "abilities": [
       {
         "name": "Snowy Terrain",
-        "text": "",
+        "text": "During Pokémon Checkup, if this Pokémon is in the Active Spot, do 10 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -21808,7 +21808,7 @@
     "abilities": [
       {
         "name": "Resilience Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, this Pokémon takes −30 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -22099,7 +22099,7 @@
     "abilities": [
       {
         "name": "CHECK",
-        "text": "",
+        "text": "Once during your turn, you may choose either player. Look at the top card of that player's deck.",
         "type": "Ability"
       }
     ],
@@ -22140,7 +22140,7 @@
     "abilities": [
       {
         "name": "Speed Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -22364,7 +22364,7 @@
     "abilities": [
       {
         "name": "Power Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, attacks used by this Pokémon do +30 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -22696,7 +22696,7 @@
     "abilities": [
       {
         "name": "Cunning Link",
-        "text": "",
+        "text": "Once during your turn, if you have Arceus or Arceus ex in play, you may do 30 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -22880,7 +22880,7 @@
     "abilities": [
       {
         "name": "Resilience Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, this Pokémon takes −30 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -23392,7 +23392,7 @@
     "abilities": [
       {
         "name": "Sky Support",
-        "text": "",
+        "text": "As long as this Pokémon is on your Bench, your Active Basic Pokémon's Retreat Cost is 1 less.",
         "type": "Ability"
       }
     ],
@@ -23473,7 +23473,7 @@
     "abilities": [
       {
         "name": "Fabled Luster",
-        "text": "",
+        "text": "This Pokémon can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -23677,7 +23677,7 @@
     "abilities": [
       {
         "name": "CHECK",
-        "text": "",
+        "text": "Once during your turn, you may choose either player. Look at the top card of that player's deck.",
         "type": "Ability"
       }
     ],
@@ -23789,7 +23789,7 @@
     "abilities": [
       {
         "name": "Sky Support",
-        "text": "",
+        "text": "As long as this Pokémon is on your Bench, your Active Basic Pokémon's Retreat Cost is 1 less.",
         "type": "Ability"
       }
     ],
@@ -23832,7 +23832,7 @@
     "abilities": [
       {
         "name": "Forest Breath",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may take a {G} Energy from your Energy Zone and attach it to 1 of your {G} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -23875,7 +23875,7 @@
     "abilities": [
       {
         "name": "Snowy Terrain",
-        "text": "",
+        "text": "During Pokémon Checkup, if this Pokémon is in the Active Spot, do 10 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -24001,7 +24001,7 @@
     "abilities": [
       {
         "name": "Fabled Luster",
-        "text": "",
+        "text": "This Pokémon can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -24136,7 +24136,7 @@
     "abilities": [
       {
         "name": "Forest Breath",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may take a {G} Energy from your Energy Zone and attach it to 1 of your {G} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -24179,7 +24179,7 @@
     "abilities": [
       {
         "name": "Snowy Terrain",
-        "text": "",
+        "text": "During Pokémon Checkup, if this Pokémon is in the Active Spot, do 10 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -24305,7 +24305,7 @@
     "abilities": [
       {
         "name": "Fabled Luster",
-        "text": "",
+        "text": "This Pokémon can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -24348,7 +24348,7 @@
     "abilities": [
       {
         "name": "Fabled Luster",
-        "text": "",
+        "text": "This Pokémon can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -25117,7 +25117,7 @@
     "abilities": [
       {
         "name": "Retreat Directive",
-        "text": "",
+        "text": "Your Active Dondozo has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -25373,7 +25373,7 @@
     "abilities": [
       {
         "name": "Counterattack",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -25629,7 +25629,7 @@
     "abilities": [
       {
         "name": "Broken-Space Bellow",
-        "text": "",
+        "text": "Once during your turn, you may take a {P} Energy from your Energy Zone and attach it to this Pokémon. If you use this Ability, your turn ends.",
         "type": "Ability"
       }
     ],
@@ -26208,7 +26208,7 @@
     "abilities": [
       {
         "name": "Poison Coating",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, your opponent's Active Pokémon is now Poisoned.",
         "type": "Ability"
       }
     ],
@@ -26573,7 +26573,7 @@
     "abilities": [
       {
         "name": "Comforting Song",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -27029,7 +27029,7 @@
     "abilities": [
       {
         "name": "Retreat Directive",
-        "text": "",
+        "text": "Your Active Dondozo has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -27071,7 +27071,7 @@
     "abilities": [
       {
         "name": "Poison Coating",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, your opponent's Active Pokémon is now Poisoned.",
         "type": "Ability"
       }
     ],
@@ -27150,7 +27150,7 @@
     "abilities": [
       {
         "name": "Comforting Song",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -27352,7 +27352,7 @@
     "abilities": [
       {
         "name": "Broken-Space Bellow",
-        "text": "",
+        "text": "Once during your turn, you may take a {P} Energy from your Energy Zone and attach it to this Pokémon. If you use this Ability, your turn ends.",
         "type": "Ability"
       }
     ],
@@ -27784,7 +27784,7 @@
     "abilities": [
       {
         "name": "Broken-Space Bellow",
-        "text": "",
+        "text": "Once during your turn, you may take a {P} Energy from your Energy Zone and attach it to this Pokémon. If you use this Ability, your turn ends.",
         "type": "Ability"
       }
     ],
@@ -29083,7 +29083,7 @@
     "abilities": [
       {
         "name": "Wimp Out",
-        "text": "",
+        "text": "During your first turn, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -30067,7 +30067,7 @@
     "abilities": [
       {
         "name": "Melodious Healing",
-        "text": "",
+        "text": "Once during your turn, you may heal 30 damage from each of your {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -30288,7 +30288,7 @@
     "abilities": [
       {
         "name": "Innards Out",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, do 50 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -30728,7 +30728,7 @@
     "abilities": [
       {
         "name": "Safeguard",
-        "text": "",
+        "text": "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.",
         "type": "Ability"
       }
     ],
@@ -31233,7 +31233,7 @@
     "abilities": [
       {
         "name": "Flower Shield",
-        "text": "",
+        "text": "Each of your Pokémon that has any {P} Energy attached recovers from all Special Conditions and can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -31491,7 +31491,7 @@
     "abilities": [
       {
         "name": "Psychic Connect",
-        "text": "",
+        "text": "Once during your turn, you may move all {P} Energy from 1 of your Benched {P} Pokémon to your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -31821,7 +31821,7 @@
     "abilities": [
       {
         "name": "Guts",
-        "text": "",
+        "text": "If this Pokémon would be Knocked Out by damage from an attack, flip a coin. If heads, this Pokémon is not Knocked Out, and its remaining HP becomes 10.",
         "type": "Ability"
       }
     ],
@@ -32115,7 +32115,7 @@
     "abilities": [
       {
         "name": "Offload Pass",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, move all {F} Energy from this Pokémon to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -32299,7 +32299,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -32768,7 +32768,7 @@
     "abilities": [
       {
         "name": "Rising Road",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may switch it with your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -33453,7 +33453,7 @@
     "abilities": [
       {
         "name": "Comatose",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever you attach an Energy from your Energy Zone to it, it is now Asleep.",
         "type": "Ability"
       }
     ],
@@ -34069,7 +34069,7 @@
     "abilities": [
       {
         "name": "Innards Out",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, do 50 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -34148,7 +34148,7 @@
     "abilities": [
       {
         "name": "Safeguard",
-        "text": "",
+        "text": "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.",
         "type": "Ability"
       }
     ],
@@ -34262,7 +34262,7 @@
     "abilities": [
       {
         "name": "Flower Shield",
-        "text": "",
+        "text": "Each of your Pokémon that has any {P} Energy attached recovers from all Special Conditions and can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -34664,7 +34664,7 @@
     "abilities": [
       {
         "name": "Comatose",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever you attach an Energy from your Energy Zone to it, it is now Asleep.",
         "type": "Ability"
       }
     ],
@@ -34945,7 +34945,7 @@
     "abilities": [
       {
         "name": "Psychic Connect",
-        "text": "",
+        "text": "Once during your turn, you may move all {P} Energy from 1 of your Benched {P} Pokémon to your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -34987,7 +34987,7 @@
     "abilities": [
       {
         "name": "Offload Pass",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, move all {F} Energy from this Pokémon to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -35066,7 +35066,7 @@
     "abilities": [
       {
         "name": "Rising Road",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may switch it with your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -35531,7 +35531,7 @@
     "abilities": [
       {
         "name": "Psychic Connect",
-        "text": "",
+        "text": "Once during your turn, you may move all {P} Energy from 1 of your Benched {P} Pokémon to your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -35573,7 +35573,7 @@
     "abilities": [
       {
         "name": "Offload Pass",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, move all {F} Energy from this Pokémon to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -35652,7 +35652,7 @@
     "abilities": [
       {
         "name": "Rising Road",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may switch it with your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -36420,7 +36420,7 @@
     "abilities": [
       {
         "name": "Comforting Song",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -36630,7 +36630,7 @@
     "abilities": [
       {
         "name": "Shadowy Spellbind",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, your opponent can't use any Supporter cards from their hand.",
         "type": "Ability"
       }
     ],
@@ -36783,7 +36783,7 @@
     "abilities": [
       {
         "name": "Psychic Connect",
-        "text": "",
+        "text": "Once during your turn, you may move all {P} Energy from 1 of your Benched {P} Pokémon to your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -36825,7 +36825,7 @@
     "abilities": [
       {
         "name": "Rising Road",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may switch it with your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -37377,7 +37377,7 @@
     "abilities": [
       {
         "name": "Intimidating Fang",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon do −20 damage.",
         "type": "Ability"
       }
     ],
@@ -37609,7 +37609,7 @@
     "abilities": [
       {
         "name": "Thunderclap Flash",
-        "text": "",
+        "text": "At the end of your first turn, take a {L} Energy from your Energy Zone and attach it to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -37830,7 +37830,7 @@
     "abilities": [
       {
         "name": "Illuminate",
-        "text": "",
+        "text": "Once during your turn, you may put a random Pokémon from your deck into your hand.",
         "type": "Ability"
       }
     ],
@@ -37979,7 +37979,7 @@
     "abilities": [
       {
         "name": "Heal Block",
-        "text": "",
+        "text": "Pokémon (both yours and your opponent's) can't be healed.",
         "type": "Ability"
       }
     ],
@@ -38383,7 +38383,7 @@
     "abilities": [
       {
         "name": "More Poison",
-        "text": "",
+        "text": "Your opponent's Active Pokémon takes +10 damage from being Poisoned.",
         "type": "Ability"
       }
     ],
@@ -38762,7 +38762,7 @@
     "abilities": [
       {
         "name": "Steel Spikes",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -38910,7 +38910,7 @@
     "abilities": [
       {
         "name": "Guard Dog Visage",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon cost 1 {C} more.",
         "type": "Ability"
       }
     ],
@@ -39134,7 +39134,7 @@
     "abilities": [
       {
         "name": "Ultra Thrusters",
-        "text": "",
+        "text": "Once during your turn, you may switch your Active Ultra Beast with 1 of your Benched Ultra Beasts.",
         "type": "Ability"
       }
     ],
@@ -39516,7 +39516,7 @@
     "abilities": [
       {
         "name": "Ultra Thrusters",
-        "text": "",
+        "text": "Once during your turn, you may switch your Active Ultra Beast with 1 of your Benched Ultra Beasts.",
         "type": "Ability"
       }
     ],
@@ -40198,7 +40198,7 @@
     "abilities": [
       {
         "name": "Water Shuriken",
-        "text": "",
+        "text": "Once during your turn, you may do 20 damage to 1 of your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -40346,7 +40346,7 @@
     "abilities": [
       {
         "name": "Drive Off",
-        "text": "",
+        "text": "Once during your turn, you may switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)",
         "type": "Ability"
       }
     ],
@@ -40497,7 +40497,7 @@
     "abilities": [
       {
         "name": "Primeval Law",
-        "text": "",
+        "text": "Your opponent can't play any Pokémon from their hand to evolve their Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -40576,7 +40576,7 @@
     "abilities": [
       {
         "name": "More Poison",
-        "text": "",
+        "text": "Your opponent's Active Pokémon takes +10 damage from being Poisoned.",
         "type": "Ability"
       }
     ],
@@ -40902,7 +40902,7 @@
     "abilities": [
       {
         "name": "Combust",
-        "text": "",
+        "text": "Once during your turn, you may attach a {R} Energy from your discard pile to this Pokémon. If you do, do 20 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -41811,7 +41811,7 @@
     "abilities": [
       {
         "name": "Happy Ribbon",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may draw 2 cards.",
         "type": "Ability"
       }
     ],
@@ -42603,7 +42603,7 @@
     "abilities": [
       {
         "name": "Veevee 'volve",
-        "text": "",
+        "text": "This Pokémon can evolve into any Pokémon that evolves from Eevee if you play it from your hand onto this Pokémon. (This Pokémon can't evolve during your first turn or the turn you play it.)",
         "type": "Ability"
       }
     ],
@@ -42647,7 +42647,7 @@
     "abilities": [
       {
         "name": "Full-Mouth Manner",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, heal 20 damage from it.",
         "type": "Ability"
       }
     ],
@@ -42724,7 +42724,7 @@
     "abilities": [
       {
         "name": "Catching Tail",
-        "text": "",
+        "text": "Once during your turn, you may put a random Pokémon Tool card from your deck into your hand.",
         "type": "Ability"
       }
     ],
@@ -43393,7 +43393,7 @@
     "abilities": [
       {
         "name": "Combust",
-        "text": "",
+        "text": "Once during your turn, you may attach a {R} Energy from your discard pile to this Pokémon. If you do, do 20 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -43481,7 +43481,7 @@
     "abilities": [
       {
         "name": "Happy Ribbon",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may draw 2 cards.",
         "type": "Ability"
       }
     ],
@@ -43559,7 +43559,7 @@
     "abilities": [
       {
         "name": "Veevee 'volve",
-        "text": "",
+        "text": "This Pokémon can evolve into any Pokémon that evolves from Eevee if you play it from your hand onto this Pokémon. (This Pokémon can't evolve during your first turn or the turn you play it.)",
         "type": "Ability"
       }
     ],
@@ -43603,7 +43603,7 @@
     "abilities": [
       {
         "name": "Full-Mouth Manner",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, heal 20 damage from it.",
         "type": "Ability"
       }
     ],
@@ -43692,7 +43692,7 @@
     "abilities": [
       {
         "name": "Combust",
-        "text": "",
+        "text": "Once during your turn, you may attach a {R} Energy from your discard pile to this Pokémon. If you do, do 20 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -43780,7 +43780,7 @@
     "abilities": [
       {
         "name": "Happy Ribbon",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may draw 2 cards.",
         "type": "Ability"
       }
     ],
@@ -43861,7 +43861,7 @@
     "abilities": [
       {
         "name": "Full-Mouth Manner",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, heal 20 damage from it.",
         "type": "Ability"
       }
     ],
@@ -43902,7 +43902,7 @@
     "abilities": [
       {
         "name": "Veevee 'volve",
-        "text": "",
+        "text": "This Pokémon can evolve into any Pokémon that evolves from Eevee if you play it from your hand onto this Pokémon. (This Pokémon can't evolve during your first turn or the turn you play it.)",
         "type": "Ability"
       }
     ],
@@ -44157,7 +44157,7 @@
     "abilities": [
       {
         "name": "Psy Shadow",
-        "text": "",
+        "text": "Once during your turn, you may take a {P} Energy from your Energy Zone and attach it to the {P} Pokémon in the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -45002,7 +45002,7 @@
     "abilities": [
       {
         "name": "Fluffy Flight",
-        "text": "",
+        "text": "Your Active Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -45222,7 +45222,7 @@
     "abilities": [
       {
         "name": "Solid Shell",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -45299,7 +45299,7 @@
     "abilities": [
       {
         "name": "En-fruits-iastic",
-        "text": "",
+        "text": "If this Pokémon has a Pokémon Tool attached, attacks used by this Pokémon cost 1 less {G} Energy.",
         "type": "Ability"
       }
     ],
@@ -45519,7 +45519,7 @@
     "abilities": [
       {
         "name": "Fire Breath",
-        "text": "",
+        "text": "Once during your turn, you may make your opponent's Active Pokémon Burned.",
         "type": "Ability"
       }
     ],
@@ -45920,7 +45920,7 @@
     "abilities": [
       {
         "name": "Lordly Cheering",
-        "text": "",
+        "text": "As long as this Pokémon is on your Bench, attacks used by your Pokémon that evolve from Poliwhirl do +40 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -46284,7 +46284,7 @@
     "abilities": [
       {
         "name": "Thick Fat",
-        "text": "",
+        "text": "This Pokémon takes −30 damage from attacks from {R} or {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -46687,7 +46687,7 @@
     "abilities": [
       {
         "name": "Unruly Claw",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may discard a random Energy from your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -47361,7 +47361,7 @@
     "abilities": [
       {
         "name": "Celestial Blessing",
-        "text": "",
+        "text": "If any damage is done to this Pokémon by attacks, flip a coin. If heads, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -47474,7 +47474,7 @@
     "abilities": [
       {
         "name": "Psychic Healing",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may heal 30 damage from 1 of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -47515,7 +47515,7 @@
     "abilities": [
       {
         "name": "GUARD",
-        "text": "",
+        "text": "This Ability works if you have any Unown in play with an Ability other than . All of your Pokémon take −10 damage from attacks from your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -47556,7 +47556,7 @@
     "abilities": [
       {
         "name": "POWER",
-        "text": "",
+        "text": "This Ability works if you have any Unown in play with an Ability other than . Attacks used by your Pokémon do +10 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -48526,7 +48526,7 @@
     "abilities": [
       {
         "name": "Dark Chase",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may switch in 1 of your opponent's Benched Pokémon that has damage on it to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -48784,7 +48784,7 @@
     "abilities": [
       {
         "name": "Energy Plunder",
-        "text": "",
+        "text": "Once during your turn, you may move all {D} Energy from each of your Pokémon to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -49399,7 +49399,7 @@
     "abilities": [
       {
         "name": "Buggy Evolution",
-        "text": "",
+        "text": "Whenever you attach an Energy from your Energy Zone to this Pokémon, put a random card from your deck that evolves from this Pokémon onto this Pokémon to evolve it.",
         "type": "Ability"
       }
     ],
@@ -49547,7 +49547,7 @@
     "abilities": [
       {
         "name": "Insomnia",
-        "text": "",
+        "text": "This Pokémon can't be Asleep.",
         "type": "Ability"
       }
     ],
@@ -50801,7 +50801,7 @@
     "abilities": [
       {
         "name": "Energy Plunder",
-        "text": "",
+        "text": "Once during your turn, you may move all {D} Energy from each of your Pokémon to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -50914,7 +50914,7 @@
     "abilities": [
       {
         "name": "Insomnia",
-        "text": "",
+        "text": "This Pokémon can't be Asleep.",
         "type": "Ability"
       }
     ],
@@ -51064,7 +51064,7 @@
     "abilities": [
       {
         "name": "Solid Shell",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -51216,7 +51216,7 @@
     "abilities": [
       {
         "name": "Psychic Healing",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may heal 30 damage from 1 of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -51328,7 +51328,7 @@
     "abilities": [
       {
         "name": "Dark Chase",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may switch in 1 of your opponent's Benched Pokémon that has damage on it to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -51580,7 +51580,7 @@
     "abilities": [
       {
         "name": "Solid Shell",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -51695,7 +51695,7 @@
     "abilities": [
       {
         "name": "Psychic Healing",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may heal 30 damage from 1 of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -51807,7 +51807,7 @@
     "abilities": [
       {
         "name": "Dark Chase",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may switch in 1 of your opponent's Benched Pokémon that has damage on it to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -52176,7 +52176,7 @@
     "abilities": [
       {
         "name": "Volt Charge",
-        "text": "",
+        "text": "Once during your turn, you may take a {L} Energy from your Energy Zone and attach it to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -52719,7 +52719,7 @@
     "abilities": [
       {
         "name": "Forest Breath",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may take a {G} Energy from your Energy Zone and attach it to 1 of your {G} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -52800,7 +52800,7 @@
     "abilities": [
       {
         "name": "Snowy Terrain",
-        "text": "",
+        "text": "During Pokémon Checkup, if this Pokémon is in the Active Spot, do 10 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -53382,7 +53382,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -53743,7 +53743,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -53820,7 +53820,7 @@
     "abilities": [
       {
         "name": "Healing Ripples",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may heal 60 damage from 1 of your {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -53931,7 +53931,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -54188,7 +54188,7 @@
     "abilities": [
       {
         "name": "Infiltrating Inspection",
-        "text": "",
+        "text": "Once during your turn, when you put this Pokémon from your hand onto your Bench, you may have your opponent reveal their hand.",
         "type": "Ability"
       }
     ],
@@ -54300,7 +54300,7 @@
     "abilities": [
       {
         "name": "Perish Body",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, flip a coin. If heads, the Attacking Pokémon is Knocked Out.",
         "type": "Ability"
       }
     ],
@@ -54378,7 +54378,7 @@
     "abilities": [
       {
         "name": "Fantastical Floating",
-        "text": "",
+        "text": "If you have Latias in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -54635,7 +54635,7 @@
     "abilities": [
       {
         "name": "Exoskeleton",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -54858,7 +54858,7 @@
     "abilities": [
       {
         "name": "Illusive Trickery",
-        "text": "",
+        "text": "If your opponent's Pokémon is Knocked Out by damage from this Pokémon's attacks, during your opponent's next turn, prevent all damage from—and effects of—attacks done to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -55396,7 +55396,7 @@
     "abilities": [
       {
         "name": "Counterattack",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -55588,7 +55588,7 @@
     "abilities": [
       {
         "name": "Healing Ripples",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may heal 60 damage from 1 of your {W} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -55702,7 +55702,7 @@
     "abilities": [
       {
         "name": "Fantastical Floating",
-        "text": "",
+        "text": "If you have Latias in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -55847,7 +55847,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -55889,7 +55889,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -55931,7 +55931,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -56114,7 +56114,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -56156,7 +56156,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -56235,7 +56235,7 @@
     "abilities": [
       {
         "name": "Legendary Pulse",
-        "text": "",
+        "text": "At the end of your turn, if this Pokémon is in the Active Spot, draw a card.",
         "type": "Ability"
       }
     ],
@@ -56490,7 +56490,7 @@
     "abilities": [
       {
         "name": "Innards Out",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, do 50 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -57437,7 +57437,7 @@
     "abilities": [
       {
         "name": "Toughness Aroma",
-        "text": "",
+        "text": "Each of your {G} Pokémon gets +20 HP.",
         "type": "Ability"
       }
     ],
@@ -57770,7 +57770,7 @@
     "abilities": [
       {
         "name": "Captivating Rhythm",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, switch in 1 of your opponent's Benched Pokémon to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -58353,7 +58353,7 @@
     "abilities": [
       {
         "name": "Slow Sear",
-        "text": "",
+        "text": "Once during your turn, you may discard the top card of your opponent's deck.",
         "type": "Ability"
       }
     ],
@@ -59300,7 +59300,7 @@
     "abilities": [
       {
         "name": "Bouncy Body",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, take a {W} Energy from your Energy Zone and attach it to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -59450,7 +59450,7 @@
     "abilities": [
       {
         "name": "Shifting Stream",
-        "text": "",
+        "text": "Once during your turn, you may switch your Active {W} Pokémon with 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -59709,7 +59709,7 @@
     "abilities": [
       {
         "name": "Ice Face",
-        "text": "",
+        "text": "If this Pokémon has full HP, it takes −40 damage from attacks from your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -59751,7 +59751,7 @@
     "abilities": [
       {
         "name": "Electromagnetic Wall",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever your opponent attaches an Energy from their Energy Zone to 1 of their Pokémon, do 20 damage to that Pokémon.",
         "type": "Ability"
       }
     ],
@@ -60613,7 +60613,7 @@
     "abilities": [
       {
         "name": "Fade into Darkness",
-        "text": "",
+        "text": "When this Pokémon is Knocked Out, flip a coin. If heads, your opponent can't get any points for it.",
         "type": "Ability"
       }
     ],
@@ -61146,7 +61146,7 @@
     "abilities": [
       {
         "name": "Dismantling Keys",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may discard all Pokémon Tools from your opponent's Active Pokémon. If you do, discard this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -61188,7 +61188,7 @@
     "abilities": [
       {
         "name": "Watch Over",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -62489,7 +62489,7 @@
     "abilities": [
       {
         "name": "Roar in Unison",
-        "text": "",
+        "text": "Once during your turn, you may take 2 {D} Energy from your Energy Zone and attach it to this Pokémon. If you do, do 30 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -62602,7 +62602,7 @@
     "abilities": [
       {
         "name": "Poison Point",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, the Attacking Pokémon is now Poisoned.",
         "type": "Ability"
       }
     ],
@@ -63039,7 +63039,7 @@
     "abilities": [
       {
         "name": "Cursed Metal",
-        "text": "",
+        "text": "Attacks used by your {P} Pokémon and {M} Pokémon do +30 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -63240,7 +63240,7 @@
     "abilities": [
       {
         "name": "Sticky Membrane",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon cost 1 {C} more.",
         "type": "Ability"
       }
     ],
@@ -63498,7 +63498,7 @@
     "abilities": [
       {
         "name": "Boosted Evolution",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, it can evolve during your first turn or the turn you play it.",
         "type": "Ability"
       }
     ],
@@ -63859,7 +63859,7 @@
     "abilities": [
       {
         "name": "Search for Friends",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may put a Supporter card from your discard pile into your hand.",
         "type": "Ability"
       }
     ],
@@ -64295,7 +64295,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -64337,7 +64337,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -64379,7 +64379,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -64960,7 +64960,7 @@
     "abilities": [
       {
         "name": "Captivating Rhythm",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, switch in 1 of your opponent's Benched Pokémon to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -65037,7 +65037,7 @@
     "abilities": [
       {
         "name": "Slow Sear",
-        "text": "",
+        "text": "Once during your turn, you may discard the top card of your opponent's deck.",
         "type": "Ability"
       }
     ],
@@ -65152,7 +65152,7 @@
     "abilities": [
       {
         "name": "Bouncy Body",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, take a {W} Energy from your Energy Zone and attach it to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -65231,7 +65231,7 @@
     "abilities": [
       {
         "name": "Ice Face",
-        "text": "",
+        "text": "If this Pokémon has full HP, it takes −40 damage from attacks from your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -65561,7 +65561,7 @@
     "abilities": [
       {
         "name": "Roar in Unison",
-        "text": "",
+        "text": "Once during your turn, you may take 2 {D} Energy from your Energy Zone and attach it to this Pokémon. If you do, do 30 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -65640,7 +65640,7 @@
     "abilities": [
       {
         "name": "Sticky Membrane",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, attacks used by your opponent's Active Pokémon cost 1 {C} more.",
         "type": "Ability"
       }
     ],
@@ -65682,7 +65682,7 @@
     "abilities": [
       {
         "name": "Search for Friends",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may put a Supporter card from your discard pile into your hand.",
         "type": "Ability"
       }
     ],
@@ -65981,7 +65981,7 @@
     "abilities": [
       {
         "name": "Shifting Stream",
-        "text": "",
+        "text": "Once during your turn, you may switch your Active {W} Pokémon with 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66023,7 +66023,7 @@
     "abilities": [
       {
         "name": "Electromagnetic Wall",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever your opponent attaches an Energy from their Energy Zone to 1 of their Pokémon, do 20 damage to that Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66138,7 +66138,7 @@
     "abilities": [
       {
         "name": "Watch Over",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66251,7 +66251,7 @@
     "abilities": [
       {
         "name": "Poison Point",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, the Attacking Pokémon is now Poisoned.",
         "type": "Ability"
       }
     ],
@@ -66626,7 +66626,7 @@
     "abilities": [
       {
         "name": "Shifting Stream",
-        "text": "",
+        "text": "Once during your turn, you may switch your Active {W} Pokémon with 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66668,7 +66668,7 @@
     "abilities": [
       {
         "name": "Electromagnetic Wall",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever your opponent attaches an Energy from their Energy Zone to 1 of their Pokémon, do 20 damage to that Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66747,7 +66747,7 @@
     "abilities": [
       {
         "name": "Watch Over",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -66860,7 +66860,7 @@
     "abilities": [
       {
         "name": "Poison Point",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, the Attacking Pokémon is now Poisoned.",
         "type": "Ability"
       }
     ],
@@ -67168,7 +67168,7 @@
     "abilities": [
       {
         "name": "Fragrance Trap",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot, once during your turn, you may switch in 1 of your opponent's Benched Basic Pokémon to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -67459,7 +67459,7 @@
     "abilities": [
       {
         "name": "Counterattack",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -67681,7 +67681,7 @@
     "abilities": [
       {
         "name": "Safeguard",
-        "text": "",
+        "text": "Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.",
         "type": "Ability"
       }
     ],
@@ -67723,7 +67723,7 @@
     "abilities": [
       {
         "name": "Thunderclap Flash",
-        "text": "",
+        "text": "At the end of your first turn, take a {L} Energy from your Energy Zone and attach it to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -67802,7 +67802,7 @@
     "abilities": [
       {
         "name": "Sleep Pendulum",
-        "text": "",
+        "text": "Once during your turn, you may flip a coin. If heads, your opponent's Active Pokémon is now Asleep.",
         "type": "Ability"
       }
     ],
@@ -68505,7 +68505,7 @@
     "abilities": [
       {
         "name": "Offload Pass",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, move all {F} Energy from this Pokémon to 1 of your Benched Pokémon.",
         "type": "Ability"
       }
     ],
@@ -68670,7 +68670,7 @@
     "abilities": [
       {
         "name": "Fabled Luster",
-        "text": "",
+        "text": "This Pokémon can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -68712,7 +68712,7 @@
     "abilities": [
       {
         "name": "Toughness Aroma",
-        "text": "",
+        "text": "Each of your {G} Pokémon gets +20 HP.",
         "type": "Ability"
       }
     ],
@@ -68753,7 +68753,7 @@
     "abilities": [
       {
         "name": "Dismantling Keys",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may discard all Pokémon Tools from your opponent's Active Pokémon. If you do, discard this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -68998,7 +68998,7 @@
     "abilities": [
       {
         "name": "Trap Territory",
-        "text": "",
+        "text": "Your opponent's Active Pokémon's Retreat Cost is 1 more.",
         "type": "Ability"
       }
     ],
@@ -69220,7 +69220,7 @@
     "abilities": [
       {
         "name": "Ignition",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may take a {R} Energy from your Energy Zone and attach it to your Active {R} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -69445,7 +69445,7 @@
     "abilities": [
       {
         "name": "Shell Shield",
-        "text": "",
+        "text": "As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks.",
         "type": "Ability"
       }
     ],
@@ -70024,7 +70024,7 @@
     "abilities": [
       {
         "name": "Infinite Increase",
-        "text": "",
+        "text": "This Pokémon gets +30 HP for each {P} Energy attached to it.",
         "type": "Ability"
       }
     ],
@@ -71147,7 +71147,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -71280,7 +71280,7 @@
     "abilities": [
       {
         "name": "Trap Territory",
-        "text": "",
+        "text": "Your opponent's Active Pokémon's Retreat Cost is 1 more.",
         "type": "Ability"
       }
     ],
@@ -71358,7 +71358,7 @@
     "abilities": [
       {
         "name": "Infinite Increase",
-        "text": "",
+        "text": "This Pokémon gets +30 HP for each {P} Energy attached to it.",
         "type": "Ability"
       }
     ],
@@ -72334,7 +72334,7 @@
     "abilities": [
       {
         "name": "Psychic Connect",
-        "text": "",
+        "text": "Once during your turn, you may move all {P} Energy from 1 of your Benched {P} Pokémon to your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -72424,7 +72424,7 @@
     "abilities": [
       {
         "name": "Rising Road",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is on your Bench, you may switch it with your Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -72467,7 +72467,7 @@
     "abilities": [
       {
         "name": "Cursed Metal",
-        "text": "",
+        "text": "Attacks used by your {P} Pokémon and {M} Pokémon do +30 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -73105,7 +73105,7 @@
     "abilities": [
       {
         "name": "Soothing Wind",
-        "text": "",
+        "text": "Each of your Pokémon that has any Energy attached recovers from all Special Conditions and can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -74303,7 +74303,7 @@
     "abilities": [
       {
         "name": "Surge Surfer",
-        "text": "",
+        "text": "If a Stadium is in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -75025,7 +75025,7 @@
     "abilities": [
       {
         "name": "Strange Singing",
-        "text": "",
+        "text": "At the beginning of your turn, if this Pokémon is in the Active Spot, put a random {P} Pokémon from your deck into your hand.",
         "type": "Ability"
       }
     ],
@@ -75137,7 +75137,7 @@
     "abilities": [
       {
         "name": "Disguise",
-        "text": "",
+        "text": "When this Pokémon is first damaged by an attack after coming into play, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -75213,7 +75213,7 @@
     "abilities": [
       {
         "name": "Refreshing Tea",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may have your opponent shuffle their hand into their deck. For each remaining point that your opponent needs to win, they draw a card.",
         "type": "Ability"
       }
     ],
@@ -75828,7 +75828,7 @@
     "abilities": [
       {
         "name": "Coordinated Unit",
-        "text": "",
+        "text": "If you have another Falinks in play, this Pokémon's attacks do +20 damage to your opponent's Active Pokémon, and this Pokémon takes −20 damage from attacks from your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -76013,7 +76013,7 @@
     "abilities": [
       {
         "name": "Power of Alchemy",
-        "text": "",
+        "text": "Basic Pokémon in play (both yours and your opponent's) have no Abilities.",
         "type": "Ability"
       }
     ],
@@ -76234,7 +76234,7 @@
     "abilities": [
       {
         "name": "Final Scream",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, do 10 damage to each of your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -76527,7 +76527,7 @@
     "abilities": [
       {
         "name": "Dig Up",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may put 2 random Pokémon Tool cards from your discard pile into your hand.",
         "type": "Ability"
       }
     ],
@@ -77000,7 +77000,7 @@
     "abilities": [
       {
         "name": "Carefree Steps",
-        "text": "",
+        "text": "If any damage is done to this Pokémon by attacks, flip a coin. If heads, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -77222,7 +77222,7 @@
     "abilities": [
       {
         "name": "Portrait",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may look at a random Supporter card from your opponent's hand. Use the effect of that card as the effect of this Ability.",
         "type": "Ability"
       }
     ],
@@ -77337,7 +77337,7 @@
     "abilities": [
       {
         "name": "Repelling Wind",
-        "text": "",
+        "text": "Once during your turn, you may switch out your opponent's Active Basic Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)",
         "type": "Ability"
       }
     ],
@@ -77451,7 +77451,7 @@
     "abilities": [
       {
         "name": "Snoozing Habit",
-        "text": "",
+        "text": "As long as this Pokémon is in the Active Spot, whenever you attach an Energy from your Energy Zone to it, it is now Asleep.",
         "type": "Ability"
       }
     ],
@@ -77636,7 +77636,7 @@
     "abilities": [
       {
         "name": "Fur Coat",
-        "text": "",
+        "text": "This Pokémon takes −20 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -78597,7 +78597,7 @@
     "abilities": [
       {
         "name": "Coordinated Unit",
-        "text": "",
+        "text": "If you have another Falinks in play, this Pokémon's attacks do +20 damage to your opponent's Active Pokémon, and this Pokémon takes −20 damage from attacks from your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -78640,7 +78640,7 @@
     "abilities": [
       {
         "name": "Power of Alchemy",
-        "text": "",
+        "text": "Basic Pokémon in play (both yours and your opponent's) have no Abilities.",
         "type": "Ability"
       }
     ],
@@ -78790,7 +78790,7 @@
     "abilities": [
       {
         "name": "Dig Up",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may put 2 random Pokémon Tool cards from your discard pile into your hand.",
         "type": "Ability"
       }
     ],
@@ -78904,7 +78904,7 @@
     "abilities": [
       {
         "name": "Soothing Wind",
-        "text": "",
+        "text": "Each of your Pokémon that has any Energy attached recovers from all Special Conditions and can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -79138,7 +79138,7 @@
     "abilities": [
       {
         "name": "Disguise",
-        "text": "",
+        "text": "When this Pokémon is first damaged by an attack after coming into play, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -79383,7 +79383,7 @@
     "abilities": [
       {
         "name": "Soothing Wind",
-        "text": "",
+        "text": "Each of your Pokémon that has any Energy attached recovers from all Special Conditions and can't be affected by any Special Conditions.",
         "type": "Ability"
       }
     ],
@@ -79581,7 +79581,7 @@
     "abilities": [
       {
         "name": "Disguise",
-        "text": "",
+        "text": "When this Pokémon is first damaged by an attack after coming into play, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -79769,7 +79769,7 @@
     "abilities": [
       {
         "name": "Carefree Steps",
-        "text": "",
+        "text": "If any damage is done to this Pokémon by attacks, flip a coin. If heads, prevent that damage.",
         "type": "Ability"
       }
     ],
@@ -80230,7 +80230,7 @@
     "abilities": [
       {
         "name": "Fantastical Floating",
-        "text": "",
+        "text": "If you have Latias in play, this Pokémon has no Retreat Cost.",
         "type": "Ability"
       }
     ],
@@ -80518,7 +80518,7 @@
     "abilities": [
       {
         "name": "Combust",
-        "text": "",
+        "text": "Once during your turn, you may attach a {R} Energy from your discard pile to this Pokémon. If you do, do 20 damage to this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -80633,7 +80633,7 @@
     "abilities": [
       {
         "name": "Psychic Healing",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may heal 30 damage from 1 of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -80675,7 +80675,7 @@
     "abilities": [
       {
         "name": "Happy Ribbon",
-        "text": "",
+        "text": "Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may draw 2 cards.",
         "type": "Ability"
       }
     ],
@@ -80752,7 +80752,7 @@
     "abilities": [
       {
         "name": "Dark Chase",
-        "text": "",
+        "text": "Once during your turn, if this Pokémon is in the Active Spot, you may switch in 1 of your opponent's Benched Pokémon that has damage on it to the Active Spot.",
         "type": "Ability"
       }
     ],
@@ -80831,7 +80831,7 @@
     "abilities": [
       {
         "name": "Strange Singing",
-        "text": "",
+        "text": "At the beginning of your turn, if this Pokémon is in the Active Spot, put a random {P} Pokémon from your deck into your hand.",
         "type": "Ability"
       }
     ],
@@ -81226,7 +81226,7 @@
     "abilities": [
       {
         "name": "Powder Heal",
-        "text": "",
+        "text": "Once during your turn, you may heal 20 damage from each of your Pokémon.",
         "type": "Ability"
       }
     ],
@@ -81448,7 +81448,7 @@
     "abilities": [
       {
         "name": "Water Shuriken",
-        "text": "",
+        "text": "Once during your turn, you may do 20 damage to 1 of your opponent's Pokémon.",
         "type": "Ability"
       }
     ],
@@ -82108,7 +82108,7 @@
     "abilities": [
       {
         "name": "Lunar Plumage",
-        "text": "",
+        "text": "Whenever you attach a {P} Energy from your Energy Zone to this Pokémon, heal 20 damage from this Pokémon.",
         "type": "Ability"
       }
     ],
@@ -82291,7 +82291,7 @@
     "abilities": [
       {
         "name": "Nightmare Aura",
-        "text": "",
+        "text": "Whenever you attach a {D} Energy from your Energy Zone to this Pokémon, do 20 damage to your opponent's Active Pokémon.",
         "type": "Ability"
       }
     ],
@@ -82369,7 +82369,7 @@
     "abilities": [
       {
         "name": "Resilience Link",
-        "text": "",
+        "text": "If you have Arceus or Arceus ex in play, this Pokémon takes −30 damage from attacks.",
         "type": "Ability"
       }
     ],
@@ -82483,7 +82483,7 @@
     "abilities": [
       {
         "name": "Defensive Whirlwind",
-        "text": "",
+        "text": "This Pokémon takes −30 damage from attacks from {F} Pokémon.",
         "type": "Ability"
       }
     ],
@@ -82751,7 +82751,7 @@
     "abilities": [
       {
         "name": "Counterattack",
-        "text": "",
+        "text": "If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon, do 20 damage to the Attacking Pokémon.",
         "type": "Ability"
       }
     ],
@@ -83478,7 +83478,7 @@
     "abilities": [
       {
         "name": "Thunderclap Flash",
-        "text": "",
+        "text": "At the end of your first turn, take a {L} Energy from your Energy Zone and attach it to this Pokémon.",
         "type": "Ability"
       }
     ],
