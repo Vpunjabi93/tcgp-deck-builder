@@ -537,8 +537,10 @@ window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
             throw new Error('Gemini returned an empty deck. Try again.');
         }
 
+        const enforcedDeckIds = enforceEnergyTypeConstraint(deckIds, energyType, filteredCards);
+
         // Resolve IDs → card names for validateAndApplyAIDeck
-        const deckNames = deckIds.map(item => {
+        const deckNames = enforcedDeckIds.map(item => {
             const card = (window.TCGP_CARDS || []).find(c => c.id === item.id);
             return card ? card.name : null;
         }).filter(Boolean);
@@ -628,4 +630,197 @@ ${cardLines}
 
 Respond with ONLY a raw JSON array of exactly 20 objects, each with a single "id" field matching the card's id shown above. No explanation, no markdown, no extra text.
 Example format: [{"id":"A1-006"},{"id":"A1-006"},{"id":"A1-001"},{"id":"A1-001"},{"id":"A1-057"},{"id":"A1-057"},{"id":"A1-128"},{"id":"A1-128"},{"id":"A1-131"},{"id":"A1-131"},{"id":"A1-132"},{"id":"A1-132"},{"id":"A1-133"},{"id":"A1-133"},{"id":"A1-134"},{"id":"A1-134"},{"id":"A1-135"},{"id":"A1-135"},{"id":"A1-136"},{"id":"A1-136"}]`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST-RESPONSE ENERGY TYPE ENFORCER v2
+// Three-pass smart enforcement:
+//   Pass 1 — Protect evolution lines (never orphan a stage)
+//   Pass 2 — Score synergy via effect/ability text keyword overlap
+//   Pass 3 — Support card fallback when no Pokémon match synergy
+// ─────────────────────────────────────────────────────────────────────────────
+function enforceEnergyTypeConstraint(deckIds, allowedEnergyType, ownedCards) {
+    if (!allowedEnergyType || allowedEnergyType === 'Any') return deckIds;
+
+    const allCards = window.TCGP_CARDS || [];
+    const allowed = new Set([allowedEnergyType, 'Colorless']);
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    function resolveCard(id) {
+        return allCards.find(c => c.id === id) || null;
+    }
+
+    // Build a name→ids map for fast evolution chain lookup
+    function buildNameMap(ids) {
+        const map = {};
+        ids.forEach(item => {
+            const c = resolveCard(item.id);
+            if (c) {
+                const key = (c.name || '').toLowerCase();
+                if (!map[key]) map[key] = [];
+                map[key].push(item.id);
+            }
+        });
+        return map;
+    }
+
+    // Check if removing a card would orphan another card in the deck
+    // e.g. removing Charmeleon when Charizard is still in = orphan
+    function wouldOrphan(candidateId, currentIds) {
+        const card = resolveCard(candidateId);
+        if (!card || !card.name) return false;
+        const candidateName = card.name.toLowerCase();
+
+        return currentIds.some(item => {
+            if (item.id === candidateId) return false;
+            const other = resolveCard(item.id);
+            if (!other || other.category !== 'Pokemon') return false;
+            // If another card evolves FROM this one → orphan risk
+            const evolvesFrom = (other.evolvesFrom || '').toLowerCase();
+            if (evolvesFrom === candidateName) return true;
+            // If this card evolves FROM another in the deck → that's fine, not an orphan
+            return false;
+        });
+    }
+
+    // Check if the candidate card itself would be stranded (no pre-evolution present)
+    function isStranded(candidateId, currentIds) {
+        const card = resolveCard(candidateId);
+        if (!card || !card.evolvesFrom) return false;
+        const prevoName = (card.evolvesFrom || '').toLowerCase();
+        return !currentIds.some(item => {
+            const other = resolveCard(item.id);
+            return other && (other.name || '').toLowerCase() === prevoName;
+        });
+    }
+
+    // Score synergy: how many keywords from the deck's existing cards appear
+    // in this candidate's effect/ability text
+    function synergyScore(candidate, currentIds) {
+        const candidateText = [
+            candidate.effect || '',
+            ...(candidate.abilities || []).map(a => a.text || ''),
+            ...(candidate.attacks || []).map(a => a.text || '')
+        ].join(' ').toLowerCase();
+
+        if (!candidateText) return 0;
+        let score = 0;
+
+        currentIds.forEach(item => {
+            const c = resolveCard(item.id);
+            if (!c || c.id === candidate.id) return;
+
+            // Name match — strongest signal
+            const name = (c.name || '').replace(/ ex$/i, '').toLowerCase();
+            if (name.length > 3 && candidateText.includes(name)) score += 3;
+
+            // Ability/attack keyword overlap
+            const texts = [
+                ...(c.abilities || []).map(a => (a.name || '').toLowerCase()),
+                ...(c.attacks || []).map(a => (a.name || '').toLowerCase())
+            ];
+            texts.forEach(kw => {
+                if (kw.length > 4 && candidateText.includes(kw)) score += 1;
+            });
+        });
+
+        return score;
+    }
+
+    // ── Pre-check: is the deck already compliant? ─────────────────────────────
+
+    const energyTypesInDeck = new Set();
+    deckIds.forEach(item => {
+        const card = resolveCard(item.id);
+        if (card && card.category === 'Pokemon' && card.type) {
+            energyTypesInDeck.add(card.type);
+        }
+    });
+
+    const nonColorlessTypes = [...energyTypesInDeck].filter(t => t !== 'Colorless');
+    if (nonColorlessTypes.length <= 1 && nonColorlessTypes.every(t => allowed.has(t))) {
+        return deckIds; // Already compliant — do nothing
+    }
+
+    console.warn(`[EnergyGuard] Deck has energy types: ${[...energyTypesInDeck].join(', ')}. Enforcing ${allowedEnergyType} + Colorless only.`);
+
+    // ── Build copy counts ─────────────────────────────────────────────────────
+
+    function getCounts(ids) {
+        const counts = {};
+        ids.forEach(item => { counts[item.id] = (counts[item.id] || 0) + 1; });
+        return counts;
+    }
+
+    // ── Main replacement loop ─────────────────────────────────────────────────
+
+    const result = [...deckIds];
+
+    for (let i = 0; i < result.length; i++) {
+        const card = resolveCard(result[i].id);
+        if (!card || card.category !== 'Pokemon') continue;
+        if (allowed.has(card.type)) continue; // This card is fine
+
+        // ── PASS 1: Evolution line protection ─────────────────────────────────
+        // If removing this card would orphan another, try to remove the orphan
+        // instead — but don't cascade; just skip this slot with a warning.
+        if (wouldOrphan(result[i].id, result.map(x => x))) {
+            console.warn(`[EnergyGuard] Skipping swap of ${card.name} — would orphan evolution partner. Consider manual review.`);
+            continue;
+        }
+
+        // ── PASS 2: Find best synergy Pokémon replacement ─────────────────────
+        const currentCounts = getCounts(result);
+        const currentIds = result.map(x => x);
+
+        const pokemonCandidates = ownedCards
+            .filter(c => {
+                if (c.category !== 'Pokemon') return false;
+                if (!allowed.has(c.type)) return false;
+                if ((currentCounts[c.id] || 0) >= 2) return false; // Already at 2-copy cap
+                if (isStranded(c.id, currentIds)) return false; // Pre-evo not in deck
+                return true;
+            })
+            .map(c => ({ card: c, score: synergyScore(c, currentIds) }))
+            .sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score; // Higher synergy first
+                return (b.card.hp || 0) - (a.card.hp || 0); // Tiebreak: higher HP
+            });
+
+        if (pokemonCandidates.length > 0 && pokemonCandidates[0].score > 0) {
+            const best = pokemonCandidates[0].card;
+            console.log(`[EnergyGuard] Swapped ${card.name} (${card.type}) → ${best.name} (${best.type}) [synergy: ${pokemonCandidates[0].score}]`);
+            result[i] = { id: best.id };
+            continue;
+        }
+
+        // ── PASS 3: Synergy fallback — add a support Trainer instead ──────────
+        // No good Pokémon match found; try a high-value Supporter/Trainer
+        const supportCandidates = ownedCards
+            .filter(c => {
+                if (c.category !== 'Trainer') return false;
+                if ((currentCounts[c.id] || 0) >= 2) return false;
+                return true;
+            })
+            .map(c => ({ card: c, score: synergyScore(c, currentIds) }))
+            .sort((a, b) => b.score - a.score);
+
+        if (supportCandidates.length > 0) {
+            const best = supportCandidates[0].card;
+            console.log(`[EnergyGuard] No Pokémon synergy match — added Trainer ${best.name} [synergy: ${supportCandidates[0].score}] in place of ${card.name}`);
+            result[i] = { id: best.id };
+        } else {
+            // Absolute fallback: best HP valid Pokémon regardless of synergy
+            const fallback = pokemonCandidates[0];
+            if (fallback) {
+                console.warn(`[EnergyGuard] Zero-synergy fallback: ${card.name} → ${fallback.card.name}`);
+                result[i] = { id: fallback.card.id };
+            } else {
+                console.error(`[EnergyGuard] No valid replacement at all for ${card.name} — leaving in deck.`);
+            }
+        }
+    }
+
+    return result;
 }
