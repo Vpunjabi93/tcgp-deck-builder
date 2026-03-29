@@ -576,25 +576,26 @@ function buildAIDeckPrompt(ownedCards, playstyle, energyType = 'Any') {
             if (card.attacks && card.attacks.length > 0) {
                 card.attacks.forEach(atk => {
                     const cost = atk.cost?.join(', ') || 'None';
-                    const text = atk.text ? ` — ${atk.text}` : '';
-                    parts.push(`  Attack: ${atk.name} (Cost: ${cost} | Dmg: ${atk.damage}${text})`);
+                    const text = atk.text ? ` — ${atk.text.slice(0, 60)}` : '';
+                    parts.push(`  Attack: ${atk.name} | Cost: ${cost} | Dmg: ${atk.damage}${text}`);
                 });
             }
 
             // Abilities
             if (card.abilities && card.abilities.length > 0) {
                 card.abilities.forEach(ab => {
-                    parts.push(`  ${ab.type}: ${ab.name} — ${ab.text}`);
+                    const text = ab.text ? ` — ${ab.text.slice(0, 60)}` : '';
+                    parts.push(`  ${ab.type}: ${ab.name}${text}`);
                 });
             }
 
         } else if (card.category === 'Trainer') {
             parts.push(`  Trainer Type: ${card.trainerType}`);
-            if (card.effect) parts.push(`  Effect: ${card.effect}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 60)}`);
 
         } else if (card.category === 'Energy') {
             parts.push(`  Energy Type: ${card.energyType}`);
-            if (card.effect) parts.push(`  Effect: ${card.effect}`);
+            if (card.effect) parts.push(`  Effect: ${card.effect.slice(0, 60)}`);
         }
 
         return parts.join('\n');
