@@ -480,7 +480,7 @@ window.buildAIDeck = async function(playstyle = 'Any') {
             }],
             generationConfig: {
                 temperature: 0.4,   // low temp = more consistent, structured output
-                maxOutputTokens: 512
+                maxOutputTokens: 2048
             }
         };
 
