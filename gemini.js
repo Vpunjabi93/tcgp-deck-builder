@@ -444,7 +444,7 @@ function getCardByName(name) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Entry point — called from the "Build My Deck" button in app.js
-window.buildAIDeck = async function(playstyle = 'Any') {
+window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
     const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
     if (!apiKey) {
         alert('Please set your Gemini API key first!');
@@ -466,7 +466,24 @@ window.buildAIDeck = async function(playstyle = 'Any') {
         .map(id => allCards.find(c => c.id === id))
         .filter(Boolean);
 
-    const prompt = buildAIDeckPrompt(ownedCards, playstyle);
+    // Filter collection to target energy type + Colorless + Trainers
+    const filteredCards = (energyType && energyType !== 'Any')
+        ? ownedCards.filter(card => {
+            if (card.category === 'Trainer') return true;
+            if (card.category === 'Energy') return card.energyType === energyType || card.energyType === 'Colorless';
+            if (card.category === 'Pokemon') return card.type === energyType || card.type === 'Colorless';
+            return false;
+        })
+        : ownedCards;
+
+    if (filteredCards.length < 10) {
+        alert(`Not enough ${energyType} cards in your collection to build a deck. Try a different type or add more cards.`);
+        const btn = document.getElementById('btn-ai-build-deck');
+        if (btn) { btn.disabled = false; btn.innerText = 'AI Build ✨'; }
+        return;
+    }
+
+    const prompt = buildAIDeckPrompt(filteredCards, playstyle, energyType);
 
     // Show loading state
     const btn = document.getElementById('btn-ai-build-deck');
@@ -496,6 +513,11 @@ window.buildAIDeck = async function(playstyle = 'Any') {
 
         const data         = await response.json();
         const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const finishReason = data.candidates?.[0]?.finishReason;
+
+        if (!responseText && finishReason) {
+            throw new Error(`Gemini stopped early (${finishReason}). Try a different energy type or playstyle.`);
+        }
 
         // Parse the JSON array Gemini returns
         const cleaned = responseText.replace(/```json?/gi, '').replace(/```/g, '').trim();
@@ -532,7 +554,7 @@ window.buildAIDeck = async function(playstyle = 'Any') {
 };
 
 // Formats the owned collection into a structured prompt for Gemini
-function buildAIDeckPrompt(ownedCards, playstyle) {
+function buildAIDeckPrompt(ownedCards, playstyle, energyType = 'Any') {
     // Format each card into a concise descriptor line Gemini can reason about
     const cardLines = ownedCards.map(card => {
         const parts = [];
@@ -584,7 +606,7 @@ RULES:
 - Include at least 2 Basic Pokémon so the player can always start a game
 - If you include a Stage 1 or Stage 2 Pokémon, you MUST also include its Basic pre-evolution from the list
 - Energy cards do NOT count toward Pokémon or Trainer limits — include only what's needed to power attacks
-- Prefer cards with strong synergy based on their actual attack effects and abilities shown below
+- This deck is built around ${energyType !== 'Any' ? energyType : 'mixed'} energy. Prioritise ${energyType !== 'Any' ? energyType + ' and Colorless' : 'the strongest synergy available'} Pokémon
 
 PLAYSTYLE: ${playstyleInstruction}
 

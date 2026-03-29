@@ -210,10 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnAiBuild) {
         btnAiBuild.addEventListener('click', () => {
             const playstyle = document.getElementById('db-playstyle-select').value;
+            const energyType = document.getElementById('db-energy-type-select')?.value || 'Any';
             const outputArea = document.getElementById('recommender-output');
             outputArea.classList.remove('hidden');
             outputArea.innerHTML = '<span class="empty-state">🤖 Gemini is building your deck from your collection...</span>';
-            window.buildAIDeck(playstyle);
+            window.buildAIDeck(playstyle, energyType);
         });
     }
 });
