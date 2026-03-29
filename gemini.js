@@ -89,7 +89,7 @@ function removePreviewFile(idx) {
     }
 }
 
-window.cancelUpload = function() {
+window.cancelUpload = function () {
     pendingFiles = [];
     const uploadZone = document.getElementById('upload-zone');
     const previewContainer = document.getElementById('upload-preview-container') || document.getElementById('upload-preview-strip');
@@ -98,7 +98,7 @@ window.cancelUpload = function() {
     document.getElementById('video-upload').value = '';
 };
 
-window.confirmUpload = function() {
+window.confirmUpload = function () {
     if (pendingFiles.length === 0) return;
     const previewContainer = document.getElementById('upload-preview-container') || document.getElementById('upload-preview-strip');
     if (previewContainer) previewContainer.classList.add('hidden');
@@ -180,7 +180,7 @@ async function processMediaWithGemini(files) {
                 .replace(/```json?/gi, '')
                 .replace(/```/g, '')
                 .trim();
-            
+
             // Find the outermost { } with a greedy match
             const match = cleaned.match(/\{[\s\S]*\}/);
             if (match) {
@@ -190,7 +190,7 @@ async function processMediaWithGemini(files) {
                     scannedCards = parsed;
                 }
             }
-        } catch(e) {
+        } catch (e) {
             console.error('JSON parse failed:', responseText);
         }
 
@@ -241,10 +241,10 @@ Required output format (example only): {"missingNumbers":[1,3,4,5,8,9,11,13]}`;
 // --- Edition View Processing ---
 function showReviewModalFromReverseScan(scanData, targetSetCode) {
     const missingNumbers = scanData.missingNumbers || [];
-    
+
     // Get all cards for the target set
     const allSetCards = TCGP_CARDS.filter(c => c.setCode === targetSetCode);
-    
+
     // Reverse calculate: Owned = All - Missing
     const matchedCards = [];
     allSetCards.forEach(card => {
@@ -362,7 +362,7 @@ function renderReviewList() {
     });
 }
 
-window.modifyReviewQty = function(cardId, change) {
+window.modifyReviewQty = function (cardId, change) {
     let currentQty = pendingReviewCollection[cardId] || 0;
     let newQty = currentQty + change;
 
@@ -444,7 +444,7 @@ function getCardByName(name) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Entry point — called from the "Build My Deck" button in app.js
-window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
+window.buildAIDeck = async function (playstyle = 'Any', energyType = 'Any') {
     const apiKey = typeof _sessionApiKey !== 'undefined' ? _sessionApiKey : null;
     if (!apiKey) {
         alert('Please set your Gemini API key first!');
@@ -452,9 +452,9 @@ window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
         return;
     }
 
-    const allCards   = window.TCGP_CARDS || [];
+    const allCards = window.TCGP_CARDS || [];
     const collection = JSON.parse(localStorage.getItem('tcgp_collection') || '{}');
-    const ownedIds   = Object.keys(collection).filter(id => collection[id] > 0);
+    const ownedIds = Object.keys(collection).filter(id => collection[id] > 0);
 
     if (ownedIds.length < 10) {
         alert('Add more cards to your collection first (need at least 10).');
@@ -497,7 +497,7 @@ window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
             }],
             generationConfig: {
                 temperature: 0.4,   // low temp = more consistent, structured output
-                maxOutputTokens: 2048
+                maxOutputTokens: 8192
             }
         };
 
@@ -511,7 +511,7 @@ window.buildAIDeck = async function(playstyle = 'Any', energyType = 'Any') {
             throw new Error(err.error?.message || 'Gemini API error');
         }
 
-        const data         = await response.json();
+        const data = await response.json();
         const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         const finishReason = data.candidates?.[0]?.finishReason;
 
